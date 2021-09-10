@@ -26,6 +26,9 @@ class Dotenv
         $this->envFilename = $envFilename;
     }
 
+    /**
+     * @throws Exception\InvalidParameter
+     */
     public function loadEnv(bool $usePutEnv = false): void
     {
         $this->doMerge($this->getGeneralPaths());
@@ -111,17 +114,15 @@ class Dotenv
         }
     }
 
+    /**
+     * @throws Exception\InvalidParameter
+     */
     private function doLoad(bool $usePutEnv = false): void
     {
         /** @var string $key */
         foreach ($this->envArray as $key => $value) {
-            $value = preg_replace_callback(
-                '/(\${(.+?)})/',
-                function (array $matches) {
-                    return $this->envArray[(string)$matches[2]] ?? '';
-                },
-                $value
-            );
+            $valueHandler = new ValueHandler($value, $this->envArray);
+            $value = $valueHandler->getHandledValue();
 
             if (getenv($key)) {
                 $value = getenv($key);
