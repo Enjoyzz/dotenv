@@ -106,7 +106,7 @@ class Dotenv
     private function parseToArray(string $input): \Generator
     {
         foreach (explode("\n", $input) as $line) {
-            $fields = explode('=', $line);
+            $fields = explode('=', $line, 2);
             if (count($fields) == 2) {
                 list($key, $value) = $fields;
                 yield \trim($key) => \trim($value);

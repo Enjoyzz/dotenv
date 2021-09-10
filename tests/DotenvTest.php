@@ -34,5 +34,13 @@ class DotenvTest extends TestCase
         $this->assertSame('', $_ENV['VAR_8']);
 
 
+
+    }
+
+    public function testEnvWithEq()
+    {
+        $dotenv = new Dotenv(__DIR__.'/fixtures/3');
+        $dotenv->loadEnv();
+        $this->assertSame('foo bar = zed', $_ENV['VAR']);
     }
 }
