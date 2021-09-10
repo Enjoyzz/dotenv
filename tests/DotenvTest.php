@@ -16,5 +16,6 @@ class DotenvTest extends TestCase
 
         $this->assertSame('dev', $_ENV['APP_ENV']);
         $this->assertSame('C:/openserver/test', $_ENV['TEST_DIR']);
+
     }
 }

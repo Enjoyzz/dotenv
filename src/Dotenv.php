@@ -15,8 +15,7 @@ class Dotenv
         string $baseDirectory,
         private string $distEnvFilename = '.env.dist',
         private string $envFilename = '.env'
-    )
-    {
+    ) {
         $this->baseDirectory = rtrim($baseDirectory) . DIRECTORY_SEPARATOR;
     }
 
@@ -35,7 +34,7 @@ class Dotenv
             return [];
         }
         $path = realpath($this->baseDirectory . $this->envFilename . '.' . $env);
-        
+
         if ($path === false) {
             return [];
         }
@@ -91,7 +90,6 @@ class Dotenv
     private function doLoad(bool $usePutEnv = false)
     {
         foreach ($this->envArray as $key => $value) {
-
             $value = preg_replace_callback(
                 '/(\${(.+?)})/',
                 function ($matches) {
@@ -100,10 +98,15 @@ class Dotenv
                 $value
             );
 
-            if ($usePutEnv === true) {
+            if (getenv($key)) {
+                $value = getenv($key);
+            }
+
+            $_ENV[$key] = $value;
+
+            if (!getenv($key) && $usePutEnv === true) {
                 putenv("{$key}={$value}");
             }
-            $_ENV[$key] = $value;
         }
     }
 
