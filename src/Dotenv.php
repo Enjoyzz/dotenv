@@ -8,88 +8,73 @@ namespace Enjoys\Dotenv;
 
 class Dotenv
 {
-    private string $dirname;
-
+    private string $baseDirectory;
     private array $envArray = [];
 
     public function __construct(
-        string $dirname,
+        string $baseDirectory,
         private string $distEnvFilename = '.env.dist',
-        private string $envFilename = '.env',
-        //private array $suffixes = ['local', 'dev', 'test']
+        private string $envFilename = '.env'
     )
     {
-        $this->dirname = rtrim($dirname) . DIRECTORY_SEPARATOR;
+        $this->baseDirectory = rtrim($baseDirectory) . DIRECTORY_SEPARATOR;
     }
 
     public function loadEnv(bool $usePutEnv = false)
     {
-        $paths = $this->getPaths();
-        $this->doMerge($paths);
+        $this->doMerge($this->getGeneralPaths());
+        $this->doMerge($this->getExtraPaths());
         $this->doLoad($usePutEnv);
     }
 
-    private function getPaths()
+    private function getExtraPaths(): array
+    {
+        $env = $this->envArray['APP_ENV'] ?? null;
+
+        if ($env === null) {
+            return [];
+        }
+        $path = realpath($this->baseDirectory . $this->envFilename . '.' . $env);
+        
+        if ($path === false) {
+            return [];
+        }
+
+        return [$path];
+    }
+
+    private function getGeneralPaths(): array
     {
         $paths = [
-            realpath($this->getDirname() . $this->getDistEnvFilename()),
-            realpath($this->getDirname() . $this->getEnvFilename())
+            realpath($this->baseDirectory . $this->distEnvFilename),
+            realpath($this->baseDirectory . $this->envFilename)
         ];
-
-//        foreach ($this->getSuffixes() as $suffix) {
-//            $paths[] = realpath($this->getDirname() . $this->getEnvFilename() . '.' . $suffix);
-//        }
 
         return array_filter($paths, function ($item) {
             return is_string($item);
         });
     }
 
-    public function getDirname(): string
+    private function doMerge(array $array): void
     {
-        return $this->dirname;
-    }
-
-    public function getDistEnvFilename(): string
-    {
-        return $this->distEnvFilename;
-    }
-
-    public function getLocalSuffix(): string
-    {
-        return $this->localSuffix;
-    }
-
-    public function getEnvFilename(): string
-    {
-        return $this->envFilename;
-    }
-
-    public function getSuffixes(): array
-    {
-        return $this->suffixes;
-    }
-
-    private function doMerge(array $array)
-    {
-        foreach ($array as $item) {
-            $this->envArray = array_merge($this->envArray, $this->getArrayData($item));
+        foreach ($array as $path) {
+            $this->envArray = array_merge($this->envArray, $this->getArrayData($path));
         }
     }
 
-    private function getArrayData(string $string): array
+    private function getArrayData(string $path): array
     {
         $result = [];
-        $data = $this->doRead($string);
+        $data = $this->doRead($path);
         foreach ($this->parseToArray($data) as $key => $value) {
             $result[$key] = $value;
         }
         return $result;
     }
 
-    private function doRead(string $string): string
+    private function doRead(string $path): string
     {
-        return str_replace(["\r\n", "\r"], "\n", file_get_contents($string));
+        return str_replace(["\r\n", "\r"], "\n", file_get_contents($path));
     }
 
     private function parseToArray($input): \Generator
@@ -106,10 +91,21 @@ class Dotenv
     private function doLoad(bool $usePutEnv = false)
     {
         foreach ($this->envArray as $key => $value) {
+
+            $value = preg_replace_callback(
+                '/(\${(.+?)})/',
+                function ($matches) {
+                    return $this->envArray[$matches[2]] ?? '';
+                },
+                $value
+            );
+
             if ($usePutEnv === true) {
                 putenv("{$key}={$value}");
             }
             $_ENV[$key] = $value;
         }
     }
+
+
 }
