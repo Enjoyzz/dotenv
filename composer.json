@@ -15,5 +15,9 @@
     "require-dev": {
         "phpunit/phpunit": "^9.5",
         "vimeo/psalm": "^4.10"
+    },
+    "scripts": {
+        "psalm": "psalm",
+        "infection": "infection"
     }
 }
