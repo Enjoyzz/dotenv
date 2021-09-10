@@ -11,9 +11,10 @@ class DotenvTest extends TestCase
 
     public function testStarted()
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures');
+        $dotenv = new Dotenv(__DIR__.'/fixtures/1');
         $dotenv->loadEnv();
 
-        var_dump($_ENV);
+        $this->assertSame('dev', $_ENV['APP_ENV']);
+        $this->assertSame('C:/openserver/test', $_ENV['TEST_DIR']);
     }
 }
