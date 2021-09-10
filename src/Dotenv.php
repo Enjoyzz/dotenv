@@ -38,7 +38,6 @@ class Dotenv
      */
     private function getExtraPaths(): array
     {
-
         $env = $this->envArray['APP_ENV'] ?? null;
 
         if ($env === null) {
@@ -79,7 +78,6 @@ class Dotenv
     }
 
     /**
-     * @param string $path
      * @return string[]
      */
     private function getArrayData(string $path): array
@@ -87,6 +85,10 @@ class Dotenv
         $result = [];
         $data = $this->doRead($path);
 
+        /**
+         * @var string $key
+         * @var string $value
+         */
         foreach ($this->parseToArray($data) as $key => $value) {
             $result[$key] = $value;
         }
@@ -116,7 +118,7 @@ class Dotenv
             $value = preg_replace_callback(
                 '/(\${(.+?)})/',
                 function (array $matches) {
-                    return $this->envArray[$matches[2]] ?? '';
+                    return $this->envArray[(string)$matches[2]] ?? '';
                 },
                 $value
             );
@@ -128,7 +130,7 @@ class Dotenv
             $_ENV[$key] = $value;
 
             if (!getenv($key) && $usePutEnv === true) {
-                putenv("{$key}={$value}");
+                putenv("$key=$value");
             }
         }
     }
