@@ -9,6 +9,9 @@ namespace Enjoys\Dotenv;
 class Dotenv
 {
     private string $baseDirectory;
+    /**
+     * @var string[]
+     */
     private array $envArray = [];
     private string $distEnvFilename;
     private string $envFilename;
@@ -23,15 +26,19 @@ class Dotenv
         $this->envFilename = $envFilename;
     }
 
-    public function loadEnv(bool $usePutEnv = false)
+    public function loadEnv(bool $usePutEnv = false): void
     {
         $this->doMerge($this->getGeneralPaths());
         $this->doMerge($this->getExtraPaths());
         $this->doLoad($usePutEnv);
     }
 
+    /**
+     * @return string[]
+     */
     private function getExtraPaths(): array
     {
+
         $env = $this->envArray['APP_ENV'] ?? null;
 
         if ($env === null) {
@@ -46,6 +53,9 @@ class Dotenv
         return [$path];
     }
 
+    /**
+     * @return string[]
+     */
     private function getGeneralPaths(): array
     {
         $paths = [
@@ -58,6 +68,9 @@ class Dotenv
         });
     }
 
+    /**
+     * @param string[] $array
+     */
     private function doMerge(array $array): void
     {
         foreach ($array as $path) {
@@ -65,10 +78,15 @@ class Dotenv
         }
     }
 
+    /**
+     * @param string $path
+     * @return string[]
+     */
     private function getArrayData(string $path): array
     {
         $result = [];
         $data = $this->doRead($path);
+
         foreach ($this->parseToArray($data) as $key => $value) {
             $result[$key] = $value;
         }
@@ -80,7 +98,7 @@ class Dotenv
         return str_replace(["\r\n", "\r"], "\n", file_get_contents($path));
     }
 
-    private function parseToArray($input): \Generator
+    private function parseToArray(string $input): \Generator
     {
         foreach (explode("\n", $input) as $line) {
             $fields = explode('=', $line);
@@ -91,12 +109,13 @@ class Dotenv
         }
     }
 
-    private function doLoad(bool $usePutEnv = false)
+    private function doLoad(bool $usePutEnv = false): void
     {
+        /** @var string $key */
         foreach ($this->envArray as $key => $value) {
             $value = preg_replace_callback(
                 '/(\${(.+?)})/',
-                function ($matches) {
+                function (array $matches) {
                     return $this->envArray[$matches[2]] ?? '';
                 },
                 $value
