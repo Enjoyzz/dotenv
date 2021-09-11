@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 
 use Enjoys\Dotenv\Dotenv;
-use Enjoys\Dotenv\Exception\InvalidParameter;
 use PHPUnit\Framework\TestCase;
+use Webmozart\Assert\InvalidArgumentException;
 
 class DotenvTest extends TestCase
 {
@@ -25,12 +25,15 @@ class DotenvTest extends TestCase
         $dotenv->loadEnv();
 
         $this->assertSame(42, $_ENV['VAR_1']);
+        $this->assertSame(42, $_ENV['VAR_1_3']);
         $this->assertSame(true, $_ENV['VAR_2']);
         $this->assertSame(false, $_ENV['VAR_3']);
         $this->assertSame(null, $_ENV['VAR_4']);
         $this->assertSame(3.14, $_ENV['VAR_5']);
         $this->assertSame(3.14, $_ENV['VAR_6']);
         $this->assertSame('3,14', $_ENV['VAR_7']);
+        $this->assertSame(3.14, $_ENV['VAR_7_1']);
+        $this->assertSame('3.14', $_ENV['VAR_7_2']);
         $this->assertSame('', $_ENV['VAR_8']);
     }
 
@@ -68,7 +71,7 @@ class DotenvTest extends TestCase
 
     public function testInvalidInt()
     {
-        $this->expectException(InvalidParameter::class);
+        $this->expectException(InvalidArgumentException::class);
         $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.env.dist', '.error.int');
         $dotenv->loadEnv();
 
@@ -76,7 +79,7 @@ class DotenvTest extends TestCase
 
     public function testInvalidFloat()
     {
-        $this->expectException(InvalidParameter::class);
+        $this->expectException(InvalidArgumentException::class);
         $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.env.dist', '.error.float');
         $dotenv->loadEnv();
 

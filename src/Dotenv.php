@@ -26,9 +26,6 @@ class Dotenv
         $this->envFilename = $envFilename;
     }
 
-    /**
-     * @throws Exception\InvalidParameter
-     */
     public function loadEnv(bool $usePutEnv = false): void
     {
         $this->doMerge($this->getGeneralPaths());
@@ -118,9 +115,7 @@ class Dotenv
         }
     }
 
-    /**
-     * @throws Exception\InvalidParameter
-     */
+
     private function doLoad(bool $usePutEnv = false): void
     {
         /** @var string $key */

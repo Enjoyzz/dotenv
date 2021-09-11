@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Enjoys\Dotenv;
 
 
-use Enjoys\Dotenv\Exception\InvalidParameter;
+use Webmozart\Assert\Assert;
 
 final class ValueHandler
 {
@@ -34,7 +34,6 @@ final class ValueHandler
 
     /**
      * @return string|bool|null|int|float
-     * @throws InvalidParameter
      */
     public function getHandledValue()
     {
@@ -69,21 +68,10 @@ final class ValueHandler
     }
 
 
-    /**
-     * @throws InvalidParameter
-     */
     private function castValues(): void
     {
         preg_match('/^\*(\w+)(\s+)?(.+)?/', (string)$this->value, $match);
         switch ($match[1]) {
-            case 'int':
-                if (!isset($match[3])) {
-                    throw new InvalidParameter(
-                        sprintf('Invalid parameter for *%s type, the value must not be empty', $match[1])
-                    );
-                }
-                $this->value = (int)$match[3];
-                break;
             case 'true':
                 $this->value = true;
                 break;
@@ -93,13 +81,22 @@ final class ValueHandler
             case 'null':
                 $this->value = null;
                 break;
+            case 'int':
+                Assert::notEmpty($match[3], 'Invalid parameter for *int type, the value must not be empty');
+                $this->value = (int)$match[3];
+                break;
             case 'float':
-                if (!isset($match[3])) {
-                    throw new InvalidParameter(
-                        sprintf('Invalid parameter for *%s type, the value must not be empty', $match[1])
-                    );
-                }
+                Assert::notEmpty($match[3], 'Invalid parameter for *float type, the value must not be empty');
                 $this->value = (float)str_replace(',', '.', $match[3]);
+                break;
+            case 'string':
+                Assert::notEmpty($match[3], 'Invalid parameter for *string type, the value must not be empty');
+                $this->value = $match[3];
+                break;
+            default:
+                if (is_numeric($this->value)) {
+                    $this->value = $this->value + 0;
+                }
                 break;
         }
     }
