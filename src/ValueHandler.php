@@ -62,7 +62,10 @@ final class ValueHandler
     private function castValues(string $value)
     {
         preg_match('/^\*(\w+)[\s+]?(.+)?/', $value, $match);
-        switch ($match[1]) {
+
+        $v = $match[2] ?? '';
+
+        switch ($match[1] ?? '') {
             case 'true':
                 return true;
             case 'false':
@@ -70,20 +73,20 @@ final class ValueHandler
             case 'null':
                 return null;
             case 'int':
-                Assert::notEmpty($match[2], 'Invalid parameter for *int type, the value must not be empty');
-                return (int)$match[2];
+                Assert::notEmpty($v, 'Invalid parameter for *int type, the value must not be empty');
+                return (int)$v;
             case 'int8':
-                Assert::notEmpty($match[2], 'Invalid parameter for *int type, the value must not be empty');
-                return octdec($match[2]);
+                Assert::notEmpty($v, 'Invalid parameter for *int type, the value must not be empty');
+                return octdec($v);
             case 'int16':
-                Assert::notEmpty($match[2], 'Invalid parameter for *int type, the value must not be empty');
-                return hexdec($match[2]);
+                Assert::notEmpty($v, 'Invalid parameter for *int type, the value must not be empty');
+                return hexdec($v);
             case 'float':
-                Assert::notEmpty($match[2], 'Invalid parameter for *float type, the value must not be empty');
-                return (float)str_replace(',', '.', $match[2]);
+                Assert::notEmpty($v, 'Invalid parameter for *float type, the value must not be empty');
+                return (float)str_replace(',', '.', $v);
             case 'string':
-                Assert::notEmpty($match[2], 'Invalid parameter for *string type, the value must not be empty');
-                return $match[2];
+                Assert::notEmpty($v, 'Invalid parameter for *string type, the value must not be empty');
+                return $v;
             default:
                 return $value;
         }
