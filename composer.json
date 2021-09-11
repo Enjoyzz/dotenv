@@ -25,7 +25,7 @@
   },
   "scripts": {
     "psalm": "psalm",
-    "infection": "infection",
+    "infection": "infection --configuration=infection.json",
     "test": "phpunit"
   }
 }
