@@ -106,6 +106,10 @@ class Dotenv
     private function parseToArray(string $input): \Generator
     {
         foreach (explode("\n", $input) as $line) {
+            $line = trim($line);
+            if($this->isComment($line)){
+                continue;
+            }
             $fields = explode('=', $line, 2);
             if (count($fields) == 2) {
                 list($key, $value) = $fields;
@@ -134,6 +138,11 @@ class Dotenv
                 putenv("$key=$value");
             }
         }
+    }
+
+    private function isComment(string $line): bool
+    {
+        return (bool)preg_match('/^#/', $line);
     }
 
 

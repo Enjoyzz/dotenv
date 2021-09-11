@@ -82,4 +82,12 @@ class DotenvTest extends TestCase
 
     }
 
+    public function testWithComment()
+    {
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/with_comment');
+        $dotenv->loadEnv();
+        $this->assertSame(false, $_ENV['MY_VAR'] ?? false);
+        $this->assertSame('# 23', $_ENV['VAR2']);
+    }
+
 }
