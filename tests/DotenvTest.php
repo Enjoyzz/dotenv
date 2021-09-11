@@ -90,7 +90,8 @@ class DotenvTest extends TestCase
 
     public function testNotOverriding()
     {
-        $php_version = getenv('PHP_VERSION');
+        $php_version = 'test';
+        putenv("PHP_VERSION=$php_version");
         $dotenv = new Dotenv(__DIR__ . '/fixtures/3');
         $dotenv->loadEnv();
         $this->assertSame($php_version, $_ENV['PHP_VERSION']);
