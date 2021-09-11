@@ -85,7 +85,8 @@ class Dotenv
     private function getArrayData(string $path): array
     {
         $result = [];
-        $data = $this->doRead($path);
+
+        $data = file_get_contents($path);
 
         /**
          * @var string $key
@@ -97,14 +98,10 @@ class Dotenv
         return $result;
     }
 
-    private function doRead(string $path): string
-    {
-        return str_replace(["\r\n", "\r"], "\n", file_get_contents($path));
-    }
 
     private function parseToArray(string $input): \Generator
     {
-        foreach (explode("\n", $input) as $line) {
+        foreach (preg_split("/\R/", $input) as $line) {
             $line = trim($line);
             if ($this->isComment($line)) {
                 continue;
