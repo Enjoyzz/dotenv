@@ -35,6 +35,7 @@ class DotenvTest extends TestCase
         $this->assertSame(3.14, $_ENV['VAR_7_1']);
         $this->assertSame('3.14', $_ENV['VAR_7_2']);
         $this->assertSame('', $_ENV['VAR_8']);
+
     }
 
     public function testEnvWithEq()
@@ -91,6 +92,13 @@ class DotenvTest extends TestCase
         $dotenv->loadEnv();
         $this->assertSame(false, $_ENV['MY_VAR'] ?? false);
         $this->assertSame('# 23', $_ENV['VAR2']);
+    }
+
+    public function testInvalidKey()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.env.dist', '.error.key');
+        $dotenv->loadEnv();
     }
 
 }

@@ -6,6 +6,8 @@ declare(strict_types=1);
 namespace Enjoys\Dotenv;
 
 
+use Webmozart\Assert\Assert;
+
 class Dotenv
 {
     private string $baseDirectory;
@@ -104,13 +106,16 @@ class Dotenv
     {
         foreach (explode("\n", $input) as $line) {
             $line = trim($line);
-            if($this->isComment($line)){
+            if ($this->isComment($line)) {
                 continue;
             }
-            $fields = explode('=', $line, 2);
+            $fields = array_map('trim', explode('=', $line, 2));
+
             if (count($fields) == 2) {
                 list($key, $value) = $fields;
-                yield \trim($key) => \trim($value);
+                Assert::regex($key, '/^([A-Z_0-9]+)$/i', 'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _');
+
+                yield $key => $value;
             }
         }
     }
