@@ -11,10 +11,6 @@ use Webmozart\Assert\Assert;
 final class ValueHandler
 {
 
-    /**
-     * @var string|bool|null|int|float
-     */
-    private $value;
 
     /**
      * @var string[]
@@ -22,12 +18,10 @@ final class ValueHandler
     private array $envArray;
 
     /**
-     * @param string $value
      * @param string[] $envArray
      */
-    public function __construct(string $value, array $envArray)
+    public function __construct(array $envArray)
     {
-        $this->value = $value;
         $this->envArray = $envArray;
     }
 
@@ -35,69 +29,63 @@ final class ValueHandler
     /**
      * @return string|bool|null|int|float
      */
-    public function getHandledValue()
+    public function getHandledValue(string $value)
     {
-        $this->handleQuotes();
-        $this->handleVariables();
-        $this->castValues();
-
-        return $this->value;
+        $value = $this->handleQuotes($value);
+        $value = $this->handleVariables($value);
+        return $this->castValues($value);
     }
 
-    private function handleQuotes(): void
+    private function handleQuotes(string $value): string
     {
-        $this->value = preg_replace_callback(
-            '/^\"(.+)\"$/',
-            function (array $matches) {
-                return (string)$matches[1];
-            },
-            (string)$this->value
-        );
+        return preg_replace('/^\"(.+)\"$/', '\\1', $value);
     }
 
 
-    private function handleVariables(): void
+    private function handleVariables(string $value): string
     {
-        $this->value = preg_replace_callback(
+        return preg_replace_callback(
             '/(\${(.+?)})/',
             function (array $matches) {
-                return $this->envArray[(string)$matches[2]] ?? '';
+                /** @var string[] $matches */
+                return $this->envArray[$matches[2]] ?? '';
             },
-            (string)$this->value
+            $value
         );
     }
 
 
-    private function castValues(): void
+    /**
+     * @param string $value
+     * @return bool|float|int|string|null
+     */
+    private function castValues(string $value)
     {
-        preg_match('/^\*(\w+)(\s+)?(.+)?/', (string)$this->value, $match);
+        preg_match('/^\*(\w+)[\s+]?(.+)?/', $value, $match);
         switch ($match[1]) {
             case 'true':
-                $this->value = true;
-                break;
+                return true;
             case 'false':
-                $this->value = false;
-                break;
+                return false;
             case 'null':
-                $this->value = null;
-                break;
+                return null;
             case 'int':
-                Assert::notEmpty($match[3], 'Invalid parameter for *int type, the value must not be empty');
-                $this->value = (int)$match[3];
-                break;
+                Assert::notEmpty($match[2], 'Invalid parameter for *int type, the value must not be empty');
+                return (int)$match[2];
+            case 'int8':
+                Assert::notEmpty($match[2], 'Invalid parameter for *int type, the value must not be empty');
+                return octdec($match[2]);
+            case 'int16':
+                Assert::notEmpty($match[2], 'Invalid parameter for *int type, the value must not be empty');
+                return hexdec($match[2]);
             case 'float':
-                Assert::notEmpty($match[3], 'Invalid parameter for *float type, the value must not be empty');
-                $this->value = (float)str_replace(',', '.', $match[3]);
-                break;
+                Assert::notEmpty($match[2], 'Invalid parameter for *float type, the value must not be empty');
+                return (float)str_replace(',', '.', $match[2]);
             case 'string':
-                Assert::notEmpty($match[3], 'Invalid parameter for *string type, the value must not be empty');
-                $this->value = $match[3];
-                break;
+                Assert::notEmpty($match[2], 'Invalid parameter for *string type, the value must not be empty');
+                return $match[2];
             default:
-                if (is_numeric($this->value)) {
-                    $this->value = $this->value + 0;
-                }
-                break;
+                return $value;
         }
     }
 }

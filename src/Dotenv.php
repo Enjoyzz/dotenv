@@ -40,9 +40,9 @@ class Dotenv
      */
     private function getExtraPaths(): array
     {
-        $env = $this->envArray['APP_ENV'] ?? null;
+        $env = $this->envArray['APP_ENV'] ?? '';
 
-        if ($env === null) {
+        if ($env === '') {
             return [];
         }
         $path = realpath($this->baseDirectory . $this->envFilename . '.' . $env);
@@ -110,7 +110,11 @@ class Dotenv
 
             if (count($fields) == 2) {
                 list($key, $value) = $fields;
-                Assert::regex($key, '/^([A-Z_0-9]+)$/i', 'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _');
+                Assert::regex(
+                    $key,
+                    '/^([A-Z_0-9]+)$/i',
+                    'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _'
+                );
 
                 yield $key => $value;
             }
@@ -118,12 +122,12 @@ class Dotenv
     }
 
 
-    private function doLoad(bool $usePutEnv = false): void
+    private function doLoad(bool $usePutEnv): void
     {
         /** @var string $key */
         foreach ($this->envArray as $key => $value) {
-            $valueHandler = new ValueHandler($value, $this->envArray);
-            $value = $valueHandler->getHandledValue();
+            $valueHandler = new ValueHandler($this->envArray);
+            $value = $valueHandler->getHandledValue($value);
 
             if (getenv($key)) {
                 $value = getenv($key);

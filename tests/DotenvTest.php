@@ -49,15 +49,17 @@ class DotenvTest extends TestCase
         $dotenv->loadEnv();
 
         $this->assertSame(42, $_ENV['VAR_1']);
-        $this->assertSame(42, $_ENV['VAR_1_3']);
+        $this->assertSame('42', $_ENV['VAR_1_3']);
         $this->assertSame('test *int 5', $_ENV['VAR_1_4']);
+        $this->assertSame(0755, $_ENV['VAR_1_5']);
+        $this->assertSame(0xA, $_ENV['VAR_1_6']);
         $this->assertSame(true, $_ENV['VAR_2']);
         $this->assertSame(false, $_ENV['VAR_3']);
         $this->assertSame(null, $_ENV['VAR_4']);
         $this->assertSame(3.14, $_ENV['VAR_5']);
         $this->assertSame(3.14, $_ENV['VAR_6']);
         $this->assertSame('3,14', $_ENV['VAR_7']);
-        $this->assertSame(3.14, $_ENV['VAR_7_1']);
+        $this->assertSame('3.14', $_ENV['VAR_7_1']);
         $this->assertSame('3.14', $_ENV['VAR_7_2']);
         $this->assertSame('', $_ENV['VAR_8']);
     }
@@ -98,6 +100,20 @@ class DotenvTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.error.int');
+        $dotenv->loadEnv();
+    }
+
+    public function testInvalidInt8()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.error.int8');
+        $dotenv->loadEnv();
+    }
+
+    public function testInvalidInt16()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.error.int16');
         $dotenv->loadEnv();
     }
 
