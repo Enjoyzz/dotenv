@@ -20,8 +20,8 @@ class Dotenv
 
     public function __construct(
         string $baseDirectory,
-        string $distEnvFilename = '.env.dist',
-        string $envFilename = '.env'
+        string $envFilename = '.env',
+        string $distEnvFilename = '.env.dist'
     ) {
         $this->baseDirectory = rtrim($baseDirectory, "/") . DIRECTORY_SEPARATOR;
         $this->distEnvFilename = $distEnvFilename;

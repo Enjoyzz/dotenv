@@ -50,6 +50,7 @@ class DotenvTest extends TestCase
 
         $this->assertSame(42, $_ENV['VAR_1']);
         $this->assertSame(42, $_ENV['VAR_1_3']);
+        $this->assertSame('test *int 5', $_ENV['VAR_1_4']);
         $this->assertSame(true, $_ENV['VAR_2']);
         $this->assertSame(false, $_ENV['VAR_3']);
         $this->assertSame(null, $_ENV['VAR_4']);
@@ -96,14 +97,14 @@ class DotenvTest extends TestCase
     public function testInvalidInt()
     {
         $this->expectException(InvalidArgumentException::class);
-        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.env.dist', '.error.int');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.error.int');
         $dotenv->loadEnv();
     }
 
     public function testInvalidFloat()
     {
         $this->expectException(InvalidArgumentException::class);
-        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.env.dist', '.error.float');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.error.float');
         $dotenv->loadEnv();
     }
 
@@ -118,7 +119,14 @@ class DotenvTest extends TestCase
     public function testInvalidKey()
     {
         $this->expectException(InvalidArgumentException::class);
-        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.env.dist', '.error.key');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.error.key');
+        $dotenv->loadEnv();
+    }
+
+    public function testInvalidString()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.error.string');
         $dotenv->loadEnv();
     }
 
