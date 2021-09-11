@@ -25,6 +25,7 @@
   },
   "scripts": {
     "psalm": "psalm",
-    "infection": "infection"
+    "infection": "infection",
+    "test": "phpunit"
   }
 }
