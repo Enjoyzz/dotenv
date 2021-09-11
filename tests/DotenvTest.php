@@ -9,6 +9,30 @@ use Webmozart\Assert\InvalidArgumentException;
 
 class DotenvTest extends TestCase
 {
+    use \Enjoys\Traits\Reflection;
+
+    public function testBaseDirectory()
+    {
+        $this->assertSame(
+            'var/',
+            $this->getPrivateProperty(
+                Dotenv::class,
+                'baseDirectory'
+            )->getValue(
+                new Dotenv('var/')
+            )
+        );
+
+        $this->assertSame(
+            '/var/',
+            $this->getPrivateProperty(
+                Dotenv::class,
+                'baseDirectory'
+            )->getValue(
+                new Dotenv('/var')
+            )
+        );
+    }
 
     public function testVariableReplace()
     {
@@ -35,7 +59,6 @@ class DotenvTest extends TestCase
         $this->assertSame(3.14, $_ENV['VAR_7_1']);
         $this->assertSame('3.14', $_ENV['VAR_7_2']);
         $this->assertSame('', $_ENV['VAR_8']);
-
     }
 
     public function testEnvWithEq()
@@ -75,7 +98,6 @@ class DotenvTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.env.dist', '.error.int');
         $dotenv->loadEnv();
-
     }
 
     public function testInvalidFloat()
@@ -83,7 +105,6 @@ class DotenvTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.env.dist', '.error.float');
         $dotenv->loadEnv();
-
     }
 
     public function testWithComment()

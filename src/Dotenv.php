@@ -23,7 +23,7 @@ class Dotenv
         string $distEnvFilename = '.env.dist',
         string $envFilename = '.env'
     ) {
-        $this->baseDirectory = rtrim($baseDirectory) . DIRECTORY_SEPARATOR;
+        $this->baseDirectory = rtrim($baseDirectory, "/") . DIRECTORY_SEPARATOR;
         $this->distEnvFilename = $distEnvFilename;
         $this->envFilename = $envFilename;
     }
