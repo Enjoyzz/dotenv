@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, macOS-latest, windows-latest]
+        operating-system: [ubuntu-latest, macOS-latest]
         php-versions: ['7.4']
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
 
@@ -31,9 +31,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
-    - name: Xdebug Action
-      uses: MilesChou/docker-xdebug@master
-
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
@@ -41,11 +38,12 @@ jobs:
     # Docs: https://getcomposer.org/doc/articles/scripts.md
     - name: Run tests
       run: |
+        XDEBUG_MODE=coverage
         mkdir -p build/logs
-        composer run-script test --verbose --coverage-clover build/logs/clover.xml
+        vendor/bin/phpunit  tests --verbose --coverage-clover build/logs/clover.xml 
 
     - name: Run psalm
-      run: composer run-script psalm  --show-info=true
+      run: composer run-script psalm
       
     - name: Run infection
       run: |
