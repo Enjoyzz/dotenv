@@ -155,11 +155,4 @@ class Dotenv
         return $this->envArray;
     }
 
-
-    public function setEnvArrayOne(string $key, string  $value): void
-    {
-        $this->envArray[$key] = $value;
-    }
-
-
 }

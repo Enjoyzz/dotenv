@@ -10,7 +10,7 @@ use Webmozart\Assert\Assert;
 
 final class ValuesHandler
 {
-    public static  function quotes(string $value): string
+    public static function quotes(string $value): string
     {
         return preg_replace('/^\"(.+)\"$/', '\\1', $value);
     }
@@ -54,15 +54,20 @@ final class ValuesHandler
 
     public static function handleVariables(string $key, string $value, Dotenv $dotenv): string
     {
-        $result =  preg_replace_callback(
+        $result = preg_replace_callback(
             '/(\${(.+?)})/',
-            function (array $matches) use ($dotenv){
+            function (array $matches) use ($dotenv) {
                 /** @var string[] $matches */
-                return $dotenv->getEnvArray()[$matches[2]] ?? '';
+//                Assert::notFalse($dotenv->getEnvArray()[$matches[2]] ?? false);
+                return $dotenv->getEnvArray()[$matches[2]];
             },
             $value
         );
-        $dotenv->setEnvArrayOne($key, $result);
+
+        if (preg_match('/(\${(.+?)})/', $result)) {
+            return self::handleVariables($key, $result, $dotenv);
+        }
+
         return $result;
     }
 }

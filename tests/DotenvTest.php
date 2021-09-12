@@ -58,6 +58,18 @@ class DotenvTest extends TestCase
         $this->assertSame('/var/www/public/upload', $_ENV['VAR7']);
     }
 
+    public function testVariableReplaceRecursiveNonLineage()
+    {
+//        $this->expectException(InvalidArgumentException::class);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/5', 'env');
+        $dotenv->loadEnv();
+        $this->assertSame('/var/www/public', $_ENV['VAR2']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR3']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR4']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR5']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR6']);
+    }
+
     public function testCastType()
     {
         $dotenv = new Dotenv(__DIR__ . '/fixtures/2');
