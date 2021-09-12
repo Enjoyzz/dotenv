@@ -43,6 +43,21 @@ class DotenvTest extends TestCase
         $this->assertSame('C:/openserver/test', $_ENV['TEST_DIR']);
     }
 
+
+
+    public function testVariableReplaceRecursive()
+    {
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/4', 'env');
+        $dotenv->loadEnv();
+
+        $this->assertSame('/var/www/public', $_ENV['VAR2']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR3']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR4']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR5']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR6']);
+        $this->assertSame('/var/www/public/upload', $_ENV['VAR7']);
+    }
+
     public function testCastType()
     {
         $dotenv = new Dotenv(__DIR__ . '/fixtures/2');

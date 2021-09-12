@@ -8,58 +8,18 @@ namespace Enjoys\Dotenv;
 
 use Webmozart\Assert\Assert;
 
-final class ValueHandler
+final class ValuesHandler
 {
-
-
-    /**
-     * @var string[]
-     */
-    private array $envArray;
-
-    /**
-     * @param string[] $envArray
-     */
-    public function __construct(array $envArray)
-    {
-        $this->envArray = $envArray;
-    }
-
-
-    /**
-     * @return string|bool|null|int|float
-     */
-    public function getHandledValue(string $value)
-    {
-        $value = $this->handleQuotes($value);
-        $value = $this->handleVariables($value);
-        return $this->castValues($value);
-    }
-
-    private function handleQuotes(string $value): string
+    public static  function quotes(string $value): string
     {
         return preg_replace('/^\"(.+)\"$/', '\\1', $value);
     }
-
-
-    private function handleVariables(string $value): string
-    {
-        return preg_replace_callback(
-            '/(\${(.+?)})/',
-            function (array $matches) {
-                /** @var string[] $matches */
-                return $this->envArray[$matches[2]] ?? '';
-            },
-            $value
-        );
-    }
-
 
     /**
      * @param string $value
      * @return bool|float|int|string|null
      */
-    private function castValues(string $value)
+    public static function cast(string $value)
     {
         preg_match('/^\*(\w+)[\s+]?(.+)?/', $value, $match);
 
@@ -90,5 +50,19 @@ final class ValueHandler
             default:
                 return $value;
         }
+    }
+
+    public static function handleVariables(string $key, string $value, Dotenv $dotenv): string
+    {
+        $result =  preg_replace_callback(
+            '/(\${(.+?)})/',
+            function (array $matches) use ($dotenv){
+                /** @var string[] $matches */
+                return $dotenv->getEnvArray()[$matches[2]] ?? '';
+            },
+            $value
+        );
+        $dotenv->setEnvArrayOne($key, $result);
+        return $result;
     }
 }

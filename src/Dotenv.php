@@ -126,14 +126,15 @@ class Dotenv
     {
         /** @var string $key */
         foreach ($this->envArray as $key => $value) {
-            $valueHandler = new ValueHandler($this->envArray);
-            $value = $valueHandler->getHandledValue($value);
+            $value = ValuesHandler::quotes($value);
+            $value = ValuesHandler::handleVariables($key, $value, $this);
 
             if (getenv($key)) {
                 $value = getenv($key);
             }
 
-            $_ENV[$key] = $value;
+            /** @var string $value */
+            $_ENV[$key] = ValuesHandler::cast($value);
 
             if (!getenv($key) && $usePutEnv === true) {
                 putenv("$key=$value");
@@ -144,6 +145,20 @@ class Dotenv
     private function isComment(string $line): bool
     {
         return (bool)preg_match('/^#/', $line);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getEnvArray(): array
+    {
+        return $this->envArray;
+    }
+
+
+    public function setEnvArrayOne(string $key, string  $value): void
+    {
+        $this->envArray[$key] = $value;
     }
 
 
