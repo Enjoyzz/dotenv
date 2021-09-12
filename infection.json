@@ -12,8 +12,9 @@
         "@default": true
     },
     "logs": {
-        "text": "infection/infection.log",
-        "summary": "infection/summary.log",
-        "json": "infection/infection-log.json"
+        "text": "php://stderr",
+        "badge": {
+            "branch": "master"
+        }
     }
 }
