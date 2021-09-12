@@ -12,13 +12,19 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, macOS-latest, windows-latest]
+        operating-system: [ubuntu-latest, macOS-latest]
         php-versions: ['7.4']
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
 
     steps:
+    
     - uses: actions/checkout@v2
-
+    
+    - name: Xdebug Action
+      # You may pin to the exact commit or the version.
+      # uses: MilesChou/docker-xdebug@6421b47d41b57f52d728dcb39fc290059c62c1ee
+      uses: MilesChou/docker-xdebug@v1.1.0
+      
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
 
