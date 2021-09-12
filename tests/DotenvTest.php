@@ -14,7 +14,7 @@ class DotenvTest extends TestCase
     public function testBaseDirectory()
     {
         $this->assertSame(
-            'var/',
+            'var' . DIRECTORY_SEPARATOR,
             $this->getPrivateProperty(
                 Dotenv::class,
                 'baseDirectory'
@@ -24,7 +24,7 @@ class DotenvTest extends TestCase
         );
 
         $this->assertSame(
-            '/var/',
+            '/var' . DIRECTORY_SEPARATOR,
             $this->getPrivateProperty(
                 Dotenv::class,
                 'baseDirectory'
