@@ -25,7 +25,7 @@
   },
   "scripts": {
     "psalm": "psalm",
-    "infection": "XDEBUG_MODE=coverage infection --configuration=infection.json",
+    "infection": "infection --configuration=infection.json",
     "test": "phpunit"
   }
 }

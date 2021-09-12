@@ -31,16 +31,23 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
+    - name: Xdebug Action
+      uses: MilesChou/docker-xdebug@master
+
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
     - name: Run tests
-      run: composer run-script test
+      run: |
+        mkdir -p build/logs
+        composer run-script test --verbose --coverage-clover build/logs/clover.xml
 
     - name: Run psalm
-      run: composer run-script psalm
+      run: composer run-script psalm  --show-info=true
       
     - name: Run infection
-      run: composer run-script infection
+      run: |
+        XDEBUG_MODE=coverage
+        composer run-script infection
