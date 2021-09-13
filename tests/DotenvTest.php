@@ -72,7 +72,7 @@ class DotenvTest extends TestCase
 
     public function testVariablesNotFound()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Not found variable ${BAZ}.');
         $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.notfoundvars');
         $dotenv->loadEnv();
     }
