@@ -70,6 +70,13 @@ class DotenvTest extends TestCase
         $this->assertSame('/var/www/public/upload', $_ENV['VAR6']);
     }
 
+    public function testVariablesNotFound()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.notfoundvars');
+        $dotenv->loadEnv();
+    }
+
     public function testCastType()
     {
         $dotenv = new Dotenv(__DIR__ . '/fixtures/2');

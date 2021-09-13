@@ -52,13 +52,16 @@ final class ValuesHandler
         }
     }
 
+    /**
+     * @
+     */
     public static function handleVariables(string $key, string $value, Dotenv $dotenv): string
     {
         $result = preg_replace_callback(
             '/(\${(.+?)})/',
             function (array $matches) use ($dotenv) {
                 /** @var string[] $matches */
-//                Assert::notFalse($dotenv->getEnvArray()[$matches[2]] ?? false);
+                Assert::keyExists($dotenv->getEnvArray(), $matches[2], \sprintf('Not found variable ${%s}.', $matches[2]));
                 return $dotenv->getEnvArray()[$matches[2]];
             },
             $value
