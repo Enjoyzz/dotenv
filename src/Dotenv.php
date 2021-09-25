@@ -10,22 +10,13 @@ use Webmozart\Assert\Assert;
 
 class Dotenv
 {
-    /**
-     * @var string
-     */
-    private $baseDirectory;
+    private string $baseDirectory;
     /**
      * @var string[]
      */
-    private $envArray = [];
-    /**
-     * @var string
-     */
-    private $distEnvFilename;
-    /**
-     * @var string
-     */
-    private $envFilename;
+    private array $envArray = [];
+    private string $distEnvFilename;
+    private string $envFilename;
 
     public function __construct(
         string $baseDirectory,
