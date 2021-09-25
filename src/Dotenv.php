@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 namespace Enjoys\Dotenv;
 
-
 use Webmozart\Assert\Assert;
 
 class Dotenv
@@ -15,17 +14,13 @@ class Dotenv
      * @var string[]
      */
     private array $envArray = [];
-    private string $distEnvFilename;
-    private string $envFilename;
 
     public function __construct(
         string $baseDirectory,
-        string $envFilename = '.env',
-        string $distEnvFilename = '.env.dist'
+        private string $envFilename = '.env',
+        private string $distEnvFilename = '.env.dist'
     ) {
         $this->baseDirectory = rtrim($baseDirectory, "/") . DIRECTORY_SEPARATOR;
-        $this->distEnvFilename = $distEnvFilename;
-        $this->envFilename = $envFilename;
     }
 
     public function loadEnv(bool $usePutEnv = false): void
