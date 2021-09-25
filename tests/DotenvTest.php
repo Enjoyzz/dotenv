@@ -164,7 +164,8 @@ class DotenvTest extends TestCase
         $dotenv = new Dotenv(__DIR__ . '/fixtures/with_comment');
         $dotenv->loadEnv();
         $this->assertSame(false, $_ENV['MY_VAR'] ?? false);
-        $this->assertSame('# 23', $_ENV['VAR2']);
+        $this->assertSame('      # 23', $_ENV['VAR2']);
+        $this->assertSame('/var/www', $_ENV['VAR3']);
     }
 
     public function testInvalidKey()
