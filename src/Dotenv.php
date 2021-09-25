@@ -116,7 +116,8 @@ class Dotenv
                     'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _'
                 );
 
-                yield $key => $value;
+
+                yield $key => $this->parseValue($value);
             }
         }
     }
@@ -145,6 +146,13 @@ class Dotenv
     private function isComment(string $line): bool
     {
         return (bool)preg_match('/^#/', $line);
+    }
+
+    private function parseValue(string $value): string
+    {
+        preg_match('/^[\"\'](.+)[\"\']$|(.[^#]+)/', $value, $matches);
+
+        return trim($matches[2] ?? $value);
     }
 
     /**
