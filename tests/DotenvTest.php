@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+namespace Tests;
 
 use Enjoys\Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
@@ -9,14 +10,30 @@ use Webmozart\Assert\InvalidArgumentException;
 
 class DotenvTest extends TestCase
 {
-    use \Enjoys\Traits\Reflection;
+
+
+    /**
+     * getPrivateProperty
+     *
+     * @param string $propertyName
+     * @return \ReflectionProperty
+     * @throws \ReflectionException
+     * @author    Joe Sexton <joe@webtipblog.com>
+     */
+    private function getPrivateProperty(string $propertyName): \ReflectionProperty
+    {
+        $reflector = new \ReflectionClass(Dotenv::class);
+        $property = $reflector->getProperty($propertyName);
+        $property->setAccessible(true);
+
+        return $property;
+    }
 
     public function testBaseDirectory()
     {
         $this->assertSame(
             'var' . DIRECTORY_SEPARATOR,
             $this->getPrivateProperty(
-                Dotenv::class,
                 'baseDirectory'
             )->getValue(
                 new Dotenv('var/')
@@ -26,7 +43,6 @@ class DotenvTest extends TestCase
         $this->assertSame(
             '/var' . DIRECTORY_SEPARATOR,
             $this->getPrivateProperty(
-                Dotenv::class,
                 'baseDirectory'
             )->getValue(
                 new Dotenv('/var')
