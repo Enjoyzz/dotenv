@@ -14,14 +14,13 @@
     }
   },
   "require": {
-    "php": ">=7.3",
+    "php": ">=7.4",
     "webmozart/assert": "^1.10"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5",
     "vimeo/psalm": "^4.10",
-    "infection/infection": "^0.25",
-    "enjoys/traits": "^1.3"
+    "infection/infection": "^0.25"
   },
   "scripts": {
     "psalm": "psalm",

@@ -9,7 +9,21 @@ use Webmozart\Assert\InvalidArgumentException;
 
 class DotenvTest extends TestCase
 {
-    use \Enjoys\Traits\Reflection;
+
+    /**
+     * @param class-string|object $className
+     * @param string $propertyName
+     * @return ReflectionProperty
+     * @throws ReflectionException
+     */
+    public function getPrivateProperty($className, string $propertyName): \ReflectionProperty
+    {
+        $reflector = new \ReflectionClass($className);
+        $property = $reflector->getProperty($propertyName);
+        $property->setAccessible(true);
+
+        return $property;
+    }
 
     public function testBaseDirectory()
     {
