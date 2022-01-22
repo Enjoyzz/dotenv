@@ -57,10 +57,20 @@ class DotenvTest extends TestCase
         $this->assertSame('C:/openserver/test', $_ENV['TEST_DIR']);
     }
 
+    public function testVariableReplace2()
+    {
+        putenv('APP_ENV=test');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/1');
+        $dotenv->loadEnv();
 
+        $this->assertSame('test', $_ENV['APP_ENV']);
+        $this->assertSame('/var/testing/test', $_ENV['TEST_DIR']);
+        putenv('APP_ENV'); //unset
+    }
 
     public function testVariableReplaceRecursive()
     {
+
         $dotenv = new Dotenv(__DIR__ . '/fixtures/4', 'env');
         $dotenv->loadEnv();
 
@@ -125,8 +135,7 @@ class DotenvTest extends TestCase
         $dotenv->loadEnv(true);
         $this->assertSame('foo bar = zed', getenv('VAR'));
 
-        //unset
-        putenv('VAR');
+        putenv('VAR'); //unset
     }
 
     public function testUsePutEnvFalse()
@@ -143,6 +152,8 @@ class DotenvTest extends TestCase
         $dotenv = new Dotenv(__DIR__ . '/fixtures/3');
         $dotenv->loadEnv();
         $this->assertSame($php_version, $_ENV['PHP_VERSION']);
+
+        putenv('PHP_VERSION'); //unset
     }
 
     public function testInvalidInt()
