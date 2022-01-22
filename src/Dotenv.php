@@ -40,7 +40,7 @@ class Dotenv
      */
     private function getExtraPaths(): array
     {
-        $env = $this->envArray['APP_ENV'] ?? '';
+        $env = (getenv('APP_ENV') ?: null) ?? $this->envArray['APP_ENV'] ?? '';
 
         if ($env === '') {
             return [];
