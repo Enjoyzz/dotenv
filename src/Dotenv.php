@@ -35,9 +35,9 @@ class Dotenv
      */
     private function getExtraPaths(): array
     {
-        $env = (getenv('APP_ENV') ?: null) ?? $this->envArray['APP_ENV'] ?? '';
+        $env = (getenv('APP_ENV') ?: null) ?? $this->envArray['APP_ENV'] ?? null;
 
-        if ($env === '') {
+        if ($env === '' || $env === null) {
             return [];
         }
         $path = realpath($this->baseDirectory . $this->envFilename . '.' . $env);
