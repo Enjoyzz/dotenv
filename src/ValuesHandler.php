@@ -60,7 +60,6 @@ final class ValuesHandler
         $result = preg_replace_callback(
             '/(\${(.+?)})/',
             function (array $matches) use ($dotenv) {
-                /** @var string[] $matches */
                 Assert::keyExists($dotenv->getEnvArray(), $matches[2], \sprintf('Not found variable ${%s}.', $matches[2]));
                 return $dotenv->getEnvArray()[$matches[2]];
             },
