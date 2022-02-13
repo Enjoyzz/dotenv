@@ -26,5 +26,10 @@
     "psalm": "psalm",
     "infection": "infection --configuration=infection.json",
     "test": "phpunit"
+  },
+  "config": {
+    "allow-plugins": {
+      "infection/extension-installer": true
+    }
   }
 }
