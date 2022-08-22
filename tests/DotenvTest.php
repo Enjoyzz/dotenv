@@ -207,4 +207,30 @@ class DotenvTest extends TestCase
         $dotenv->loadEnv();
     }
 
+    public function testReplaceValueInEnvFilesDefinedInPutenvOrExport()
+    {
+        putenv('SYS_VAR=123');
+        putenv('SYS_VAR2=456');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/without_defined_vars');
+        $dotenv->loadEnv();
+        $this->assertSame('123', $_ENV['VAR']);
+        $this->assertSame('123', $_ENV['VAR2']);
+        $this->assertSame('456', $_ENV['VAR3']);
+        putenv('SYS_VAR');
+        putenv('SYS_VAR2');
+    }
+
+    public function testReplaceValueInEnvFilesDefinedInPutenvOrExportButTheyWasBeDefinedInFiles()
+    {
+        putenv('SYS_VAR=SYS_VAR');
+        putenv('SYS_VAR2=SYS_VAR2');
+        putenv('DEFINED_VAR=987');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/without_defined_vars');
+        $dotenv->loadEnv();
+        $this->assertSame('987', $_ENV['VAR4']);
+        putenv('SYS_VAR');
+        putenv('SYS_VAR2');
+        putenv('DEFINED_VAR');
+    }
+
 }

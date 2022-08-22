@@ -6,7 +6,10 @@ declare(strict_types=1);
 namespace Enjoys\Dotenv;
 
 
+use RuntimeException;
 use Webmozart\Assert\Assert;
+
+use function sprintf;
 
 final class ValuesHandler
 {
@@ -60,8 +63,10 @@ final class ValuesHandler
         $result = preg_replace_callback(
             '/(\${(.+?)})/',
             function (array $matches) use ($dotenv) {
-                Assert::keyExists($dotenv->getEnvArray(), $matches[2], \sprintf('Not found variable ${%s}.', $matches[2]));
-                return $dotenv->getEnvArray()[$matches[2]];
+                return
+                    (getenv($matches[2]) ?: null) ??
+                    $dotenv->getEnvArray()[$matches[2]] ??
+                    throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches[2]));
             },
             $value
         );
