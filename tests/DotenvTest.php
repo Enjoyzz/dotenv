@@ -242,4 +242,17 @@ class DotenvTest extends TestCase
         $this->assertSame('value in single quotes', $_ENV['VAR3']);
     }
 
+    public function testSlashes()
+    {
+        putenv('VAR=test\"val');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/with_qoutes_and_escaping', '.slashes');
+        $dotenv->loadEnv();
+        $this->assertSame('double quote in middle " text', $_ENV['VAR1']);
+        $this->assertSame("value. it's var #2", $_ENV['VAR2']);
+        $this->assertSame("\\\\ - two backslashes. not's 4", $_ENV['VAR3']);
+        $this->assertSame('test\"val', $_ENV['VAR4']);
+        $this->assertSame($_ENV['VAR1'], $_ENV['VAR5']);
+        $this->assertSame($_ENV['VAR4'], $_ENV['VAR']);
+        putenv('VAR');
+    }
 }

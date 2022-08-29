@@ -13,6 +13,7 @@ class Dotenv
     /**
      * @var string[]
      */
+    private array $envRawArray = [];
     private array $envArray = [];
 
     public function __construct(
@@ -35,7 +36,7 @@ class Dotenv
      */
     private function getExtraPaths(): array
     {
-        $env = (getenv('APP_ENV') ?: null) ?? $this->envArray['APP_ENV'] ?? null;
+        $env = (getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? null;
 
         if ($env === '' || $env === null) {
             return [];
@@ -70,7 +71,7 @@ class Dotenv
     private function doMerge(array $array): void
     {
         foreach ($array as $path) {
-            $this->envArray = array_merge($this->envArray, $this->getArrayData($path));
+            $this->envRawArray = array_merge($this->envRawArray, $this->getArrayData($path));
         }
     }
 
@@ -121,9 +122,11 @@ class Dotenv
     private function doLoad(bool $usePutEnv): void
     {
         /** @var string $key */
-        foreach ($this->envArray as $key => $value) {
+        foreach ($this->envRawArray as $key => $value) {
             $value = ValuesHandler::quotes($value);
             $value = ValuesHandler::handleVariables($key, $value, $this);
+
+            $value = stripslashes($value);
 
             if (getenv($key)) {
                 $value = getenv($key);
@@ -135,6 +138,8 @@ class Dotenv
             if (!getenv($key) && $usePutEnv === true) {
                 putenv("$key=$value");
             }
+
+            $this->envArray[$key] = $_ENV[$key];
         }
     }
 
@@ -145,13 +150,20 @@ class Dotenv
 
     private function parseValue(string $value): string
     {
-        preg_match('/^[\"\'](.+)[\"\']$|(.[^#]+)/', $value, $matches);
-
-        return trim($matches[2] ?? $value);
+        preg_match('/^([\'"])((?<value>.*?)(?<!\\\\)\1)/', $value, $matches);
+        return trim($matches['value'] ?? $value);
     }
 
     /**
      * @return string[]
+     */
+    public function getEnvRawArray(): array
+    {
+        return $this->envRawArray;
+    }
+
+    /**
+     * @return array
      */
     public function getEnvArray(): array
     {

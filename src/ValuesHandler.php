@@ -61,11 +61,11 @@ final class ValuesHandler
     public static function handleVariables(string $key, string $value, Dotenv $dotenv): string
     {
         $result = preg_replace_callback(
-            '/(\${(.+?)})/',
+            '/(\${(?<variable>.+?)})/',
             function (array $matches) use ($dotenv) {
                 return
-                    (getenv($matches[2]) ?: null) ??
-                    $dotenv->getEnvArray()[$matches[2]] ??
+                    (getenv($matches['variable']) ? addslashes(getenv($matches['variable'])): null) ??
+                    $dotenv->getEnvRawArray()[$matches['variable']] ??
                     throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches[2]));
             },
             $value
