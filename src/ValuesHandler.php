@@ -15,7 +15,7 @@ final class ValuesHandler
 {
     public static function quotes(string $value): string
     {
-        return preg_replace('/^\"(.+)\"$/', '\\1', $value);
+        return preg_replace('/^([\'"])(.+)\1$/', '\\2', $value);
     }
 
     /**

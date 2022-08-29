@@ -233,4 +233,13 @@ class DotenvTest extends TestCase
         putenv('DEFINED_VAR');
     }
 
+    public function testQuotes()
+    {
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/with_qoutes_and_escaping', '.quotes');
+        $dotenv->loadEnv();
+        $this->assertSame('value in double quotes', $_ENV['VAR1']);
+        $this->assertSame('value without quotes', $_ENV['VAR2']);
+        $this->assertSame('value in single quotes', $_ENV['VAR3']);
+    }
+
 }
