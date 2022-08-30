@@ -70,7 +70,6 @@ class DotenvTest extends TestCase
 
     public function testVariableReplaceRecursive()
     {
-
         $dotenv = new Dotenv(__DIR__ . '/fixtures/4', 'env');
         $dotenv->loadEnv();
 
@@ -257,5 +256,22 @@ class DotenvTest extends TestCase
         $this->assertSame($_ENV['VAR1'], $_ENV['VAR5']);
         $this->assertSame($_ENV['VAR4'], $_ENV['VAR']);
         putenv('VAR');
+    }
+
+    public function testEnvArrayAndEnvRawArray()
+    {
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/1');
+        $dotenv->loadEnv();
+        $this->assertSame([
+            'APP_ENV' => 'dev',
+            'TEST_DIR' => '${APP_DIR}/test',
+            'APP_DIR' => 'C:/openserver',
+        ], $dotenv->getEnvRawArray());
+
+        $this->assertSame([
+            'APP_ENV' => 'dev',
+            'TEST_DIR' => 'C:/openserver/test',
+            'APP_DIR' => 'C:/openserver',
+        ], $dotenv->getEnvArray());
     }
 }

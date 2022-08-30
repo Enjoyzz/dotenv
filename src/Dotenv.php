@@ -173,9 +173,6 @@ class Dotenv
         return $this->envRawArray;
     }
 
-    /**
-     * @return array
-     */
     public function getEnvArray(): array
     {
         return $this->envArray;
