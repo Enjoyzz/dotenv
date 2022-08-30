@@ -111,9 +111,9 @@ class Dotenv
             $fields[1] ??= null;
 
             [$key, $value] = $fields;
-
+            /** @psalm-suppress PossiblyNullArgument*/
             Assert::regex(
-                (string)$key,
+                $key,
                 '/^([A-Z_0-9]+)$/i',
                 'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _'
             );
