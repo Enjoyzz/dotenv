@@ -99,22 +99,26 @@ class Dotenv
     {
         foreach (preg_split("/\R/", $input) as $line) {
             $line = trim($line);
+
             if ($this->isComment($line)) {
                 continue;
             }
-            $fields = array_map('trim', explode('=', $line, 2));
-
-            if (count($fields) == 2) {
-                list($key, $value) = $fields;
-                Assert::regex(
-                    $key,
-                    '/^([A-Z_0-9]+)$/i',
-                    'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _'
-                );
-
-
-                yield $key => $this->parseValue($value);
+            if (empty($line)) {
+                continue;
             }
+
+            $fields = array_map('trim', explode('=', $line, 2));
+            $fields[1] ??= null;
+
+            [$key, $value] = $fields;
+
+            Assert::regex(
+                (string)$key,
+                '/^([A-Z_0-9]+)$/i',
+                'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _'
+            );
+
+            yield $key => $this->parseValue($value);
         }
     }
 
@@ -148,10 +152,14 @@ class Dotenv
         return str_starts_with($line, '#');
     }
 
-    private function parseValue(string $value): string
+    private function parseValue(?string $value): string
     {
-        preg_match('/^([\'"])((?<value>.*?)(?<!\\\\)\1)/', $value, $matches);
-        if (isset($matches['value'])){
+        if ($value === null) {
+            return '*null';
+        }
+
+        preg_match('/([\'"])((?<value>.*?)(?<!\\\\)\1)/', $value, $matches);
+        if (isset($matches['value'])) {
             return $matches['value'];
         }
         return array_map('trim', explode('#', $value, 2))[0];

@@ -191,6 +191,7 @@ class DotenvTest extends TestCase
         $this->assertSame(false, $_ENV['MY_VAR'] ?? false);
         $this->assertSame('      # 23', $_ENV['VAR2']);
         $this->assertSame('/var/www', $_ENV['VAR3']);
+        $this->assertSame(null, $_ENV['VAR4']);
     }
 
     public function testInvalidKey()
