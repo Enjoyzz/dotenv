@@ -1,3 +1,5 @@
 VAR1="value in double quotes" #comment for VAR1
 VAR2=value without quotes #comment for VAR2
 VAR3='value in single quotes'
+VAR4=va" #lue"
+VAR5=va" lue"

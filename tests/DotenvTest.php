@@ -241,6 +241,8 @@ class DotenvTest extends TestCase
         $this->assertSame('value in double quotes', $_ENV['VAR1']);
         $this->assertSame('value without quotes', $_ENV['VAR2']);
         $this->assertSame('value in single quotes', $_ENV['VAR3']);
+        $this->assertSame('va"', $_ENV['VAR4']);
+        $this->assertSame('va" lue"', $_ENV['VAR5']);
     }
 
     public function testSlashes()

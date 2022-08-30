@@ -158,7 +158,7 @@ class Dotenv
             return '*null';
         }
 
-        preg_match('/([\'"])((?<value>.*?)(?<!\\\\)\1)/', $value, $matches);
+        preg_match('/^([\'"])((?<value>.*?)(?<!\\\\)\1)/', $value, $matches);
         if (isset($matches['value'])) {
             return $matches['value'];
         }
