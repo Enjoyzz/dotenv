@@ -56,7 +56,7 @@ final class ValuesHandler
     }
 
     /**
-     * @
+     * @psalm-suppress PossiblyFalseArgument
      */
     public static function handleVariables(string $key, string $value, Dotenv $dotenv): string
     {
