@@ -39,3 +39,24 @@ $dotenv->loadEnv(); // config available in $_ENV
 # $dotenv->loadEnv(true);  // config available in $_ENV and getenv()
 ```
 
+# Дополнительные возможности
+### Type Casting (приведение типов)
+Все значения в .env файле являются строками (string), но иногда было бы хорошо явно указать тип.
+Это возможно.
+```shell
+VAR = *true  #bool(true)
+VAR = *int 42  #int(42)
+VAR = "*int 42"  #int(42)
+#и т.д.
+```
+- ***true** - return bool(true)
+- ***false** - return bool(false)
+- ***null** - return NULL
+- ***int** `*int 42` return int(42)
+- ***int8**
+- ***int16**
+- ***float** `*float 3.14`  return float(3.14)
+- ***string** - `*string *int` return string(4) "*int"
+
+***Внимание***
+_Type Casting будет работать только при использовании этой библиотеки, при парсинге файла другими библиотеками или системой значения скорее всего приведены к типам не будут._

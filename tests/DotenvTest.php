@@ -106,6 +106,10 @@ class DotenvTest extends TestCase
         $dotenv->loadEnv();
 
         $this->assertSame(42, $_ENV['VAR_1']);
+        $this->assertSame(2, $_ENV['VAR_1_1']);
+        $this->assertSame(4, $_ENV['VAR_1_2']);
+        $this->assertSame(0, $_ENV['VAR_1_7']);
+        $this->assertSame('*int', $_ENV['VAR_1_8']);
         $this->assertSame('42', $_ENV['VAR_1_3']);
         $this->assertSame('test *int 5', $_ENV['VAR_1_4']);
         $this->assertSame(0755, $_ENV['VAR_1_5']);
