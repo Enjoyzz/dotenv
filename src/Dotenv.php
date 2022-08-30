@@ -151,7 +151,10 @@ class Dotenv
     private function parseValue(string $value): string
     {
         preg_match('/^([\'"])((?<value>.*?)(?<!\\\\)\1)/', $value, $matches);
-        return trim($matches['value'] ?? $value);
+        if (isset($matches['value'])){
+            return $matches['value'];
+        }
+        return array_map('trim', explode('#', $value, 2))[0];
     }
 
     /**
