@@ -145,7 +145,7 @@ class Dotenv
 
     private function isComment(string $line): bool
     {
-        return (bool)preg_match('/^#/', $line);
+        return str_starts_with($line, '#');
     }
 
     private function parseValue(string $value): string
