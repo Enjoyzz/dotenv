@@ -8,8 +8,11 @@ namespace Enjoys\Dotenv\Parser\Env;
 
 final class Comment implements \Stringable
 {
-    public function __construct(private string $value)
+    private string $value;
+
+    public function __construct(string $value)
     {
+        $this->value = ltrim(trim($value), "#");
     }
 
     public function __toString(): string

@@ -15,6 +15,11 @@ final class CommentLine implements LineInterface
         $this->comment = ltrim($comment, "#");
     }
 
+    public function __toString(): string
+    {
+        return "#" . $this->comment;
+    }
+
     public function getComment(): string
     {
         return $this->comment;

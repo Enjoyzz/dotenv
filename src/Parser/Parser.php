@@ -6,7 +6,6 @@ declare(strict_types=1);
 namespace Enjoys\Dotenv\Parser;
 
 
-use Enjoys\Dotenv\Exception\InvalidArgumentException;
 use Enjoys\Dotenv\Parser\Env\Comment;
 use Enjoys\Dotenv\Parser\Env\Key;
 use Enjoys\Dotenv\Parser\Env\Value;

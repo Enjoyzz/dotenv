@@ -10,7 +10,7 @@ use Enjoys\Dotenv\Parser\Env\Comment;
 use Enjoys\Dotenv\Parser\Env\Key;
 use Enjoys\Dotenv\Parser\Env\Value;
 
-final class EnvLine
+final class EnvLine implements LineInterface
 {
     public function __construct(private Key $key, private ?Value $value = null, private ?Comment $comment = null)
     {
