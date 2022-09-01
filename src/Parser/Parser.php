@@ -16,6 +16,7 @@ use Enjoys\Dotenv\Parser\Lines\LineInterface;
 
 final class Parser implements ParserInterface
 {
+    const AUTO_CAST_VALUE_TYPE = 1;
     /**
      * @var string[]
      */
@@ -26,15 +27,24 @@ final class Parser implements ParserInterface
      */
     private array $lines = [];
 
-    private bool $autoCastType = false;
+    public function __construct(private int $flags = 0)
+    {
+    }
 
     public function getRawLinesArray(): array
     {
         return $this->rawLinesArray;
     }
 
+    private function clear(): void
+    {
+        unset($this->rawLinesArray, $this->lines);
+    }
+
     public function parse(string $content): void
     {
+        $this->clear();
+
         $this->rawLinesArray = array_map(
             'trim',
             preg_split("/\R/", $content)
@@ -131,21 +141,22 @@ final class Parser implements ParserInterface
         );
         if (isset($matches['value'])) {
             return [
-                new Value($matches['value'], true, $this->autoCastType),
+                new Value($matches['value'], true, $this->isAutoCastType()),
                 ($matches['comment'] ?? null) ? new Comment($matches['comment']) : null
             ];
         }
 
         $unquotedValue = array_map('trim', explode('#', $rawValue, 2));
         return [
-            new Value($unquotedValue[0], false, $this->autoCastType),
+            new Value($unquotedValue[0], false, $this->isAutoCastType()),
             ($unquotedValue[1] ?? null) ? new Comment($unquotedValue[1]) : null
         ];
     }
 
-    public function setAutoCastType(bool $autoCastType): void
+
+    public function isAutoCastType(): bool
     {
-        $this->autoCastType = $autoCastType;
+        return ($this->flags & self::AUTO_CAST_VALUE_TYPE) === self::AUTO_CAST_VALUE_TYPE;
     }
 
 
