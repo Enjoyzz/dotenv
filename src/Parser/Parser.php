@@ -122,7 +122,7 @@ final class Parser implements ParserInterface
 
     /**
      * @param string|null $rawValue
-     * @return string[]
+     * @return array
      */
     private function parseValue(?string $rawValue): array
     {

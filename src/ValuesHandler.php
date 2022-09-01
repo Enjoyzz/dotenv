@@ -13,11 +13,12 @@ use function sprintf;
 
 final class ValuesHandler
 {
+
     /**
-     * @param string $value
-     * @return bool|float|int|string|null
+     * @param scalar|null $value
+     * @return scalar|null
      */
-    public static function cast(mixed $value)
+    public static function cast(mixed $value): mixed
     {
         if (gettype($value) !== 'string') {
             return $value;
@@ -54,9 +55,6 @@ final class ValuesHandler
         }
     }
 
-    /**
-     * @psalm-suppress PossiblyFalseArgument
-     */
     public static function handleVariables(string $key, ?string $value, Dotenv $dotenv): string
     {
         if ($value === null) {

@@ -11,9 +11,6 @@ use Enjoys\Dotenv\Parser\ParserInterface;
 class Dotenv
 {
     private string $baseDirectory;
-    /**
-     * @var string[]
-     */
     private array $envRawArray = [];
     private array $envArray = [];
     private ParserInterface $parser;

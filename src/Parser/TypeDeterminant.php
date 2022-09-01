@@ -35,7 +35,7 @@ final class TypeDeterminant
         return $this->possibleType;
     }
 
-    private function determine()
+    private function determine(): void
     {
         foreach (self::DEFINABLE_TYPES_MAP as $type) {
             $func = 'is' . ucfirst($type);
@@ -55,7 +55,7 @@ final class TypeDeterminant
         $this->possibleType = $possibleType;
     }
 
-    private function isInt($value): bool
+    private function isInt(string $value): bool
     {
         if (is_numeric($value)) {
             return (string)(int)$value === $this->originalValue;
@@ -64,7 +64,7 @@ final class TypeDeterminant
     }
 
 
-    private function isFloat($value): bool
+    private function isFloat(string $value): bool
     {
         if (is_numeric($value)) {
             return (string)(float)$value === $this->originalValue;
@@ -72,7 +72,7 @@ final class TypeDeterminant
         return false;
     }
 
-    private function isTrue($value): bool
+    private function isTrue(string $value): bool
     {
         if (strtolower($value) === 'true'){
             $this->castedValue = true;
@@ -81,7 +81,7 @@ final class TypeDeterminant
         return false;
     }
 
-    private function isFalse($value): bool
+    private function isFalse(string $value): bool
     {
         if (strtolower($value) === 'false'){
             $this->castedValue = false;
