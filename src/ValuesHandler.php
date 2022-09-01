@@ -13,11 +13,6 @@ use function sprintf;
 
 final class ValuesHandler
 {
-    public static function quotes(string $value): string
-    {
-        return preg_replace('/^([\'"])(.+)\1$/', '\\2', $value);
-    }
-
     /**
      * @param string $value
      * @return bool|float|int|string|null
