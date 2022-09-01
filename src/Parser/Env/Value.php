@@ -10,6 +10,9 @@ final class Value implements \Stringable
 {
     public function __construct(private string $value, private bool $needQuotes = false)
     {
+        if (preg_match('/[#]/', $this->value)){
+            $this->needQuotes = true;
+        }
     }
 
     public function __toString(): string

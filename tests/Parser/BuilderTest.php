@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace Parser;
 
 use Enjoys\Dotenv\Parser\Builder;
+use Enjoys\Dotenv\Parser\Env\Comment;
+use Enjoys\Dotenv\Parser\Env\Key;
+use Enjoys\Dotenv\Parser\Env\Value;
+use Enjoys\Dotenv\Parser\Lines\CommentLine;
+use Enjoys\Dotenv\Parser\Lines\EmptyLine;
+use Enjoys\Dotenv\Parser\Lines\EnvLine;
 use Enjoys\Dotenv\Parser\Parser;
 use PHPUnit\Framework\TestCase;
 
@@ -39,5 +45,36 @@ ENV;
 
         $builder = new Builder($parser->getLines());
         $this->assertSame($this->expect, $builder->build());
+    }
+
+    public function testBuildFromCode()
+    {
+        $lines = [];
+        $lines[] = new EnvLine(new Key('TEST1'));
+        $lines[] = new EmptyLine();
+        $lines[] = new EnvLine(
+            new Key('TEST2'),
+            new Value('VALUE #2 @builder', true),
+            new Comment('manually quote')
+        );
+        $lines[] = new CommentLine('GROUP COMMENT');
+        $lines[] = new EnvLine(
+            new Key('TEST2'),
+            new Value('VALUE #2 @builder', false),
+            new Comment('auto-quote')
+        );
+
+        $builder = new Builder($lines);
+        $this->assertSame(
+            <<<ENV
+TEST1
+
+TEST2="VALUE #2 @builder" #manually quote
+#GROUP COMMENT
+TEST2="VALUE #2 @builder" #auto-quote
+ENV
+            ,
+            $builder->build()
+        );
     }
 }
