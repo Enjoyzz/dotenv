@@ -3,12 +3,11 @@
 declare(strict_types=1);
 
 
-namespace Enjoys\Dotenv\Parser\Helpers;
+namespace Enjoys\Dotenv\Parser;
 
 
 final class TypeDeterminant
 {
-
 
     private const DEFINABLE_TYPES_MAP = [
         'int',

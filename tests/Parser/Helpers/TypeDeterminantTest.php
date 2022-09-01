@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Parser\Helpers;
 
-use Enjoys\Dotenv\Parser\Helpers\TypeDeterminant;
+use Enjoys\Dotenv\Parser\TypeDeterminant;
 use PHPUnit\Framework\TestCase;
 
 class TypeDeterminantTest extends TestCase

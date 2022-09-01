@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Enjoys\Dotenv\Parser\Env;
 
 
-use Enjoys\Dotenv\Parser\Helpers\TypeDeterminant;
+use Enjoys\Dotenv\Parser\TypeDeterminant;
 
 final class Value implements \Stringable
 {
