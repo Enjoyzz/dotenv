@@ -26,6 +26,8 @@ final class Parser implements ParserInterface
      */
     private array $lines = [];
 
+    private bool $autoCastType = false;
+
     public function getRawLinesArray(): array
     {
         return $this->rawLinesArray;
@@ -129,16 +131,21 @@ final class Parser implements ParserInterface
         );
         if (isset($matches['value'])) {
             return [
-                new Value($matches['value'], true),
+                new Value($matches['value'], true, $this->autoCastType),
                 ($matches['comment'] ?? null) ? new Comment($matches['comment']) : null
             ];
         }
 
         $unquotedValue = array_map('trim', explode('#', $rawValue, 2));
         return [
-            new Value($unquotedValue[0]),
+            new Value($unquotedValue[0], false, $this->autoCastType),
             ($unquotedValue[1] ?? null) ? new Comment($unquotedValue[1]) : null
         ];
+    }
+
+    public function setAutoCastType(bool $autoCastType): void
+    {
+        $this->autoCastType = $autoCastType;
     }
 
 

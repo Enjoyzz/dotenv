@@ -17,8 +17,12 @@ final class ValuesHandler
      * @param string $value
      * @return bool|float|int|string|null
      */
-    public static function cast(string $value)
+    public static function cast(mixed $value)
     {
+        if (gettype($value) !== 'string') {
+            return $value;
+        }
+
         preg_match('/^\*(\w+)[\s+]?(.+)?/', $value, $match);
 
         $v = $match[2] ?? '';
@@ -55,14 +59,14 @@ final class ValuesHandler
      */
     public static function handleVariables(string $key, ?string $value, Dotenv $dotenv): string
     {
-        if ($value === null){
+        if ($value === null) {
             return '*null';
         }
         $result = preg_replace_callback(
             '/(\${(?<variable>.+?)})/',
             function (array $matches) use ($dotenv) {
                 return
-                    (getenv($matches['variable']) ? addslashes(getenv($matches['variable'])): null) ??
+                    (getenv($matches['variable']) ? addslashes(getenv($matches['variable'])) : null) ??
                     $dotenv->getEnvRawArray()[$matches['variable']] ??
                     throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches[2]));
             },

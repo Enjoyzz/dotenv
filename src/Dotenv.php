@@ -16,6 +16,8 @@ class Dotenv
     private array $envRawArray = [];
     private array $envArray = [];
 
+    private bool $autoCastType = false;
+
     public function __construct(
         string $baseDirectory,
         private string $envFilename = '.env',
@@ -72,6 +74,7 @@ class Dotenv
     {
         foreach ($array as $path) {
             $parser = new Parser\Parser();
+            $parser->setAutoCastType($this->autoCastType);
             $parser->parse(file_get_contents($path));
             $this->envRawArray = array_merge($this->envRawArray, $parser->getEnvArray());
         }
@@ -83,9 +86,11 @@ class Dotenv
     {
         /** @var string $key */
         foreach ($this->envRawArray as $key => $value) {
-            $value = ValuesHandler::handleVariables($key, $value, $this);
+            if (gettype($value) === 'string'){
+                $value = ValuesHandler::handleVariables($key, $value, $this);
+                $value = stripslashes($value);
+            }
 
-            $value = stripslashes($value);
 
             if (getenv($key)) {
                 $value = getenv($key);
@@ -100,6 +105,11 @@ class Dotenv
 
             $this->envArray[$key] = $_ENV[$key];
         }
+    }
+
+    public function setAutoCastType(bool $autoCastType): void
+    {
+        $this->autoCastType = $autoCastType;
     }
 
     private function isComment(string $line): bool
