@@ -1,0 +1,13 @@
+VAR_1 = 42
+VAR_2 = "42"
+VAR_3 = 0755
+VAR_4 = 0xA
+VAR_5 = true
+VAR_6 = false
+VAR_7 =
+VAR_8
+VAR_9 = 3,14
+VAR_10 = 3.14
+VAR_11 = "3.14"
+VAR_12 = "true"
+VAR_13 = "false"
