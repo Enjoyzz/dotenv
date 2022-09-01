@@ -71,63 +71,18 @@ class Dotenv
     private function doMerge(array $array): void
     {
         foreach ($array as $path) {
-            $this->envRawArray = array_merge($this->envRawArray, $this->getArrayData($path));
+            $parser = new Parser\Parser(file_get_contents($path));
+            $parser->parse();
+            $this->envRawArray = array_merge($this->envRawArray, $parser->getEnvArray());
         }
     }
 
-    /**
-     * @return string[]
-     */
-    private function getArrayData(string $path): array
-    {
-        $result = [];
-
-        $data = file_get_contents($path);
-
-        /**
-         * @var string $key
-         * @var string $value
-         */
-        foreach ($this->parseToArray($data) as $key => $value) {
-            $result[$key] = $value;
-        }
-        return $result;
-    }
-
-
-    private function parseToArray(string $input): \Generator
-    {
-        foreach (preg_split("/\R/", $input) as $line) {
-            $line = trim($line);
-
-            if ($this->isComment($line)) {
-                continue;
-            }
-            if (empty($line)) {
-                continue;
-            }
-
-            $fields = array_map('trim', explode('=', $line, 2));
-            $fields[1] ??= null;
-
-            [$key, $value] = $fields;
-            /** @psalm-suppress PossiblyNullArgument*/
-            Assert::regex(
-                $key,
-                '/^([A-Z_0-9]+)$/i',
-                'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _'
-            );
-
-            yield $key => $this->parseValue($value);
-        }
-    }
 
 
     private function doLoad(bool $usePutEnv): void
     {
         /** @var string $key */
         foreach ($this->envRawArray as $key => $value) {
-            $value = ValuesHandler::quotes($value);
             $value = ValuesHandler::handleVariables($key, $value, $this);
 
             $value = stripslashes($value);
@@ -150,19 +105,6 @@ class Dotenv
     private function isComment(string $line): bool
     {
         return str_starts_with($line, '#');
-    }
-
-    private function parseValue(?string $value): string
-    {
-        if ($value === null) {
-            return '*null';
-        }
-
-        preg_match('/^([\'"])(?<value>(?:(?!\1|\\\\).|\\\\.)*)\1/', $value, $matches);
-        if (isset($matches['value'])) {
-            return $matches['value'];
-        }
-        return array_map('trim', explode('#', $value, 2))[0];
     }
 
     /**

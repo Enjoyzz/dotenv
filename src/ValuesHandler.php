@@ -58,8 +58,11 @@ final class ValuesHandler
     /**
      * @psalm-suppress PossiblyFalseArgument
      */
-    public static function handleVariables(string $key, string $value, Dotenv $dotenv): string
+    public static function handleVariables(string $key, ?string $value, Dotenv $dotenv): string
     {
+        if ($value === null){
+            return '*null';
+        }
         $result = preg_replace_callback(
             '/(\${(?<variable>.+?)})/',
             function (array $matches) use ($dotenv) {

@@ -199,7 +199,7 @@ class DotenvTest extends TestCase
 
     public function testInvalidKey()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\Enjoys\Dotenv\Exception\InvalidArgumentException::class);
         $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.error.key');
         $dotenv->loadEnv();
     }
