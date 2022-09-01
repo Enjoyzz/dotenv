@@ -13,29 +13,31 @@ class TypeDeterminantTest extends TestCase
     /**
      * @dataProvider dataForTestGetPossibleType
      */
-    public function testGetPossibleType($input, $expect)
+    public function testAutoDetermineType($input, $expectType, $expectValue)
     {
+        $expectValue ??= $input;
         $determinant = new TypeDeterminant($input);
-        $this->assertSame($expect, $determinant->getPossibleType());
+        $this->assertSame($expectType, $determinant->getPossibleType());
+        $this->assertSame($expectValue, $determinant->getCastValue());
     }
 
     public function dataForTestGetPossibleType(): array
     {
         return [
-            ['42', 'int'],
-            ['i39', 'string'],
-            ['12i', 'string'],
-            ['0', 'int'],
-            ['000', 'string'],
-            ['3.14', 'float'],
-            ['3,14', 'string'],
-            ['true', 'bool'],
-            ['false', 'bool'],
-            ['TruE', 'bool'],
-            ['faLSe', 'bool'],
-            ['', 'string'],
-            ['0xA', 'string'],
-            ['0755', 'string'],
+            ['42', 'int', 42],
+            ['i39', 'string', null],
+            ['12i', 'string', null],
+            ['0', 'int', 0],
+            ['000', 'string', null],
+            ['3.14', 'float', 3.14],
+            ['3,14', 'string', null],
+            ['true', 'bool', true],
+            ['false', 'bool', false],
+            ['TruE', 'bool', true],
+            ['faLSe', 'bool', false],
+            ['', 'string', null],
+            ['0xA', 'string', null],
+            ['0755', 'string', null],
         ];
     }
 }

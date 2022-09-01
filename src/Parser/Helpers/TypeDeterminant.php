@@ -75,12 +75,20 @@ final class TypeDeterminant
 
     private function isTrue($value): bool
     {
-        return strtolower($value) === 'true';
+        if (strtolower($value) === 'true'){
+            $this->castedValue = true;
+            return true;
+        }
+        return false;
     }
 
     private function isFalse($value): bool
     {
-        return strtolower($value) === 'false';
+        if (strtolower($value) === 'false'){
+            $this->castedValue = false;
+            return true;
+        }
+        return false;
     }
 
 }

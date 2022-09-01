@@ -23,7 +23,7 @@ class ValueTest extends TestCase
     {
         $value = new Value('true', autoCastType: true);
         $this->assertTrue($value->getValue());
-        $value = new Value('false', autoCastType: true);
+        $value = new Value('False', autoCastType: true);
         $this->assertFalse($value->getValue());
     }
     public function testValueCreateWithNeedQuotesTrue()
