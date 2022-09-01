@@ -71,8 +71,8 @@ class Dotenv
     private function doMerge(array $array): void
     {
         foreach ($array as $path) {
-            $parser = new Parser\Parser(file_get_contents($path));
-            $parser->parse();
+            $parser = new Parser\Parser();
+            $parser->parse(file_get_contents($path));
             $this->envRawArray = array_merge($this->envRawArray, $parser->getEnvArray());
         }
     }

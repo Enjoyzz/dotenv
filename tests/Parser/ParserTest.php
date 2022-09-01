@@ -16,10 +16,11 @@ class ParserTest extends TestCase
      */
     public function testSplitContentOnRawArray($input, $expect)
     {
-        if ($expect === false){
+        if ($expect === false) {
             $this->expectException(InvalidArgumentException::class);
         }
-        $parser  = new Parser($input);
+        $parser = new Parser();
+        $parser->parse($input);
         $this->assertSame($expect, $parser->getRawLinesArray());
     }
 
@@ -40,15 +41,16 @@ class ParserTest extends TestCase
 
     public function testParse()
     {
-        $parser  = new Parser(<<<ENV
+        $parser = new Parser();
+        $parser->parse(
+            <<<ENV
 # comment
 
 VAR1 = value  1
 VAR2=value2#comment
 VAR3 = "     value3 #not comment"                comment
 ENV
-);
-        $parser->parse();
+        );
         $this->assertSame([
             'VAR1' => 'value  1',
             'VAR2' => 'value2',

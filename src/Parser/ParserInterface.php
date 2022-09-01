@@ -8,6 +8,6 @@ namespace Enjoys\Dotenv\Parser;
 
 interface ParserInterface
 {
-    public function parse(): void;
+    public function parse(string $content): void;
     public function getEnvArray(): array;
 }

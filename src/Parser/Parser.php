@@ -27,22 +27,18 @@ final class Parser implements ParserInterface
      */
     private array $lines = [];
 
-    public function __construct(string $content)
-    {
-        $this->rawLinesArray = array_map(
-            'trim',
-            preg_split("/\R/", $content)
-        );
-    }
-
-
     public function getRawLinesArray(): array
     {
         return $this->rawLinesArray;
     }
 
-    public function parse(): void
+    public function parse(string $content): void
     {
+        $this->rawLinesArray = array_map(
+            'trim',
+            preg_split("/\R/", $content)
+        );
+
         foreach ($this->rawLinesArray as $rawLine) {
             if (empty($rawLine)) {
                 $this->lines[] = new EmptyLine();
