@@ -5,7 +5,8 @@ declare(strict_types=1);
 
 namespace Enjoys\Dotenv;
 
-use Webmozart\Assert\Assert;
+use Enjoys\Dotenv\Parser\Parser;
+use Enjoys\Dotenv\Parser\ParserInterface;
 
 class Dotenv
 {
@@ -15,15 +16,17 @@ class Dotenv
      */
     private array $envRawArray = [];
     private array $envArray = [];
+    private ParserInterface $parser;
 
-    private bool $autoCastType = false;
 
     public function __construct(
         string $baseDirectory,
         private string $envFilename = '.env',
-        private string $distEnvFilename = '.env.dist'
+        private string $distEnvFilename = '.env.dist',
+        ?ParserInterface $parser = null
     ) {
         $this->baseDirectory = rtrim($baseDirectory, "/") . DIRECTORY_SEPARATOR;
+        $this->parser = $parser ?? new Parser();
     }
 
     public function loadEnv(bool $usePutEnv = false): void
@@ -73,14 +76,10 @@ class Dotenv
     private function doMerge(array $array): void
     {
         foreach ($array as $path) {
-            $parser = new Parser\Parser();
-            $parser->setAutoCastType($this->autoCastType);
-            $parser->parse(file_get_contents($path));
-            $this->envRawArray = array_merge($this->envRawArray, $parser->getEnvArray());
+            $this->parser->parse(file_get_contents($path));
+            $this->envRawArray = array_merge($this->envRawArray, $this->parser->getEnvArray());
         }
     }
-
-
 
     private function doLoad(bool $usePutEnv): void
     {
