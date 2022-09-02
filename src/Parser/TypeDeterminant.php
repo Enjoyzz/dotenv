@@ -38,7 +38,7 @@ final class TypeDeterminant
     private function determine(): void
     {
         foreach (self::DEFINABLE_TYPES_MAP as $type) {
-            $func = 'is' . ucfirst($type);
+            $func = $type . 'Check';
             if ($this->$func($this->originalValue)) {
                 $this->setPossibleType($type);
                 /** @psalm-suppress MixedAssignment */
@@ -48,7 +48,7 @@ final class TypeDeterminant
         }
     }
 
-    public function setPossibleType(string $possibleType): void
+    private function setPossibleType(string $possibleType): void
     {
         if (in_array($possibleType, ['true', 'false'])) {
             $possibleType = 'bool';
@@ -56,7 +56,7 @@ final class TypeDeterminant
         $this->possibleType = $possibleType;
     }
 
-    private function isInt(string $value): bool
+    private function intCheck(string $value): bool
     {
         if (is_numeric($value)) {
             return (string)(int)$value === $this->originalValue;
@@ -64,8 +64,7 @@ final class TypeDeterminant
         return false;
     }
 
-
-    private function isFloat(string $value): bool
+    private function floatCheck(string $value): bool
     {
         if (is_numeric($value)) {
             return (string)(float)$value === $this->originalValue;
@@ -73,7 +72,7 @@ final class TypeDeterminant
         return false;
     }
 
-    private function isTrue(string $value): bool
+    private function trueCheck(string $value): bool
     {
         if (strtolower($value) === 'true'){
             $this->castedValue = true;
@@ -82,7 +81,7 @@ final class TypeDeterminant
         return false;
     }
 
-    private function isFalse(string $value): bool
+    private function falseCheck(string $value): bool
     {
         if (strtolower($value) === 'false'){
             $this->castedValue = false;
