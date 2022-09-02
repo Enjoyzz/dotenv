@@ -133,7 +133,7 @@ class Dotenv
             }
         }
 
-        foreach (explode(',', $_ENV['ENJOYS_DOTENV'] ?? '') as $key) {
+        foreach (explode(',', (string)($_ENV['ENJOYS_DOTENV'] ?? '')) as $key) {
             unset($_ENV[$key]);
         }
 
