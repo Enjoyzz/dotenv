@@ -19,6 +19,6 @@ final class Builder
 
     public function build(): string
     {
-        return implode(PHP_EOL, $this->lines);
+        return implode("\n", $this->lines);
     }
 }
