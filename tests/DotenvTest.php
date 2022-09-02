@@ -147,6 +147,10 @@ class DotenvTest extends TestCase
         $this->assertSame(3.14, $_ENV['VAR_11']); //todo
         $this->assertSame(true, $_ENV['VAR_12']); //todo
         $this->assertSame(false, $_ENV['VAR_13']); //todo
+        $this->assertSame($_ENV['VAR_5'], $_ENV['VAR_14']);
+        $this->assertSame($_ENV['VAR_6'], $_ENV['VAR_15']);
+        $this->assertSame($_ENV['VAR_1'], $_ENV['VAR_16']);
+        $this->assertSame($_ENV['VAR_10'], $_ENV['VAR_17']);
     }
 
     public function testEnvWithEq()

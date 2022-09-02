@@ -11,3 +11,7 @@ VAR_10 = 3.14
 VAR_11 = "3.14"
 VAR_12 = "true"
 VAR_13 = "false"
+VAR_14 = ${VAR_5}
+VAR_15 = ${VAR_6}
+VAR_16 = ${VAR_1}
+VAR_17 = ${VAR_10}

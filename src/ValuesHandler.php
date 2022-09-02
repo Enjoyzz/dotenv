@@ -26,6 +26,11 @@ final class ValuesHandler
         $v = $match[2] ?? '';
 
         switch ($match[1] ?? '') {
+            case 'bool':
+                if (!empty($v)) {
+                    return true;
+                }
+                return false;
             case 'true':
                 return true;
             case 'false':
@@ -42,6 +47,7 @@ final class ValuesHandler
                 Assert::notEmpty($v, 'Invalid parameter for *int type, the value must not be empty');
                 return hexdec($v);
             case 'float':
+            case 'double':
                 Assert::notEmpty($v, 'Invalid parameter for *float type, the value must not be empty');
                 return (float)str_replace(',', '.', $v);
             case 'string':
@@ -59,12 +65,24 @@ final class ValuesHandler
         }
         $result = preg_replace_callback(
             '/(\${(?<variable>.+?)})/',
-            function (array $matches) use ($dotenv) {
+            function (array $matches) use ($dotenv): string {
                 $env = getenv($matches['variable']);
-                return
+
+                /** @var string|bool|int|float|null $val */
+                $val =
                     ($env ? addslashes($env) : null) ??
                     $dotenv->getEnvRawArray()[$matches['variable']] ??
                     throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches['variable']));
+
+                $type = match (get_debug_type($val)) {
+                    'bool' => '*bool ',
+                    'int' => '*int ',
+                    'float' => '*float ',
+                    'null' => '*null ',
+                    default => ''
+                };
+
+                return $type . (string)$val;
             },
             $value
         );
