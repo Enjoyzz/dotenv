@@ -13,8 +13,9 @@
     },
     "logs": {
         "text": "php://stderr",
-        "badge": {
-            "branch": "master"
+        "html": "infection.html",
+        "stryker": {
+            "badge": "master"
         }
     }
 }
