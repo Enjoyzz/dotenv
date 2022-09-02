@@ -10,14 +10,14 @@ use Enjoys\Dotenv\Parser\TypeDeterminant;
 
 final class Value implements \Stringable
 {
-    private string|bool|int|float|null $value;
+    private string|bool|int|float $value;
 
     public function __construct(string $value, private bool $needQuotes = false, private bool $autoCastType = false)
     {
         $this->value = $this->handleValue($value);
     }
 
-    private function handleValue(string $value): string|bool|int|float|null
+    private function handleValue(string $value): string|bool|int|float
     {
         if (preg_match('/[#]/', $value)){
             $this->needQuotes = true;
@@ -35,7 +35,7 @@ final class Value implements \Stringable
         return $this->needQuotes ? sprintf('"%s"', (string)$this->value) : (string)$this->value;
     }
 
-    public function getValue(): mixed
+    public function getValue(): string|bool|int|float
     {
         return $this->value;
     }

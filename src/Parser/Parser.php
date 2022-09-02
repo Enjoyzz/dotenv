@@ -61,9 +61,6 @@ final class Parser implements ParserInterface
                 continue;
             }
 
-            /** @var Key $key */
-            /** @var Value|null $value */
-            /** @var Comment|null $comment */
             [$key, $value, $comment] = $this->parseEnvLine($rawLine);
             $this->lines[$key->getValue()] = new EnvLine(
                 $key,
@@ -95,6 +92,9 @@ final class Parser implements ParserInterface
         });
     }
 
+    /**
+     * @return array<string, string|bool|int|float|null>
+     */
     public function getEnvArray(): array
     {
         $envLines = $this->getEnvLines();
@@ -107,7 +107,7 @@ final class Parser implements ParserInterface
 
     /**
      * @param string $rawLine
-     * @return array
+     * @return array{0: Key, 1: Value|null, 2: Comment|null}
      */
     private function parseEnvLine(string $rawLine): array
     {

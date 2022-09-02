@@ -41,6 +41,7 @@ final class TypeDeterminant
             $func = 'is' . ucfirst($type);
             if ($this->$func($this->originalValue)) {
                 $this->setPossibleType($type);
+                /** @psalm-suppress MixedAssignment */
                 settype($this->castedValue, $this->possibleType);
                 break;
             }
