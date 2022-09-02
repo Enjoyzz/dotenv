@@ -304,4 +304,20 @@ class DotenvTest extends TestCase
             'APP_DIR' => 'C:/openserver',
         ], $dotenv->getEnvArray());
     }
+
+    public function testAutoCastAndEnablePutEnv()
+    {
+        $parser = new Enjoys\Dotenv\Parser\Parser(
+            Enjoys\Dotenv\Parser\Parser::AUTO_CAST_VALUE_TYPE
+        );
+        $dotenv = new Dotenv(
+            __DIR__ . '/fixtures/2', envFilename: '.auto_cast_type', parser: $parser
+        );
+        $dotenv->loadEnv(true);
+        $this->assertSame('42', getenv('VAR_1'));
+        $this->assertSame('3.14', getenv('VAR_10'));
+        $this->assertSame('true', getenv('VAR_5'));
+        $this->assertSame('false', getenv('VAR_6'));
+        $this->assertSame('', getenv('VAR_8'));
+    }
 }

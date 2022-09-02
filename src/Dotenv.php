@@ -95,11 +95,10 @@ class Dotenv
                 }
             }
 
-            /** @var string $value */
             $_ENV[$key] = ValuesHandler::cast($value);
 
             if (!getenv($key) && $usePutEnv === true) {
-                putenv("$key=$value");
+                putenv(sprintf("%s=%s", $key, ValuesHandler::scalarToString($value)));
             }
 
             $this->envArray[$key] = $_ENV[$key];

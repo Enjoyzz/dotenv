@@ -93,4 +93,12 @@ final class ValuesHandler
 
         return $result;
     }
+
+    public static function scalarToString(string|bool|int|float|null $value): string
+    {
+        if (gettype($value) === 'boolean') {
+            return $value ? 'true' : 'false';
+        }
+        return (string)$value;
+    }
 }
