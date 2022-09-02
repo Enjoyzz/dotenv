@@ -87,14 +87,12 @@ class Dotenv
     private function doLoad(bool $usePutEnv): void
     {
         foreach ($this->envRawArray as $key => $value) {
-            if (gettype($value) === 'string'){
-                $value = ValuesHandler::handleVariables($key, $value, $this);
-                $value = stripslashes($value);
-            }
-
-
             if (getenv($key)) {
                 $value = getenv($key);
+            } else {
+                if (gettype($value) === 'string') {
+                    $value = stripslashes(ValuesHandler::handleVariables($key, $value, $this));
+                }
             }
 
             /** @var string $value */
