@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-
 namespace Enjoys\Dotenv\Parser\Env;
 
-
 use Enjoys\Dotenv\Parser\TypeDeterminant;
+use Enjoys\Dotenv\ValuesHandler;
 
 final class Value implements \Stringable
 {
@@ -19,11 +18,11 @@ final class Value implements \Stringable
 
     private function handleValue(string $value): string|bool|int|float
     {
-        if (preg_match('/[#]/', $value)){
+        if (preg_match('/[#]/', $value)) {
             $this->needQuotes = true;
         }
 
-        if ($this->autoCastType && $this->needQuotes === false){
+        if ($this->autoCastType && $this->needQuotes === false) {
             $determinant = new TypeDeterminant($value);
             $value = $determinant->getCastValue();
         }
@@ -32,7 +31,10 @@ final class Value implements \Stringable
 
     public function __toString(): string
     {
-        return $this->needQuotes ? sprintf('"%s"', (string)$this->value) : (string)$this->value;
+        return $this->needQuotes ? sprintf(
+            '"%s"',
+            ValuesHandler::scalarToString($this->value)
+        ) : ValuesHandler::scalarToString($this->value);
     }
 
     public function getValue(): string|bool|int|float
