@@ -14,9 +14,11 @@ final class Key implements \Stringable
 
     public function __construct(string $value)
     {
-        if (!\preg_match('/^([A-Z_0-9]+)$/i', $value)) {
+        if (!\preg_match('/^([A-Z_])([A-Z_0-9]+)?$/', $value)) {
             throw new InvalidArgumentException(
-                'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _'
+                'The key %s have invalid chars.
+                The key must be UPPERCASE and have only letters (A-Z) digits (0-9)  and _.
+                And starts with A-Z or _'
             );
         }
         $this->value = $value;
