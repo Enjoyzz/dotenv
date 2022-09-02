@@ -98,22 +98,14 @@ class Dotenv
                 }
             }
 
-            $_ENV[$key] = ValuesHandler::cast($value);
-
             if (!getenv($key) && $usePutEnv === true) {
                 putenv(sprintf("%s=%s", $key, ValuesHandler::scalarToString($value)));
             }
 
-            $this->envArray[$key] = $_ENV[$key];
+            $_ENV[$key] = $this->envArray[$key] = ValuesHandler::cast($value);
         }
 
     }
-
-    private function isComment(string $line): bool
-    {
-        return str_starts_with($line, '#');
-    }
-
 
     public function getEnvRawArray(): array
     {
