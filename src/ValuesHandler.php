@@ -14,11 +14,8 @@ use function sprintf;
 final class ValuesHandler
 {
 
-    /**
-     * @param scalar|null $value
-     * @return scalar|null
-     */
-    public static function cast(mixed $value): mixed
+
+    public static function cast(string|bool|int|float|null $value): string|bool|int|float|null
     {
         if (gettype($value) !== 'string') {
             return $value;
@@ -63,10 +60,11 @@ final class ValuesHandler
         $result = preg_replace_callback(
             '/(\${(?<variable>.+?)})/',
             function (array $matches) use ($dotenv) {
+                $env = getenv($matches['variable']);
                 return
-                    (getenv($matches['variable']) ? addslashes(getenv($matches['variable'])) : null) ??
+                    ($env ? addslashes($env) : null) ??
                     $dotenv->getEnvRawArray()[$matches['variable']] ??
-                    throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches[2]));
+                    throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches['variable']));
             },
             $value
         );

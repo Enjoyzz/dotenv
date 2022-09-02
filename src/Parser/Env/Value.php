@@ -10,30 +10,29 @@ use Enjoys\Dotenv\Parser\TypeDeterminant;
 
 final class Value implements \Stringable
 {
-    private mixed $value;
+    private string|bool|int|float|null $value;
 
     public function __construct(string $value, private bool $needQuotes = false, private bool $autoCastType = false)
     {
-        $this->value = $value;
-        $this->handleValue();
+        $this->value = $this->handleValue($value);
     }
 
-    private function handleValue()
+    private function handleValue(string $value): string|bool|int|float|null
     {
-        if (preg_match('/[#]/', $this->value)){
+        if (preg_match('/[#]/', $value)){
             $this->needQuotes = true;
         }
 
         if ($this->autoCastType){
-            $determinant = new TypeDeterminant($this->value);
-            $this->value = $determinant->getCastValue();
+            $determinant = new TypeDeterminant($value);
+            $value = $determinant->getCastValue();
         }
-
+        return $value;
     }
 
     public function __toString(): string
     {
-        return $this->needQuotes ? sprintf('"%s"', (string)$this->value) : $this->value;
+        return $this->needQuotes ? sprintf('"%s"', (string)$this->value) : (string)$this->value;
     }
 
     public function getValue(): mixed

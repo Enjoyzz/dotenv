@@ -20,10 +20,10 @@ final class Parser implements ParserInterface
     /**
      * @var string[]
      */
-    private array $rawLinesArray;
+    private array $rawLinesArray = [];
 
     /**
-     * @var LineInterface[]
+     * @var array<array-key, LineInterface>
      */
     private array $lines = [];
 
@@ -74,7 +74,7 @@ final class Parser implements ParserInterface
     }
 
     /**
-     * @return LineInterface[]
+     * @return array<array-key, LineInterface>
      */
     public function getLines(): array
     {
@@ -82,7 +82,8 @@ final class Parser implements ParserInterface
     }
 
     /**
-     * @return EnvLine&LineInterface[]
+     * @return array<array-key, EnvLine&LineInterface>
+     * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement
      */
     public function getEnvLines(): array
     {
@@ -110,19 +111,22 @@ final class Parser implements ParserInterface
      */
     private function parseEnvLine(string $rawLine): array
     {
-        $fields = array_map('trim', explode('=', $rawLine, 2));
-        $fields[1] ??= null;
-        [$key, $rawValue] = $fields;
-        $parsedValue = $this->parseValue($rawValue);
+        /**
+         * $explodedLine[0] - rawKey
+         * $explodedLine[1] - rawValue
+         * @var string[] $explodedLine
+         */
+        $explodedLine = array_map('trim', explode('=', $rawLine, 2));
+
         return [
-            new Key($key),
-            ...$parsedValue
+            new Key($explodedLine[0]),
+            ...$this->parseValue($explodedLine[1] ??= null)
         ];
     }
 
     /**
      * @param string|null $rawValue
-     * @return array
+     * @return array<int, Value|Comment|null>
      */
     private function parseValue(?string $rawValue): array
     {
@@ -139,10 +143,14 @@ final class Parser implements ParserInterface
             $matches,
             PREG_UNMATCHED_AS_NULL
         );
-        if (isset($matches['value'])) {
+
+        $matches['value'] ??= false;
+        $matches['comment'] ??= null;
+
+        if ($matches['value']) {
             return [
                 new Value($matches['value'], true, $this->isAutoCastType()),
-                ($matches['comment'] ?? null) ? new Comment($matches['comment']) : null
+                $matches['comment'] ? new Comment($matches['comment']) : null
             ];
         }
 

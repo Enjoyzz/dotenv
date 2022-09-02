@@ -11,7 +11,13 @@ use Enjoys\Dotenv\Parser\ParserInterface;
 class Dotenv
 {
     private string $baseDirectory;
+    /**
+     * @var array<string, string|bool|int|float|null>
+     */
     private array $envRawArray = [];
+    /**
+     * @var array<string, string|bool|int|float|null>
+     */
     private array $envArray = [];
     private ParserInterface $parser;
 
@@ -80,7 +86,6 @@ class Dotenv
 
     private function doLoad(bool $usePutEnv): void
     {
-        /** @var string $key */
         foreach ($this->envRawArray as $key => $value) {
             if (gettype($value) === 'string'){
                 $value = ValuesHandler::handleVariables($key, $value, $this);
@@ -103,19 +108,12 @@ class Dotenv
         }
     }
 
-    public function setAutoCastType(bool $autoCastType): void
-    {
-        $this->autoCastType = $autoCastType;
-    }
-
     private function isComment(string $line): bool
     {
         return str_starts_with($line, '#');
     }
 
-    /**
-     * @return string[]
-     */
+
     public function getEnvRawArray(): array
     {
         return $this->envRawArray;
