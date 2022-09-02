@@ -10,6 +10,11 @@ use Webmozart\Assert\InvalidArgumentException;
 class DotenvTest extends TestCase
 {
 
+    protected function setUp(): void
+    {
+        Dotenv::clear();
+    }
+
     /**
      * @param class-string|object $className
      * @param string $propertyName

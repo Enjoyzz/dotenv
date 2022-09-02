@@ -37,6 +37,9 @@ class Dotenv
         $this->doMerge($this->getGeneralPaths());
         $this->doMerge($this->getExtraPaths());
         $this->doLoad($usePutEnv);
+
+        $_ENV['ENJOYS_DOTENV'] = implode(',', array_keys($this->envArray));
+        putenv(sprintf('ENJOYS_DOTENV=%s', $_ENV['ENJOYS_DOTENV']));
     }
 
     /**
@@ -103,6 +106,7 @@ class Dotenv
 
             $this->envArray[$key] = $_ENV[$key];
         }
+
     }
 
     private function isComment(string $line): bool
@@ -121,4 +125,17 @@ class Dotenv
         return $this->envArray;
     }
 
+    public static function clear(): void
+    {
+        if(false !== $envs = getenv('ENJOYS_DOTENV')){
+            foreach (explode(',', $envs) as $key) {
+                putenv($key); //unset
+            }
+        }
+
+        foreach (explode(',', $_ENV['ENJOYS_DOTENV'] ?? '') as $key) {
+            unset($_ENV[$key]);
+        }
+
+    }
 }
