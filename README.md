@@ -39,6 +39,18 @@ $dotenv->loadEnv(); // config available in $_ENV
 # $dotenv->loadEnv(true);  // config available in $_ENV and getenv()
 ```
 
+# Формат .env файлов
+```shell
+VAR1 = value # можно использовать пробелы вокруг знака `=`
+VAR2=value2
+VAR3="this is value #3"
+VAR4=value 4 #return `value 4
+VAR5=${VAR4}2 # variable, return `value 42`
+VAR6="it\'s a beautiful life"
+VAR7 # if set Parser::AUTO_CAST_VALUE_TYPE return `null`, else empty string
+VAR8= #return empty string
+```
+
 # Дополнительные возможности
 ### Type Casting (приведение типов)
 Все значения в .env файле являются строками (string), но иногда было бы хорошо явно указать тип.
@@ -60,3 +72,13 @@ VAR = "*int 42"  #int(42)
 
 ***Внимание***
 _Type Casting будет работать только при использовании этой библиотеки, при парсинге файла другими библиотеками или системой значения скорее всего приведены к типам не будут._
+
+### Auto type Casting (автоматичекое приведение типов)
+Есть возможность автоматически определить тип. Например '42' => 42, 'true' => true, и тд.
+Как включить?
+```injectablephp
+use Enjoys\Dotenv\Parser\Parser;
+$parser = new Parser(Parser::AUTO_CAST_VALUE_TYPE);
+$dotenv = new \Enjoys\Dotenv\Dotenv(__DIR__, parser: $parser);
+$dotenv->loadEnv();
+```
