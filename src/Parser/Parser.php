@@ -161,8 +161,7 @@ final class Parser implements ParserInterface
         ];
     }
 
-
-    public function isAutoCastType(): bool
+    private function isAutoCastType(): bool
     {
         return ($this->flags & self::AUTO_CAST_VALUE_TYPE) === self::AUTO_CAST_VALUE_TYPE;
     }

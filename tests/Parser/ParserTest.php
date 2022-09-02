@@ -58,5 +58,20 @@ ENV
         ], $parser->getEnvArray());
     }
 
+    public function testParseEnvLines()
+    {
+        $parser = new Parser();
+        $parser->parse(
+            <<<ENV
+VAR1 = value # comment #2
+ENV
+        );
+        $envLines = $parser->getEnvLines();
+        $this->assertCount(1, $envLines);
+        $this->assertSame('VAR1', $envLines['VAR1']->getKey()->getValue());
+        $this->assertSame('value', $envLines['VAR1']->getValue()->getValue());
+        $this->assertSame('comment #2', $envLines['VAR1']->getComment()->getValue());
+    }
+
 
 }
