@@ -23,7 +23,7 @@ final class Value implements \Stringable
             $this->needQuotes = true;
         }
 
-        if ($this->autoCastType){
+        if ($this->autoCastType && $this->needQuotes === false){
             $determinant = new TypeDeterminant($value);
             $value = $determinant->getCastValue();
         }

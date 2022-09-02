@@ -125,9 +125,6 @@ class DotenvTest extends TestCase
         $this->assertSame('', $_ENV['VAR_8']);
     }
 
-    /**
-     * todo: values in quotation marks are forced to be stringed, this is not the case now
-     */
     public function testAutoCastType()
     {
         $parser = new Enjoys\Dotenv\Parser\Parser(Enjoys\Dotenv\Parser\Parser::AUTO_CAST_VALUE_TYPE);
@@ -135,7 +132,7 @@ class DotenvTest extends TestCase
         $dotenv->loadEnv();
 
         $this->assertSame(42, $_ENV['VAR_1']);
-        $this->assertSame(42, $_ENV['VAR_2']); //todo
+        $this->assertSame("42", $_ENV['VAR_2']);
         $this->assertSame("0755", $_ENV['VAR_3']);
         $this->assertSame("0xA", $_ENV['VAR_4']);
         $this->assertSame(true, $_ENV['VAR_5']);
@@ -144,9 +141,9 @@ class DotenvTest extends TestCase
         $this->assertSame(null, $_ENV['VAR_8']);
         $this->assertSame("3,14", $_ENV['VAR_9']);
         $this->assertSame(3.14, $_ENV['VAR_10']);
-        $this->assertSame(3.14, $_ENV['VAR_11']); //todo
-        $this->assertSame(true, $_ENV['VAR_12']); //todo
-        $this->assertSame(false, $_ENV['VAR_13']); //todo
+        $this->assertSame("3.14", $_ENV['VAR_11']);
+        $this->assertSame("true", $_ENV['VAR_12']);
+        $this->assertSame("false", $_ENV['VAR_13']);
         $this->assertSame($_ENV['VAR_5'], $_ENV['VAR_14']);
         $this->assertSame($_ENV['VAR_6'], $_ENV['VAR_15']);
         $this->assertSame($_ENV['VAR_1'], $_ENV['VAR_16']);
