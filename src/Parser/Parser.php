@@ -149,14 +149,14 @@ final class Parser implements ParserInterface
 
         if ($matches['value']) {
             return [
-                new Value($matches['value'], true, $this->isAutoCastType()),
+                new Value($matches['value'], true, $matches[1], $this->isAutoCastType()),
                 $matches['comment'] ? new Comment($matches['comment']) : null
             ];
         }
 
         $unquotedValue = array_map('trim', explode('#', $rawValue, 2));
         return [
-            new Value($unquotedValue[0], false, $this->isAutoCastType()),
+            new Value($unquotedValue[0], false, autoCastType: $this->isAutoCastType()),
             ($unquotedValue[1] ?? null) ? new Comment($unquotedValue[1]) : null
         ];
     }

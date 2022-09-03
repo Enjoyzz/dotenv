@@ -94,7 +94,7 @@ class Dotenv
                 $value = getenv($key);
             } else {
                 if (gettype($value) === 'string') {
-                    $value = stripslashes(ValuesHandler::handleVariables($key, $value, $this));
+                    $value = ValuesHandler::handleVariables($key, $value, $this);
                 }
             }
 

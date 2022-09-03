@@ -70,7 +70,7 @@ final class ValuesHandler
 
                 /** @var string|bool|int|float|null $val */
                 $val =
-                    ($env ? addslashes($env) : null) ??
+                    ($env ?: null) ??
                     $dotenv->getEnvRawArray()[$matches['variable']] ??
                     throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches['variable']));
 

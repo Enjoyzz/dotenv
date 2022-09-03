@@ -11,7 +11,18 @@ final class Value implements \Stringable
 {
     private string|bool|int|float $value;
 
-    public function __construct(string $value, private bool $needQuotes = false, private bool $autoCastType = false)
+    /**
+     * @var string[]
+     */
+    private static array $characterMap = array(
+        "\\n" => "\n",
+        "\\\"" => "\"",
+        "\\\\" => "\\",
+        '\\\'' => "'",
+        '\\t' => "\t"
+    );
+
+    public function __construct(string $value, private bool $needQuotes = false, private string|false|null $quote = null, private bool $autoCastType = false)
     {
         $this->value = $this->handleValue($value);
     }
@@ -39,7 +50,10 @@ final class Value implements \Stringable
 
     public function getValue(): string|bool|int|float
     {
-        return $this->value;
+        return $this->needQuotes && $this->quote === '"' ? strtr(
+            ValuesHandler::scalarToString($this->value),
+            self::$characterMap
+        ) : $this->value;
     }
 
 

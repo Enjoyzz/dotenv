@@ -271,12 +271,14 @@ class DotenvTest extends TestCase
     {
         $dotenv = new Dotenv(__DIR__ . '/fixtures/with_qoutes_and_escaping', '.quotes');
         $dotenv->loadEnv();
-        $this->assertSame('value in double quotes', $_ENV['VAR1']);
+        $this->assertSame("value in double quotes", $_ENV['VAR1']);
         $this->assertSame('value without quotes', $_ENV['VAR2']);
         $this->assertSame('value in single quotes', $_ENV['VAR3']);
         $this->assertSame('va"', $_ENV['VAR4']);
         $this->assertSame('va" lue"', $_ENV['VAR5']);
-        $this->assertSame('\#"\\', $_ENV['VAR6']);
+        $this->assertSame("\#\"\\", $_ENV['VAR6']);
+        $this->assertSame("it\'s single quote", $_ENV['VAR7']);
+        $this->assertSame("it's double quote", $_ENV['VAR8']);
     }
 
     public function testSlashes()
@@ -285,7 +287,7 @@ class DotenvTest extends TestCase
         $dotenv = new Dotenv(__DIR__ . '/fixtures/with_qoutes_and_escaping', '.slashes');
         $dotenv->loadEnv();
         $this->assertSame('double quote in middle " text', $_ENV['VAR1']);
-        $this->assertSame("value. it's var #2", $_ENV['VAR2']);
+        $this->assertSame("value. it\'s var #2", $_ENV['VAR2']);
         $this->assertSame("\\\\ - two backslashes. not's 4", $_ENV['VAR3']);
         $this->assertSame('test\"val', $_ENV['VAR4']);
         $this->assertSame($_ENV['VAR1'], $_ENV['VAR5']);
@@ -324,5 +326,29 @@ class DotenvTest extends TestCase
         $this->assertSame('true', getenv('VAR_5'));
         $this->assertSame('false', getenv('VAR_6'));
         $this->assertSame('', getenv('VAR_8'));
+    }
+
+    public function testMultiline()
+    {
+        $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/multiline');
+        $dotenv->loadEnv(true);
+        $this->assertSame(
+            <<<ENV
+1
+2
+ENV
+            ,
+            $_ENV['VAR_MULTILINE']
+        );
+        $this->assertSame(
+            <<<ENV
+1
+2
+ENV
+            ,
+            getenv('VAR_MULTILINE')
+        );
+        $this->assertSame('1\n2', $_ENV['VAR_NON_MULTILINE']);
+        $this->assertSame('1\n2', getenv('VAR_NON_MULTILINE'));
     }
 }
