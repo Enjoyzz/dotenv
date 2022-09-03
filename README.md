@@ -82,3 +82,7 @@ $parser = new Parser(Parser::AUTO_CAST_VALUE_TYPE);
 $dotenv = new \Enjoys\Dotenv\Dotenv(__DIR__, parser: $parser);
 $dotenv->loadEnv();
 ```
+
+# TODO
+- сделать правила валидации, like required, needInt...
+- сделать для переменных bash-подобный синтаксис, ${VAR:=value}, ${VAR:-value}, ${VAR:+value}, ${VAR:?value}
