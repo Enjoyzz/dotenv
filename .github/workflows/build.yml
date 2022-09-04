@@ -44,9 +44,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
+          key: php${{ matrix.php }}-composer-cache_ver_1-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            php${{ matrix.php }}-composer-
+            php${{ matrix.php }}-composer-cache_ver_1-
       - name: Update composer
         run: composer self-update
 
