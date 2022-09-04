@@ -9,12 +9,22 @@ namespace Enjoys\Dotenv\Parser\Lines;
 final class Lines
 {
 
+    /**
+     * @var string[]
+     */
     private array $output = [];
 
+    /**
+     * @param string[] $rawLines
+     */
     private function __construct(private array $rawLines)
     {
     }
 
+    /**
+     * @param string[] $rawLines
+     * @return string[]
+     */
     public static function handle(array $rawLines): array
     {
         $linesHandler = new self($rawLines);
@@ -23,6 +33,9 @@ final class Lines
     }
 
 
+    /**
+     * @return string[]
+     */
     private function getOutput(): array
     {
         return $this->output;
@@ -34,6 +47,7 @@ final class Lines
         $multilineBuffer = [];
 
         foreach ($this->rawLines as $line) {
+            /** @psalm-suppress MixedArgumentTypeCoercion */
             [$multiline, $line, $multilineBuffer] = $this->multilineProcess($multiline, $line, $multilineBuffer);
 
             if (!$multiline) {
@@ -44,27 +58,34 @@ final class Lines
 
     }
 
-    private function multilineProcess(mixed $multiline, mixed $line, mixed $multilineBuffer)
+    /**
+     * @param bool $multiline
+     * @param string $line
+     * @param string[] $buffer
+     * @return array{0: bool, 1: string, 2: array}
+     */
+    private function multilineProcess(bool $multiline, string $line, array $buffer): array
     {
         if ($started = $this->looksLikeMultilineStart($line)) {
             $multiline = true;
         }
 
         if ($multiline) {
-            \array_push($multilineBuffer, $line);
+
+            $buffer[] = $line;
 
             if ($this->looksLikeMultilineStop($line, $started)) {
 
                 $multiline = false;
-                $line = \implode("\\n", $multilineBuffer);
-                $multilineBuffer = [];
+                $line = \implode("\\n", $buffer);
+                $buffer = [];
             }
         }
 
-        return [$multiline, $line, $multilineBuffer];
+        return [$multiline, $line, $buffer];
     }
 
-    private function looksLikeMultilineStart(mixed $line)
+    private function looksLikeMultilineStart(string $line): bool
     {
 
         if (\mb_strpos($line, '="', 0, 'UTF-8') && !$this->looksLikeMultilineStop($line, true)){
@@ -73,7 +94,7 @@ final class Lines
         return false;
     }
 
-    private function looksLikeMultilineStop(string $line, bool $started)
+    private function looksLikeMultilineStop(string $line, bool $started): bool
     {
         if ($line === '"') {
             return true;
