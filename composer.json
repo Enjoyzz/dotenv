@@ -21,7 +21,7 @@
         "phpunit/phpunit": "^9.5",
         "vimeo/psalm": "^4.10",
         "infection/infection": "^0.26",
-        "symfony/var-dumper": "^v6.1"
+        "symfony/var-dumper": "^v5.4"
     },
     "scripts": {
         "psalm": "psalm",
