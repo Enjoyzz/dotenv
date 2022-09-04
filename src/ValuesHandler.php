@@ -64,7 +64,7 @@ final class ValuesHandler
             return '*null';
         }
         $result = preg_replace_callback(
-            '/(\${(?<variable>.+?)})/',
+            '/(\${(?<variable>.+?)(?<default_value>:[-=][^}]++)?})/',
             function (array $matches) use ($dotenv): string {
                 $env = getenv($matches['variable']);
 
@@ -72,6 +72,8 @@ final class ValuesHandler
                 $val =
                     ($env ?: null) ??
                     $dotenv->getEnvRawArray()[$matches['variable']] ??
+                    $dotenv->getEnvArray()[$matches['variable']] ??
+                    ($matches['default_value'] ? self::setAndReturnDefaultValue($matches['default_value'], $matches['variable'], $dotenv) : null) ??
                     throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches['variable']));
 
                 $type = match (get_debug_type($val)) {
@@ -84,7 +86,8 @@ final class ValuesHandler
 
                 return $type . (string)$val;
             },
-            $value
+            $value,
+            flags: PREG_UNMATCHED_AS_NULL
         );
 
         if (preg_match('/(\${(.+?)})/', $result)) {
@@ -100,5 +103,16 @@ final class ValuesHandler
             return $value ? 'true' : 'false';
         }
         return (string)$value;
+    }
+
+    private static function setAndReturnDefaultValue(string $default_value, string $variable, Dotenv $dotenv): string
+    {
+
+        $value = substr($default_value, 2);
+
+        if ('=' === $default_value[1]) {
+            Dotenv::registerEnv($variable, $value, $dotenv);
+        }
+        return $value;
     }
 }

@@ -95,4 +95,3 @@ $dotenv->loadEnv();
 # TODO
 
 - сделать правила валидации, like required, needInt...
-- сделать для переменных bash-подобный синтаксис, `${VAR:=value}`,`${VAR:-value}`, `${VAR:+value}`, `${VAR:?value}`

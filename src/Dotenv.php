@@ -8,8 +8,6 @@ namespace Enjoys\Dotenv;
 use Enjoys\Dotenv\Parser\Parser;
 use Enjoys\Dotenv\Parser\ParserInterface;
 
-use function Webmozart\Assert\Tests\StaticAnalysis\string;
-
 class Dotenv
 {
     private string $baseDirectory;
@@ -89,21 +87,29 @@ class Dotenv
     private function doLoad(bool $usePutEnv): void
     {
         foreach ($this->envRawArray as $key => $value) {
-            if (getenv($key)) {
-                $value = getenv($key);
-            } else {
-                if (gettype($value) === 'string') {
-                    $value = ValuesHandler::handleVariables($key, $value, $this);
-                }
-            }
+            self::registerEnv($key, $value, $this, $usePutEnv);
+        }
+    }
 
-            if (!getenv($key) && $usePutEnv === true) {
-                putenv(sprintf("%s=%s", $key, ValuesHandler::scalarToString($value)));
+    public static function registerEnv(
+        string $key,
+        string|bool|int|float|null $value,
+        Dotenv $dotenv,
+        bool $usePutEnv = false
+    ): void {
+        if (getenv($key)) {
+            $value = getenv($key);
+        } else {
+            if (gettype($value) === 'string') {
+                $value = ValuesHandler::handleVariables($key, $value, $dotenv);
             }
-
-            $_ENV[$key] = $this->envArray[$key] = ValuesHandler::cast($value);
         }
 
+        if (!getenv($key) && $usePutEnv === true) {
+            putenv(sprintf("%s=%s", $key, ValuesHandler::scalarToString($value)));
+        }
+
+        $_ENV[$key] = $dotenv->envArray[$key] = ValuesHandler::cast($value);
     }
 
     public function getEnvRawArray(): array
@@ -118,7 +124,7 @@ class Dotenv
 
     public static function clear(): void
     {
-        if(false !== $envs = getenv('ENJOYS_DOTENV')){
+        if (false !== $envs = getenv('ENJOYS_DOTENV')) {
             foreach (explode(',', $envs) as $key) {
                 putenv($key); //unset
             }
@@ -127,6 +133,5 @@ class Dotenv
         foreach (explode(',', (string)($_ENV['ENJOYS_DOTENV'] ?? '')) as $key) {
             unset($_ENV[$key]);
         }
-
     }
 }
