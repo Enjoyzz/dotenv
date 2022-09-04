@@ -369,4 +369,11 @@ ENV,
             getenv('VAR_MULTILINE2')
         );
     }
+
+    public function testMultilineInvalid()
+    {
+        $this->expectException(\Enjoys\Dotenv\Exception\InvalidArgumentException::class);
+        $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/multiline', '.invalid');
+        $dotenv->loadEnv();
+    }
 }
