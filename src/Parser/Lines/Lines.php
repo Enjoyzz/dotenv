@@ -51,11 +51,9 @@ final class Lines
             [$multiline, $line, $multilineBuffer] = $this->multilineProcess($multiline, $line, $multilineBuffer);
 
             if (!$multiline) {
-
                 $this->output[] = $line;
             }
         }
-
     }
 
     /**
@@ -66,18 +64,16 @@ final class Lines
      */
     private function multilineProcess(bool $multiline, string $line, array $buffer): array
     {
-        $started = false;
+        $_started = false;
 
-        if ($multiline ===false && $started = $this->looksLikeMultilineStart($line)) {
+        if ($multiline === false && $_started = $this->looksLikeMultilineStart($line)) {
             $multiline = true;
         }
 
         if ($multiline) {
-
             $buffer[] = $line;
 
-            if ($this->looksLikeMultilineStop($line, $started)) {
-
+            if ($this->looksLikeMultilineStop($line, $_started)) {
                 $multiline = false;
                 $line = \implode("\\n", $buffer);
                 $buffer = [];
@@ -89,8 +85,7 @@ final class Lines
 
     private function looksLikeMultilineStart(string $line): bool
     {
-
-        if (\mb_strpos($line, '="', 0, 'UTF-8') && !$this->looksLikeMultilineStop($line, true)){
+        if (\mb_strpos($line, '="', 0, 'UTF-8') && !$this->looksLikeMultilineStop($line, true)) {
             return true;
         }
         return false;
