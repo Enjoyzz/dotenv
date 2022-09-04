@@ -85,7 +85,7 @@ final class Lines
 
     private function looksLikeMultilineStart(string $line): bool
     {
-        if (\mb_strpos($line, '="', 0, 'UTF-8') && !$this->looksLikeMultilineStop($line, true)) {
+        if (str_contains($line, '="') && !$this->looksLikeMultilineStop($line, true)) {
             return true;
         }
         return false;
