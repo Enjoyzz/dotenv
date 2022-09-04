@@ -437,4 +437,11 @@ ENV
             $this->assertFalse($_ENV[$key] ?? false);
         }
     }
+
+    public function testLoadAppEnvFile()
+    {
+        $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/loadAppEnvFile');
+        $dotenv->loadEnv();
+        $this->assertSame('loaded .env.true', $_ENV['LOADED']);
+    }
 }

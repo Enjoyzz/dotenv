@@ -8,6 +8,8 @@ namespace Enjoys\Dotenv;
 use Enjoys\Dotenv\Parser\Parser;
 use Enjoys\Dotenv\Parser\ParserInterface;
 
+use function Webmozart\Assert\Tests\StaticAnalysis\string;
+
 class Dotenv
 {
     private string $baseDirectory;
@@ -47,12 +49,9 @@ class Dotenv
      */
     private function getExtraPaths(): array
     {
-        $env = (getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? null;
+        $appEnv = (getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '';
 
-        if ($env === '' || $env === null) {
-            return [];
-        }
-        $path = realpath($this->baseDirectory . $this->envFilename . '.' . $env);
+        $path = realpath($this->baseDirectory . $this->envFilename . '.' . $appEnv);
 
         if ($path === false) {
             return [];
