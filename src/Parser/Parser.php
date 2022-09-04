@@ -39,7 +39,8 @@ final class Parser implements ParserInterface
 
     private function clear(): void
     {
-        unset($this->rawLinesArray, $this->lines);
+        $this->rawLinesArray = [];
+        $this->lines = [];
     }
 
     public function parse(string $content): void

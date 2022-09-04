@@ -353,23 +353,70 @@ ENV
         $this->assertSame('1\n2', getenv('VAR_NON_MULTILINE'));
         $this->assertSame(
             <<<ENV
-1
-2
-3
+A
+B
+C=
 ENV
             ,
             $_ENV['VAR_MULTILINE2']
         );
         $this->assertSame(
             <<<ENV
-1
-2
-3
+A
+B
+C=
 ENV,
             getenv('VAR_MULTILINE2')
         );
     }
 
+    public function testMultiline1()
+    {
+        $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/multiline', '1');
+        $dotenv->loadEnv();
+        $this->assertSame(
+            <<<ENV
+Г
+Д
+Ж=
+ENV
+            ,
+            $_ENV['VAR']
+        );
+    }
+
+
+    public function testMultiline2()
+    {
+        $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/multiline', '2');
+        $dotenv->loadEnv();
+        $this->assertSame(
+            <<<ENV
+A
+B
+C=
+
+ENV
+            ,
+            $_ENV['VAR']
+        );
+    }
+
+
+    public function testMultiline3()
+    {
+        $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/multiline', '3');
+        $dotenv->loadEnv();
+        $this->assertSame(
+            <<<ENV
+A
+B
+C
+ENV
+            ,
+            $_ENV['VAR']
+        );
+    }
     public function testMultilineInvalid()
     {
         $this->expectException(\Enjoys\Dotenv\Exception\InvalidArgumentException::class);

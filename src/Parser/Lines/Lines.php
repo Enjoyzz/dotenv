@@ -66,7 +66,9 @@ final class Lines
      */
     private function multilineProcess(bool $multiline, string $line, array $buffer): array
     {
-        if ($started = $this->looksLikeMultilineStart($line)) {
+        $started = false;
+
+        if ($multiline ===false && $started = $this->looksLikeMultilineStart($line)) {
             $multiline = true;
         }
 
