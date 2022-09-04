@@ -332,6 +332,7 @@ class DotenvTest extends TestCase
     {
         $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/multiline');
         $dotenv->loadEnv(true);
+
         $this->assertSame(
             <<<ENV
 1
@@ -350,5 +351,22 @@ ENV
         );
         $this->assertSame('1\n2', $_ENV['VAR_NON_MULTILINE']);
         $this->assertSame('1\n2', getenv('VAR_NON_MULTILINE'));
+        $this->assertSame(
+            <<<ENV
+1
+2
+3
+ENV
+            ,
+            $_ENV['VAR_MULTILINE2']
+        );
+        $this->assertSame(
+            <<<ENV
+1
+2
+3
+ENV,
+            getenv('VAR_MULTILINE2')
+        );
     }
 }

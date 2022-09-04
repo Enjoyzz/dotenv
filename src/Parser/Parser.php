@@ -13,6 +13,7 @@ use Enjoys\Dotenv\Parser\Lines\CommentLine;
 use Enjoys\Dotenv\Parser\Lines\EmptyLine;
 use Enjoys\Dotenv\Parser\Lines\EnvLine;
 use Enjoys\Dotenv\Parser\Lines\LineInterface;
+use Enjoys\Dotenv\Parser\Lines\Lines;
 
 final class Parser implements ParserInterface
 {
@@ -45,10 +46,10 @@ final class Parser implements ParserInterface
     {
         $this->clear();
 
-        $this->rawLinesArray = array_map(
+        $this->rawLinesArray = Lines::handle(array_map(
             'trim',
             preg_split("/\R/", $content)
-        );
+        ));
 
         foreach ($this->rawLinesArray as $rawLine) {
             if (empty($rawLine)) {
