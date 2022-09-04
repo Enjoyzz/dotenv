@@ -423,4 +423,18 @@ ENV
         $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/multiline', '.invalid');
         $dotenv->loadEnv();
     }
+
+    public function testClear()
+    {
+        $dotenv = new Enjoys\Dotenv\Dotenv(__DIR__ . '/fixtures/1');
+        $dotenv->loadEnv(true);
+        $enjoysDotenvArray = array_keys($dotenv->getEnvArray());
+        $this->assertSame(implode(",", $enjoysDotenvArray), $_ENV['ENJOYS_DOTENV']);
+        $this->assertSame(implode(",", $enjoysDotenvArray), getenv('ENJOYS_DOTENV'));
+        Dotenv::clear();
+        foreach ($enjoysDotenvArray as $key) {
+            $this->assertFalse(getenv($key));
+            $this->assertFalse($_ENV[$key] ?? false);
+        }
+    }
 }
