@@ -51,6 +51,9 @@ VAR5=${VAR4}2 # variable, return `value 42`
 VAR6="it\'s a beautiful life"
 VAR7 # if set Parser::AUTO_CAST_VALUE_TYPE return `null`, else empty string
 VAR8= #return empty string
+VAR9=${NOT_DEFINED_VAR:-value} # VAR9='value', but NOT_DEFINED_VAR - not set
+VAR10=${NOT_DEFINED_VAR:=value} # VAR10='value' and  NOT_DEFINED_VAR='value'
+VAR10=${NOT_DEFINED_VAR:?} # throw Exception
 ```
 
 # Дополнительные возможности
@@ -90,6 +93,28 @@ use Enjoys\Dotenv\Parser\Parser;
 $parser = new Parser(Parser::AUTO_CAST_VALUE_TYPE);
 $dotenv = new \Enjoys\Dotenv\Dotenv(__DIR__, parser: $parser);
 $dotenv->loadEnv();
+```
+
+### Значения переменных по-умолчанию
+
+Если переменная не установлена, можно определить значения по-умолчанию.
+Есть два варианта как это сделать:
+
+1. `${VAR:-default}` - при этом варианте, если переменная не будет установлена, вернется значение после знака `:-`,
+   переменная при
+   этом также останется не установленной, в противном случае будет возвращено значение переменной.
+2. `${VAR:=default}` - при этом варианте, если переменная не будет установлена, вернется значение после знака `:=` и
+   установить переменную с этим значением, , в противном случае будет возвращено значение переменной.
+
+_**Внимание!** Если переменная не установлена, и не переданы значения по-умолчанию, будет возвращена пустая строка._
+
+Чтобы вызвать ошибку при таком сценарии, можно указать после наименования переменной `:?`, или `:?message`. И в случае если
+переменная не была установлена, будет выброшено исключение `\Enjoys\Dotenv\Exception\InvalidArgumentException`
+
+Например:
+```shell
+VAR1=${NOT_DEFINED_VAR:?extended error message} #with error message
+VAR2=${NOT_DEFINED_VAR:?} #or just with empty error message
 ```
 
 # TODO
