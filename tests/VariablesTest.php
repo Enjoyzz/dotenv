@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 
 use Enjoys\Dotenv\Dotenv;
+use Enjoys\Dotenv\Exception\InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class VariablesTest extends TestCase
@@ -44,5 +45,19 @@ final class VariablesTest extends TestCase
         $this->assertTrue($_ENV['VAR']);
         $this->assertSame(42, $_ENV['VAR2']);
         $this->assertTrue($_ENV['VAR2'] === $_ENV['VAR3']);
+    }
+
+    public function testNotDefinedVariablesWithQuestin()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '5');
+        $dotenv->loadEnv();
+    }
+
+    public function testNotDefinedVariables()
+    {
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '6');
+        $dotenv->loadEnv();
+        $this->assertSame('/path', $_ENV['VAR1']);
     }
 }

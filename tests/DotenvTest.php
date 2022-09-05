@@ -100,7 +100,7 @@ class DotenvTest extends TestCase
 
     public function testVariablesNotFound()
     {
-        $this->expectExceptionMessage('Not found variable ${BAZ}.');
+        $this->expectExceptionMessage('Not set variable ${BAZ}.');
         $dotenv = new Dotenv(__DIR__ . '/fixtures/invalid', '.notfoundvars');
         $dotenv->loadEnv();
     }

@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Enjoys\Dotenv;
 
 
+use Enjoys\Dotenv\Exception\InvalidArgumentException;
 use RuntimeException;
 use Webmozart\Assert\Assert;
 
@@ -64,7 +65,7 @@ final class ValuesHandler
             return '*null';
         }
         $result = preg_replace_callback(
-            '/(\${(?<variable>.+?)(?<default_value>:[-=][^}]++)?})/',
+            '/(\${(?<variable>.+?)(?<default_value>:[-=?][^}]*)?})/',
             function (array $matches) use ($dotenv): string {
                 $env = getenv($matches['variable']);
 
@@ -73,8 +74,8 @@ final class ValuesHandler
                     ($env ?: null) ??
                     $dotenv->getEnvRawArray()[$matches['variable']] ??
                     $dotenv->getEnvArray()[$matches['variable']] ??
-                    ($matches['default_value'] ? self::setAndReturnDefaultValue($matches['default_value'], $matches['variable'], $dotenv) : null) ??
-                    throw new RuntimeException(sprintf('Not found variable ${%s}.', $matches['variable']));
+                    ($matches['default_value'] ? self::handleDefaultValue($matches['default_value'], $matches['variable'], $dotenv) : null) ??
+                    '';
 
                 $type = match (get_debug_type($val)) {
                     'bool' => '*bool ',
@@ -105,10 +106,14 @@ final class ValuesHandler
         return (string)$value;
     }
 
-    private static function setAndReturnDefaultValue(string $default_value, string $variable, Dotenv $dotenv): string
+    private static function handleDefaultValue(string $default_value, string $variable, Dotenv $dotenv): string
     {
 
         $value = substr($default_value, 2);
+
+        if ('?' === $default_value[1]) {
+            throw new InvalidArgumentException(sprintf('Not set variable ${%s}. %s', $variable, $value));
+        }
 
         if ('=' === $default_value[1]) {
             Dotenv::registerEnv($variable, $value, $dotenv);
