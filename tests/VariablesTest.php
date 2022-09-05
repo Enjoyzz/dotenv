@@ -27,6 +27,7 @@ final class VariablesTest extends TestCase
         $dotenv->loadEnv();
         $this->assertTrue($_ENV['VAR'] === $_ENV['VAR1']);
         $this->assertTrue($_ENV['VAR2'] === $_ENV['VAR1']);
+        $this->assertFalse(getenv('VAR'));
     }
 
     public function testNotDefinedVariablesWithMinus()
