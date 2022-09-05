@@ -16,7 +16,7 @@ final class VariablesTest extends TestCase
 
     public function testDefinedVariables()
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '1');
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/1');
         $dotenv->loadEnv();
         $this->assertSame($_ENV['VAR1'], $_ENV['VAR2']);
     }
@@ -24,7 +24,7 @@ final class VariablesTest extends TestCase
 
     public function testNotDefinedVariablesWithEq()
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '2');
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/2');
         $dotenv->loadEnv();
         $this->assertTrue($_ENV['VAR'] === $_ENV['VAR1']);
         $this->assertTrue($_ENV['VAR2'] === $_ENV['VAR1']);
@@ -33,7 +33,7 @@ final class VariablesTest extends TestCase
 
     public function testNotDefinedVariablesWithMinus()
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '3');
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/3');
         $dotenv->loadEnv();
         $this->assertSame('default', $_ENV['VAR1']);
         $this->assertFalse($_ENV['VAR'] ?? false);
@@ -41,7 +41,8 @@ final class VariablesTest extends TestCase
 
     public function testNotDefinedVariablesWithEqAndCast()
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '4');
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/4');
+        $dotenv->setCastType(true);
         $dotenv->loadEnv();
         $this->assertSame(true, $_ENV['VAR1']);
         $this->assertTrue($_ENV['VAR']);
@@ -52,13 +53,13 @@ final class VariablesTest extends TestCase
     public function testNotDefinedVariablesWithQuestin()
     {
         $this->expectException(InvalidArgumentException::class);
-        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '5');
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/5');
         $dotenv->loadEnv();
     }
 
     public function testNotDefinedVariables()
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '6');
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/6');
         $dotenv->loadEnv();
         $this->assertSame('/path', $_ENV['VAR1']);
     }
@@ -66,8 +67,9 @@ final class VariablesTest extends TestCase
 
     public function testDefaultIfVarSetViaRegisterEnv()
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures/variables', '7');
-        $dotenv::registerEnv('VAR', false, $dotenv);
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/7');
+        $dotenv->setCastType(true);
+        $dotenv::writeEnv('VAR', 'false', $dotenv);
         $dotenv->loadEnv();
         $this->assertFalse($_ENV['VAR1']);
     }

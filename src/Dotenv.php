@@ -10,106 +10,92 @@ use Enjoys\Dotenv\Parser\ParserInterface;
 
 class Dotenv
 {
-    private string $baseDirectory;
+
     /**
-     * @var array<string, string|bool|int|float|null>
+     * @var array<string, string|null>
      */
     private array $envRawArray = [];
+    /**
+     * @var array<string, string|null>
+     */
+    private array $envQuotesMap = [];
     /**
      * @var array<string, string|bool|int|float|null>
      */
     private array $envArray = [];
+
+
     private ParserInterface $parser;
+    private Variables $variablesResolver;
+
+    private bool $castType = false;
+    private StorageInterface $storage;
 
 
     public function __construct(
-        string $baseDirectory,
-        private string $envFilename = '.env',
-        private string $distEnvFilename = '.env.dist',
+        private string $envFilePath,
+        ?StorageInterface $storage = null,
         ?ParserInterface $parser = null
     ) {
-        $this->baseDirectory = rtrim($baseDirectory, "/") . DIRECTORY_SEPARATOR;
         $this->parser = $parser ?? new Parser();
+        $this->storage = $storage ?? new Storage();
+        $this->variablesResolver = new Variables($this);
     }
 
     public function loadEnv(bool $usePutEnv = false): void
     {
-        $this->doMerge($this->getGeneralPaths());
-        $this->doMerge($this->getExtraPaths());
-        $this->doLoad($usePutEnv);
+        $this->readFiles();
+        $this->writeEnvs($usePutEnv);
 
         $_ENV['ENJOYS_DOTENV'] = implode(',', array_keys($this->envArray));
         putenv(sprintf('ENJOYS_DOTENV=%s', $_ENV['ENJOYS_DOTENV']));
     }
 
-    /**
-     * @return string[]
-     */
-    private function getExtraPaths(): array
+    private function readFiles(): void
     {
-        $appEnv = (getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '';
+        $this->storage->addPath($this->envFilePath . '.dist');
+        $this->storage->addPath($this->envFilePath);
 
-        $path = realpath($this->baseDirectory . $this->envFilename . '.' . $appEnv);
-
-        if ($path === false) {
-            return [];
-        }
-
-        return [$path];
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getGeneralPaths(): array
-    {
-        $paths = [
-            realpath($this->baseDirectory . $this->distEnvFilename),
-            realpath($this->baseDirectory . $this->envFilename)
-        ];
-
-        return array_filter($paths, function ($item) {
-            return is_string($item);
-        });
-    }
-
-    /**
-     * @param string[] $array
-     */
-    private function doMerge(array $array): void
-    {
-        foreach ($array as $path) {
+        while (false !== $path = $this->storage->getPath()) {
+            if ($this->storage->isLoaded($path)) {
+                continue;
+            }
             $this->parser->parse(file_get_contents($path));
             $this->envRawArray = array_merge($this->envRawArray, $this->parser->getEnvArray());
+            $this->envQuotesMap = array_merge($this->envQuotesMap, $this->parser->getEnvQuotesMap());
+            $this->storage->markLoaded($path);
+            $this->storage->addPath(
+                $this->envFilePath . '.' . ((getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '')
+            );
         }
+
+        $this->envQuotesMap = array_filter($this->envQuotesMap);
     }
 
-    private function doLoad(bool $usePutEnv): void
+    private function writeEnvs(bool $usePutEnv): void
     {
         foreach ($this->envRawArray as $key => $value) {
-            self::registerEnv($key, $value, $this, $usePutEnv);
+            self::writeEnv($key, $value, $this, $usePutEnv);
         }
     }
 
-    public static function registerEnv(
+    public static function writeEnv(
         string $key,
-        string|bool|int|float|null $value,
+        ?string $value,
         Dotenv $dotenv,
         bool $usePutEnv = false
     ): void {
-        if (getenv($key)) {
-            $value = getenv($key);
-        } else {
-            if (gettype($value) === 'string') {
-                $value = ValuesHandler::handleVariables($key, $value, $dotenv);
-            }
-        }
+        $value = $dotenv->getVariablesResolver()->resolve($key, $value);
 
         if (!getenv($key) && $usePutEnv === true) {
-            putenv(sprintf("%s=%s", $key, ValuesHandler::scalarToString($value)));
+            putenv(sprintf("%s=%s", $key, $value ?? ''));
         }
 
-        $_ENV[$key] = $dotenv->envArray[$key] = ValuesHandler::cast($value);
+        if (getenv($key)) {
+            $value = getenv($key);
+        }
+
+        $_ENV[$key] = $dotenv->envArray[$key] = ($dotenv->isCastType() && !in_array($key, array_keys($dotenv->envQuotesMap), true) ? Helper::castType($value) : $value);
     }
 
     public function getEnvRawArray(): array
@@ -122,11 +108,37 @@ class Dotenv
         return $this->envArray;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getLoadedPaths(): array
+    {
+        return $this->storage->getLoadedPaths();
+    }
+
+
+    public function getVariablesResolver(): Variables
+    {
+        return $this->variablesResolver;
+    }
+
+    public function isCastType(): bool
+    {
+        return $this->castType;
+    }
+
+    public function setCastType(bool $castType): void
+    {
+        $this->castType = $castType;
+    }
+
     public static function clear(): void
     {
         if (false !== $envs = getenv('ENJOYS_DOTENV')) {
             foreach (explode(',', $envs) as $key) {
-                putenv($key); //unset
+                if (!empty($key)){
+                    putenv($key); //unset
+                }
             }
         }
 

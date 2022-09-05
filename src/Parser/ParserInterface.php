@@ -11,7 +11,12 @@ interface ParserInterface
     public function parse(string $content): void;
 
     /**
-     * @return array<string, string|bool|int|float|null>
+     * @return array<string, string|null>
      */
     public function getEnvArray(): array;
+
+    /**
+     * @return array<string, string|null>
+     */
+    public function getEnvQuotesMap(): array;
 }

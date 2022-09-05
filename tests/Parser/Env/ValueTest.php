@@ -9,25 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 class ValueTest extends TestCase
 {
-    public function testValueCreateWithAutoCastToInt()
-    {
-        $value = new Value('42', autoCastType: true);
-        $this->assertIsInt($value->getValue());
-    }
-
-    public function testValueCreateWithAutoCastToFloat()
-    {
-        $value = new Value('3.14', autoCastType: true);
-        $this->assertIsFloat($value->getValue());
-    }
-
-    public function testValueCreateWithAutoCastToBool()
-    {
-        $value = new Value('true', autoCastType: true);
-        $this->assertTrue($value->getValue());
-        $value = new Value('False', autoCastType: true);
-        $this->assertFalse($value->getValue());
-    }
 
     public function testValueCreateWithNeedQuotesTrue()
     {
@@ -42,11 +23,11 @@ class ValueTest extends TestCase
         $value = new Value('42', false);
         $this->assertSame('42', $value->__toString());
 
-        $value = new Value('true', autoCastType: true);
+        $value = new Value('true');
         $this->assertSame('true', $value->__toString());
     }
 
-    public function testValueCreateWithAutoCastDisabled()
+    public function testValueCreate()
     {
         $value = new Value('true');
         $this->assertNotTrue($value->getValue());

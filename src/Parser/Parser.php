@@ -17,20 +17,25 @@ use Enjoys\Dotenv\Parser\Lines\Lines;
 
 final class Parser implements ParserInterface
 {
-    const AUTO_CAST_VALUE_TYPE = 1;
+
     /**
      * @var string[]
      */
     private array $rawLinesArray = [];
 
     /**
+     * @var array<string, string|null>
+     */
+    private array $envArray = [];
+    /**
+     * @var array<string, string|null>
+     */
+    private array $envQuotesMap = [];
+
+    /**
      * @var array<array-key, LineInterface>
      */
     private array $lines = [];
-
-    public function __construct(private int $flags = 0)
-    {
-    }
 
     public function getRawLinesArray(): array
     {
@@ -47,10 +52,12 @@ final class Parser implements ParserInterface
     {
         $this->clear();
 
-        $this->rawLinesArray = Lines::handle(array_map(
-            'trim',
-            preg_split("/\R/", $content)
-        ));
+        $this->rawLinesArray = Lines::handle(
+            array_map(
+                'trim',
+                preg_split("/\R/", $content)
+            )
+        );
 
         foreach ($this->rawLinesArray as $rawLine) {
             if (empty($rawLine)) {
@@ -69,6 +76,12 @@ final class Parser implements ParserInterface
                 $value,
                 $comment
             );
+        }
+
+        $envLines = $this->getEnvLines();
+        foreach ($envLines as $envLine) {
+            $this->envArray[(string)$envLine->getKey()] = $envLine->getValue()?->getValue();
+            $this->envQuotesMap[(string)$envLine->getKey()] = $envLine->getValue()?->getQuote();
         }
     }
 
@@ -95,16 +108,19 @@ final class Parser implements ParserInterface
     }
 
     /**
-     * @return array<string, string|bool|int|float|null>
+     * @return array<string, string|null>
      */
     public function getEnvArray(): array
     {
-        $envLines = $this->getEnvLines();
-        $envArray = [];
-        foreach ($envLines as $envLine) {
-            $envArray[(string)$envLine->getKey()] = $envLine->getValue()?->getValue();
-        }
-        return $envArray;
+        return $this->envArray;
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    public function getEnvQuotesMap(): array
+    {
+        return $this->envQuotesMap;
     }
 
     /**
@@ -140,7 +156,7 @@ final class Parser implements ParserInterface
         }
 
         preg_match(
-            '/^([\'"])(?<value>(?:(?!\1|\\\\).|\\\\.)*)\1(?<comment>.*)?/',
+            '/^(?P<quote>[\'"])(?P<value>(?:(?!\1|\\\\).|\\\\.)*)\1(?P<comment>.*)?/',
             $rawValue,
             $matches,
             PREG_UNMATCHED_AS_NULL
@@ -151,22 +167,16 @@ final class Parser implements ParserInterface
 
         if ($matches['value']) {
             return [
-                new Value($matches['value'], true, $matches[1], $this->isAutoCastType()),
+                new Value($matches['value'], true, !$matches['quote'] ? null : $matches['quote']),
                 $matches['comment'] ? new Comment($matches['comment']) : null
             ];
         }
 
         $unquotedValue = array_map('trim', explode('#', $rawValue, 2));
         return [
-            new Value($unquotedValue[0], false, autoCastType: $this->isAutoCastType()),
+            new Value($unquotedValue[0], false),
             ($unquotedValue[1] ?? null) ? new Comment($unquotedValue[1]) : null
         ];
     }
-
-    private function isAutoCastType(): bool
-    {
-        return ($this->flags & self::AUTO_CAST_VALUE_TYPE) === self::AUTO_CAST_VALUE_TYPE;
-    }
-
 
 }

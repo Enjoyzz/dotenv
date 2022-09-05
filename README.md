@@ -29,15 +29,13 @@ composer require enjoys/dotenv
 ```php
 use Enjoys\Dotenv\Dotenv;
  
-$dotenv = new Dotenv(__DIR__);
+# loaded line __DIR__.'/.env.dist -> __DIR__.'/.env' -> __DIR__.'/.env.<APP_ENV> (repeat.env.<APP_ENV> if redefined) 
+$dotenv = new Dotenv(__DIR__.'/.env'); 
+// config available in $_ENV
+$dotenv->loadEnv(); 
 
-# or you can change the default configuration file names, the default file name is specified
-# $dotenv = new Dotenv(__DIR__, '.env', '.env.dist');
-
-$dotenv->loadEnv(); // config available in $_ENV
-
-# use putenv()
-# $dotenv->loadEnv(true);  // config available in $_ENV and getenv()
+# config available in $_ENV and getenv()
+# $dotenv->loadEnv(true); 
 ```
 
 # Формат .env файлов
@@ -60,40 +58,50 @@ VAR10=${NOT_DEFINED_VAR:?} # throw Exception
 
 ### Type Casting (приведение типов)
 
-Все значения в .env файле являются строками (string), но иногда было бы хорошо явно указать тип.
-Это возможно.
 
+Все значения в .env файле являются строками (string), но иногда было бы хорошо привести значение к соответствующему типу.
+Это возможно, установив свойство $castType в true с помощью метода `setCastType()`.
+
+```php
+use Enjoys\Dotenv\Parser\Parser;
+$dotenv = new \Enjoys\Dotenv\Dotenv(__DIR__);
+$dotenv->setCastType(true);
+$dotenv->loadEnv();
+```
+
+Ниже примеры как будут кастоваться переменные
 ```shell
 VAR = *true  #bool(true)
+VAR = true  #bool(true)
+VAR = *false  #bool(false)
+VAR = false  #bool(false)
+VAR = *bool somethig  #bool(true)
+VAR = *bool  #bool(false)
 VAR = *int 42  #int(42)
-VAR = "*int 42"  #int(42)
+VAR = "*int 42"  #string
+VAR = 42  #int(42)
+VAR = '42'  #string
+VAR = 3.14  #float(3.14)
+VAR = 3,14  #float(3.14)
+VAR = *float 3,14  #float(3.14)
+VAR = *double 3.14  #float(3.14)
+VAR = "3.14"  #string
 #и т.д.
 ```
 
+- ***bool** - return bool(true) or bool(false)
 - ***true** - return bool(true)
 - ***false** - return bool(false)
 - ***null** - return NULL
 - ***int** `*int 42` return int(42)
 - ***int8**
 - ***int16**
-- ***float** `*float 3.14`  return float(3.14)
+- ***float** or ***double** `*float 3,14`  return float(3.14), запятые автоматически заменяются на точки
 - ***string** - `*string *int` return string(4) "*int"
 
 ***Внимание***
 _Type Casting будет работать только при использовании этой библиотеки, при парсинге файла другими библиотеками или
 системой значения скорее всего приведены к типам не будут._
-
-### Auto type Casting (автоматическое приведение типов)
-
-Есть возможность автоматически определить тип. Например '42' => 42, 'true' => true, и тд.
-Как включить?
-
-```injectablephp
-use Enjoys\Dotenv\Parser\Parser;
-$parser = new Parser(Parser::AUTO_CAST_VALUE_TYPE);
-$dotenv = new \Enjoys\Dotenv\Dotenv(__DIR__, parser: $parser);
-$dotenv->loadEnv();
-```
 
 ### Значения переменных по-умолчанию
 
@@ -108,16 +116,16 @@ $dotenv->loadEnv();
 
 _**Внимание!** Если переменная не установлена, и не переданы значения по-умолчанию, будет возвращена пустая строка._
 
-Чтобы вызвать ошибку при таком сценарии, можно указать после наименования переменной `:?`, или `:?message`. И в случае если
+Чтобы вызвать ошибку при таком сценарии, можно указать после наименования переменной `:?`, или `:?message`. И в случае
+если
 переменная не была установлена, будет выброшено исключение `\Enjoys\Dotenv\Exception\InvalidArgumentException`
 
 Например:
+
 ```shell
 VAR1=${NOT_DEFINED_VAR:?extended error message} #with error message
 VAR2=${NOT_DEFINED_VAR:?} #or just with empty error message
 ```
 
 # TODO
-
-- сделать правила валидации, like required, needInt...
-- "*int 42" не должен кастоваться в число, а должен остаться текстом как текст
+- validation value
