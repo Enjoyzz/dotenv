@@ -13,114 +13,70 @@ use Enjoys\Dotenv\Parser\Lines\CommentLine;
 use Enjoys\Dotenv\Parser\Lines\EmptyLine;
 use Enjoys\Dotenv\Parser\Lines\EnvLine;
 use Enjoys\Dotenv\Parser\Lines\LineInterface;
-use Enjoys\Dotenv\Parser\Lines\Lines;
+use Enjoys\Dotenv\Parser\Lines\Multiline;
 
 final class Parser implements ParserInterface
 {
 
     /**
-     * @var string[]
+     * @param string $content
+     * @return array<string, string|null>
      */
-    private array $rawLinesArray = [];
-
-    /**
-     * @var array<string, string|null>
-     */
-    private array $envArray = [];
-    /**
-     * @var array<string, string|null>
-     */
-    private array $envQuotesMap = [];
-
-    /**
-     * @var array<array-key, LineInterface>
-     */
-    private array $lines = [];
-
-    public function getRawLinesArray(): array
+    public function parseEnv(string $content): array
     {
-        return $this->rawLinesArray;
+        $envArray = [];
+        /** @var LineInterface $line */
+        foreach ($this->parseLines($content) as $line) {
+            if ($line instanceof EnvLine){
+                $envArray[$line->getKey()->getValue()] = $line->getValue()?->getValue();
+            }
+        }
+        return $envArray;
     }
 
-    private function clear(): void
+    /**
+     * @param string $content
+     * @return array<array-key, LineInterface>
+     */
+    public function parseStructure(string $content): array
     {
-        $this->rawLinesArray = [];
-        $this->lines = [];
+        $structure = [];
+        /** @var LineInterface $line */
+        foreach ($this->parseLines($content) as $line) {
+            if ($line instanceof EnvLine){
+                $structure[$line->getKey()->getValue()] = $line;
+                continue;
+            }
+            $structure[] = $line;
+        }
+        return $structure;
     }
 
-    public function parse(string $content): void
+    public function parseLines(string $content): \Generator
     {
-        $this->clear();
-
-        $this->rawLinesArray = Lines::handle(
+        foreach (Multiline::handle(
             array_map(
                 'trim',
                 preg_split("/\R/", $content)
             )
-        );
-
-        foreach ($this->rawLinesArray as $rawLine) {
-            if (empty($rawLine)) {
-                $this->lines[] = new EmptyLine();
+        ) as $line) {
+            if (empty($line)) {
+                yield new EmptyLine();
                 continue;
             }
 
-            if (str_starts_with($rawLine, '#')) {
-                $this->lines[] = new CommentLine($rawLine);
+            if (str_starts_with($line, '#')) {
+                yield new CommentLine($line);
                 continue;
             }
 
-            [$key, $value, $comment] = $this->parseEnvLine($rawLine);
-            $this->lines[$key->getValue()] = new EnvLine(
+            [$key, $value, $comment] = $this->parseEnvLine($line);
+            yield new EnvLine(
                 $key,
                 $value,
                 $comment
             );
         }
-
-        $envLines = $this->getEnvLines();
-        foreach ($envLines as $envLine) {
-            $this->envArray[(string)$envLine->getKey()] = $envLine->getValue()?->getValue();
-            $this->envQuotesMap[(string)$envLine->getKey()] = $envLine->getValue()?->getQuote();
-        }
-    }
-
-    /**
-     * @return array<array-key, LineInterface>
-     */
-    public function getLines(): array
-    {
-        return $this->lines;
-    }
-
-    /**
-     * @return array<array-key, EnvLine&LineInterface>
-     * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement
-     */
-    public function getEnvLines(): array
-    {
-        return array_filter($this->lines, function ($item) {
-            if ($item instanceof EnvLine) {
-                return true;
-            }
-            return false;
-        });
-    }
-
-    /**
-     * @return array<string, string|null>
-     */
-    public function getEnvArray(): array
-    {
-        return $this->envArray;
-    }
-
-    /**
-     * @return array<string, string|null>
-     */
-    public function getEnvQuotesMap(): array
-    {
-        return $this->envQuotesMap;
     }
 
     /**
@@ -156,7 +112,7 @@ final class Parser implements ParserInterface
         }
 
         preg_match(
-            '/^(?P<quote>[\'"])(?P<value>(?:(?!\1|\\\\).|\\\\.)*)\1(?P<comment>.*)?/',
+            '/^(?<value>([\'"])(?:(?!\1|\\\\).|\\\\.)*\2)(?<comment>.*)?/',
             $rawValue,
             $matches,
             PREG_UNMATCHED_AS_NULL
@@ -167,14 +123,14 @@ final class Parser implements ParserInterface
 
         if ($matches['value']) {
             return [
-                new Value($matches['value'], true, !$matches['quote'] ? null : $matches['quote']),
+                new Value($matches['value']),
                 $matches['comment'] ? new Comment($matches['comment']) : null
             ];
         }
 
         $unquotedValue = array_map('trim', explode('#', $rawValue, 2));
         return [
-            new Value($unquotedValue[0], false),
+            new Value($unquotedValue[0]),
             ($unquotedValue[1] ?? null) ? new Comment($unquotedValue[1]) : null
         ];
     }

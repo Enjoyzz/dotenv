@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Parser;
 
 use Enjoys\Dotenv\Exception\InvalidArgumentException;
+use Enjoys\Dotenv\Parser\Lines\EnvLine;
 use Enjoys\Dotenv\Parser\Parser;
 use PHPUnit\Framework\TestCase;
 
@@ -20,8 +21,10 @@ class ParserTest extends TestCase
             $this->expectException(InvalidArgumentException::class);
         }
         $parser = new Parser();
-        $parser->parse($input);
-        $this->assertSame($expect, $parser->getRawLinesArray());
+        $this->assertSame(
+            $expect,
+            array_map(fn($item) => $item->__toString(), iterator_to_array($parser->parseLines($input)))
+        );
     }
 
     public function dataForTestSplitContentOnRawArray(): array
@@ -42,31 +45,43 @@ class ParserTest extends TestCase
     public function testParse()
     {
         $parser = new Parser();
-        $parser->parse(
-            <<<ENV
+        $lines = array_map(fn($item) => $item->__toString(),
+            iterator_to_array(
+                $parser->parseLines(
+                    <<<ENV
 # comment
 
 VAR1 = value  1
 VAR2=value2#comment
 VAR3 = "     value3 #not comment"                comment
 ENV
-        );
+                )
+            ));
+
         $this->assertSame([
-            'VAR1' => 'value  1',
-            'VAR2' => 'value2',
-            'VAR3' => '     value3 #not comment',
-        ], $parser->getEnvArray());
+            '# comment',
+            '',
+            'VAR1=value  1',
+            'VAR2=value2 #comment',
+            'VAR3="     value3 #not comment" #comment'
+        ], $lines);
     }
 
     public function testParseEnvLines()
     {
         $parser = new Parser();
-        $parser->parse(
-            <<<ENV
+        $envLines = [];
+        foreach (
+            $parser->parseLines(
+                <<<ENV
 VAR1 = value # comment #2
 ENV
-        );
-        $envLines = $parser->getEnvLines();
+            ) as $parseLine
+        ) {
+            if ($parseLine instanceof EnvLine) {
+                $envLines[$parseLine->getKey()->getValue()] = $parseLine;
+            }
+        }
         $this->assertCount(1, $envLines);
         $this->assertSame('VAR1', $envLines['VAR1']->getKey()->getValue());
         $this->assertSame('value', $envLines['VAR1']->getValue()->getValue());

@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace Enjoys\Dotenv\Parser\Lines;
 
 
-final class Lines
+final class Multiline
 {
 
     /**

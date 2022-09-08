@@ -11,14 +11,19 @@ use Enjoys\Dotenv\Parser\ParserInterface;
 class Dotenv
 {
 
+    private const CHARACTER_MAP = [
+        "\\n" => "\n",
+        "\\\"" => "\"",
+        "\\\\" => "\\",
+        '\\\'' => "'",
+        '\\t' => "\t"
+    ];
+
     /**
      * @var array<string, string|null>
      */
     private array $envRawArray = [];
-    /**
-     * @var array<string, string|null>
-     */
-    private array $envQuotesMap = [];
+
     /**
      * @var array<string, string|bool|int|float|null>
      */
@@ -60,16 +65,14 @@ class Dotenv
             if ($this->storage->isLoaded($path)) {
                 continue;
             }
-            $this->parser->parse(file_get_contents($path));
-            $this->envRawArray = array_merge($this->envRawArray, $this->parser->getEnvArray());
-            $this->envQuotesMap = array_merge($this->envQuotesMap, $this->parser->getEnvQuotesMap());
+
+            $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv(file_get_contents($path)));
             $this->storage->markLoaded($path);
             $this->storage->addPath(
                 $this->envFilePath . '.' . ((getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '')
             );
         }
 
-        $this->envQuotesMap = array_filter($this->envQuotesMap);
     }
 
     private function writeEnvs(bool $usePutEnv): void
@@ -85,6 +88,18 @@ class Dotenv
         Dotenv $dotenv,
         bool $usePutEnv = false
     ): void {
+
+        $quoted = 0;
+        if ($value !== null){
+            $value = preg_replace_callback('/^([\'"])?(.*)(\1)/', function ($matches) {
+                return match ($matches[1]) {
+                    "'" => $matches[2],
+                    "\"" => strtr($matches[2], self::CHARACTER_MAP),
+                    default => $matches[0],
+                };
+            }, $value, count: $quoted);
+        }
+
         $value = $dotenv->getVariablesResolver()->resolve($key, $value);
 
         if (!getenv($key) && $usePutEnv === true) {
@@ -95,7 +110,7 @@ class Dotenv
             $value = getenv($key);
         }
 
-        $_ENV[$key] = $dotenv->envArray[$key] = ($dotenv->isCastType() && !in_array($key, array_keys($dotenv->envQuotesMap), true) ? Helper::castType($value) : $value);
+        $_ENV[$key] = $dotenv->envArray[$key] = (($dotenv->isCastType() && $quoted === 0) ? Helper::castType($value) : $value);
     }
 
     public function getEnvRawArray(): array

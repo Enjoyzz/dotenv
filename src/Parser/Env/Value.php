@@ -8,44 +8,34 @@ final class Value implements \Stringable
 {
     private string $value;
 
-    /**
-     * @var string[]
-     */
-    private static array $characterMap = array(
-        "\\n" => "\n",
-        "\\\"" => "\"",
-        "\\\\" => "\\",
-        '\\\'' => "'",
-        '\\t' => "\t"
-    );
-
 
     public function __construct(
         string $value,
-        private bool $needQuotes = false,
-        private string|null $quote = null
+        private ?string $quote = null
     ) {
         $this->value = $this->handleValue($value);
     }
 
     private function handleValue(string $value): string
     {
-        if (preg_match('/[#]/', $value)) {
-            $this->needQuotes = true;
+        if (preg_match('/#+/', $value)) {
+            $this->quote = '"';
         }
-        return $value;
+        if (preg_match('/^["\']+/', $value)) {
+            $this->quote = null;
+        }
+        return $this->quote ? sprintf('%2$s%1$s%2$s', $value, $this->quote) : $value;
     }
 
     public function __toString(): string
     {
-        return $this->needQuotes ? sprintf('"%s"', $this->value) : $this->value;
+        return $this->value;
     }
 
     public function getValue(): string
     {
-        return ($this->needQuotes && $this->quote === '"') ? strtr($this->value, self::$characterMap) : $this->value;
+        return $this->value;
     }
-
 
     public function getQuote(): ?string
     {

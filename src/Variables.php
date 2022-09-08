@@ -27,8 +27,8 @@ final class Variables
                 /** @var string|bool|int|float|null $val */
                 $val =
                     ($env ?: null) ??
-                    $this->dotenv->getEnvRawArray()[$matches['variable']] ??
                     $this->dotenv->getEnvArray()[$matches['variable']] ??
+                    $this->dotenv->getEnvRawArray()[$matches['variable']] ??
                     ($matches['default_value'] ? $this->resolveDefaultValue($matches['default_value'], $matches['variable']) : null) ??
                     '';
 

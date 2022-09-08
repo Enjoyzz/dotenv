@@ -12,7 +12,7 @@ class ValueTest extends TestCase
 
     public function testValueCreateWithNeedQuotesTrue()
     {
-        $value = new Value('42', true);
+        $value = new Value('42', '"');
         $this->assertSame('"42"', $value->__toString());
 
 
@@ -20,7 +20,7 @@ class ValueTest extends TestCase
 
     public function testValueCreateWithNeedQuotesFalse()
     {
-        $value = new Value('42', false);
+        $value = new Value('42');
         $this->assertSame('42', $value->__toString());
 
         $value = new Value('true');

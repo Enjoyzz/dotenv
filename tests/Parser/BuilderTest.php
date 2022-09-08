@@ -34,16 +34,16 @@ VAR2=value 2
 
 VAR3="value #3" #comment
 VAR4=value #3 comment
-VAR5="value \'5"
+VAR5='value \'5'
 VAR6="value \"6" #comment
 ENV;
 
     public function testBuild()
     {
         $parser = new Parser();
-        $parser->parse($this->input);
+        ;
 
-        $builder = new Builder($parser->getLines());
+        $builder = new Builder($parser->parseStructure($this->input));
         $this->assertSame($this->expect, $builder->build());
     }
 
@@ -54,13 +54,13 @@ ENV;
         $lines[] = new EmptyLine();
         $lines[] = new EnvLine(
             new Key('TEST2'),
-            new Value('VALUE #2 @builder', true),
+            new Value('VALUE #2 @builder', '"'),
             new Comment('manually quote')
         );
         $lines[] = new CommentLine('GROUP COMMENT');
         $lines[] = new EnvLine(
             new Key('TEST2'),
-            new Value('VALUE #2 @builder', false),
+            new Value('VALUE #2 @builder', null),
             new Comment('auto-quote')
         );
 

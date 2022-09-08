@@ -6,17 +6,18 @@ declare(strict_types=1);
 namespace Enjoys\Dotenv\Parser;
 
 
+use Enjoys\Dotenv\Parser\Lines\LineInterface;
+
 interface ParserInterface
 {
-    public function parse(string $content): void;
-
     /**
+     * @param string $content
      * @return array<string, string|null>
      */
-    public function getEnvArray(): array;
-
+    public function parseEnv(string $content): array;
     /**
-     * @return array<string, string|null>
+     * @param string $content
+     * @return array<array-key, LineInterface>
      */
-    public function getEnvQuotesMap(): array;
+    public function parseStructure(string $content): array;
 }
