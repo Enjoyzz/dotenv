@@ -108,7 +108,7 @@ class DotenvTest extends TestCase
     public function testCastType()
     {
         $dotenv = new Dotenv(__DIR__ . '/fixtures/2/.env');
-        $dotenv->setCastType(true);
+        $dotenv->enableCastType();
         $dotenv->loadEnv();
 
         $this->assertSame("*int 42", $_ENV['VAR_1']);
@@ -135,7 +135,7 @@ class DotenvTest extends TestCase
     {
 
         $dotenv = new Dotenv(__DIR__ . '/fixtures/2/.auto_cast_type');
-        $dotenv->setCastType(true);
+        $dotenv->enableCastType();
         $dotenv->loadEnv();
 
         $this->assertSame(42, $_ENV['VAR_1']);
@@ -194,7 +194,7 @@ class DotenvTest extends TestCase
     public function testWithComment()
     {
         $dotenv = new Dotenv(__DIR__ . '/fixtures/with_comment/.env');
-        $dotenv->setCastType(true);
+        $dotenv->enableCastType();
         $dotenv->loadEnv();
         $this->assertSame(false, $_ENV['MY_VAR'] ?? false);
         $this->assertSame('      # 23', $_ENV['VAR2']);
@@ -289,7 +289,7 @@ class DotenvTest extends TestCase
         $dotenv = new Dotenv(
             __DIR__ . '/fixtures/2/.auto_cast_type'
         );
-        $dotenv->setCastType(true);
+        $dotenv->enableCastType();
         $dotenv->loadEnv(true);
         $this->assertSame('42', getenv('VAR_1'));
         $this->assertSame('3.14', getenv('VAR_10'));

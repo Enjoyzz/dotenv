@@ -60,14 +60,23 @@ VAR10=${NOT_DEFINED_VAR:?} # throw Exception
 
 
 Все значения в .env файле являются строками (string), но иногда было бы хорошо привести значение к соответствующему типу.
-Это возможно, установив свойство $castType в true с помощью метода `setCastType()`.
+Это возможно, установив свойство $castType в true с помощью метода `enableCastType()`.
 
 ```php
-use Enjoys\Dotenv\Parser\Parser;
-$dotenv = new \Enjoys\Dotenv\Dotenv(__DIR__);
-$dotenv->setCastType(true);
+use Enjoys\Dotenv\Dotenv;
+$dotenv = new  Dotenv(__DIR__.'/.env');
+$dotenv->enableCastType();
 $dotenv->loadEnv();
 ```
+
+...или с помощью флага `Dotenv::CAST_TYPE_ENV_VALUE`
+
+```php
+use \Enjoys\Dotenv\Dotenv;
+$dotenv = new Dotenv(__DIR__.'/.env', flags: Dotenv::CAST_TYPE_ENV_VALUE);
+$dotenv->loadEnv();
+```
+
 
 Ниже примеры как будут кастоваться переменные
 ```shell

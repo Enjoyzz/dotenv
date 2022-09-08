@@ -12,6 +12,7 @@ class Dotenv
 {
 
     public const CLEAR_MEMORY_AFTER_LOAD_ENV = 1;
+    public const CAST_TYPE_ENV_VALUE = 2;
 
     private const CHARACTER_MAP = [
         "\\n" => "\n",
@@ -30,8 +31,6 @@ class Dotenv
     private ParserInterface $parser;
     private Variables $variablesResolver;
     private StorageInterface $storage;
-
-    private bool $castType = false;
 
     public function __construct(
         private string $envFilePath,
@@ -143,16 +142,6 @@ class Dotenv
         return $this->variablesResolver;
     }
 
-    public function isCastType(): bool
-    {
-        return $this->castType;
-    }
-
-    public function setCastType(bool $castType): void
-    {
-        $this->castType = $castType;
-    }
-
     public static function clear(): void
     {
         if (false !== $envs = getenv('ENJOYS_DOTENV')) {
@@ -168,14 +157,29 @@ class Dotenv
         }
     }
 
-    private function isClearMemory(): bool
+    public function enableCastType(): void
     {
-        return ($this->flags & self::CLEAR_MEMORY_AFTER_LOAD_ENV) === self::CLEAR_MEMORY_AFTER_LOAD_ENV;
+        $this->flags = $this->flags | self::CAST_TYPE_ENV_VALUE;
+    }
+
+    public function disableCastType(): void
+    {
+        $this->flags = $this->flags ^ self::CAST_TYPE_ENV_VALUE;
     }
 
     private function clearMemory(): void
     {
         unset($this->envCollection, $this->variablesResolver);
+    }
+
+    public function isCastType(): bool
+    {
+        return ($this->flags & self::CAST_TYPE_ENV_VALUE) === self::CAST_TYPE_ENV_VALUE;
+    }
+
+    private function isClearMemory(): bool
+    {
+        return ($this->flags & self::CLEAR_MEMORY_AFTER_LOAD_ENV) === self::CLEAR_MEMORY_AFTER_LOAD_ENV;
     }
 
 }

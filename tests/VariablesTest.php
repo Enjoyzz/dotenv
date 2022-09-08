@@ -42,7 +42,7 @@ final class VariablesTest extends TestCase
     public function testNotDefinedVariablesWithEqAndCast()
     {
         $dotenv = new Dotenv(__DIR__.'/fixtures/variables/4');
-        $dotenv->setCastType(true);
+        $dotenv->enableCastType();
         $dotenv->loadEnv();
         $this->assertSame(true, $_ENV['VAR1']);
         $this->assertTrue($_ENV['VAR']);
@@ -68,7 +68,7 @@ final class VariablesTest extends TestCase
     public function testDefaultIfVarSetViaRegisterEnv()
     {
         $dotenv = new Dotenv(__DIR__.'/fixtures/variables/7');
-        $dotenv->setCastType(true);
+        $dotenv->enableCastType();
         $dotenv::writeEnv('VAR', 'false', $dotenv->getEnvCollection());
         $dotenv->loadEnv();
         $this->assertFalse($_ENV['VAR1']);
