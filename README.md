@@ -135,6 +135,3 @@ _**Внимание!** Если переменная не установлена
 VAR1=${NOT_DEFINED_VAR:?extended error message} #with error message
 VAR2=${NOT_DEFINED_VAR:?} #or just with empty error message
 ```
-
-# TODO
-- validation value
