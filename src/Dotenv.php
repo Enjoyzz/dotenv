@@ -11,6 +11,8 @@ use Enjoys\Dotenv\Parser\ParserInterface;
 class Dotenv
 {
 
+    public const CLEAR_MEMORY_AFTER_LOAD_ENV = 1;
+
     private const CHARACTER_MAP = [
         "\\n" => "\n",
         "\\\"" => "\"",
@@ -34,7 +36,8 @@ class Dotenv
     public function __construct(
         private string $envFilePath,
         ?StorageInterface $storage = null,
-        ?ParserInterface $parser = null
+        ?ParserInterface $parser = null,
+        private int $flags = 0
     ) {
         $this->envCollection = new EnvCollection();
         $this->parser = $parser ?? new Parser();
@@ -49,6 +52,10 @@ class Dotenv
 
         $_ENV['ENJOYS_DOTENV'] = implode(',', $this->envCollection->getKeys());
         putenv(sprintf('ENJOYS_DOTENV=%s', $_ENV['ENJOYS_DOTENV']));
+
+        if ($this->isClearMemory()) {
+            $this->clearMemory();
+        }
     }
 
     private function readFiles(): void
@@ -161,5 +168,14 @@ class Dotenv
         }
     }
 
+    private function isClearMemory(): bool
+    {
+        return ($this->flags & self::CLEAR_MEMORY_AFTER_LOAD_ENV) === self::CLEAR_MEMORY_AFTER_LOAD_ENV;
+    }
+
+    private function clearMemory(): void
+    {
+        unset($this->envCollection, $this->variablesResolver);
+    }
 
 }
