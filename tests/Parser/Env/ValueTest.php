@@ -15,7 +15,11 @@ class ValueTest extends TestCase
         $value = new Value('42', '"');
         $this->assertSame('"42"', $value->__toString());
 
+        $value = new Value(' "42"', "'");
+        $this->assertSame("' \"42\"'", $value->__toString());
 
+        $value = new Value('"42"', "'");
+        $this->assertSame('"42"', $value->__toString());
     }
 
     public function testValueCreateWithNeedQuotesFalse()

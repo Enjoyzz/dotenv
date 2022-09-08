@@ -84,25 +84,25 @@ class Dotenv
 
     public function handleValue(string $key, ?string $value): float|bool|int|string|null
     {
-        $quoted = 0;
+
         if ($value !== null) {
-            $value = preg_replace_callback('/^([\'"])?(.*)(\1)/', function ($matches) {
-                return match ($matches[1]) {
-                    "'" => $matches[2],
-                    "\"" => strtr($matches[2], self::CHARACTER_MAP),
-                    default => $matches[0],
+            $value = preg_replace_callback('/^(?<quote>[\'"])?(?<value>.*)\1/', function ($matches) {
+                return match ($matches['quote']) {
+                    "'" => $matches['value'],
+                    "\"" => strtr($matches['value'], self::CHARACTER_MAP)
                 };
             }, $value, count: $quoted);
+
         }
 
-        $value = $this->getVariablesResolver()->resolve($key, $value);
+        $value = $this->variablesResolver->resolve($key, $value);
 
 
         if (getenv($key)) {
             $value = getenv($key);
         }
 
-        return ($this->isCastType() && $quoted === 0) ? Helper::castType($value) : $value;
+        return ($this->isCastType() && ($quoted ?? null) === 0) ? Helper::castType($value) : $value;
     }
 
     public static function writeEnv(
@@ -137,11 +137,6 @@ class Dotenv
     }
 
 
-    public function getVariablesResolver(): Variables
-    {
-        return $this->variablesResolver;
-    }
-
     public static function clear(): void
     {
         if (false !== $envs = getenv('ENJOYS_DOTENV')) {
@@ -172,7 +167,7 @@ class Dotenv
         unset($this->envCollection, $this->variablesResolver);
     }
 
-    public function isCastType(): bool
+    private function isCastType(): bool
     {
         return ($this->flags & self::CAST_TYPE_ENV_VALUE) === self::CAST_TYPE_ENV_VALUE;
     }

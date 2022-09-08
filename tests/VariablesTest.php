@@ -75,5 +75,21 @@ final class VariablesTest extends TestCase
     }
 
 
+    public function testResoleveWithGetEnv()
+    {
+        putenv('VAR=42');
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/7');
+        $dotenv->enableCastType();
+        $dotenv::writeEnv('VAR', 'false', $dotenv->getEnvCollection());
+        $dotenv->loadEnv();
+        $this->assertSame(42, $_ENV['VAR1']);
+    }
+
+    public function testDefinedVariablesButWithDefaultValue()
+    {
+        $dotenv = new Dotenv(__DIR__.'/fixtures/variables/8');
+        $dotenv->loadEnv();
+        $this->assertSame('false', $_ENV['VAR1']);
+    }
 
 }

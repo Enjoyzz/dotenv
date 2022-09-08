@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 use Enjoys\Dotenv\Dotenv;
 use PHPUnit\Framework\TestCase;
-use Webmozart\Assert\InvalidArgumentException;
 
 class DotenvTest extends TestCase
 {
@@ -30,28 +29,6 @@ class DotenvTest extends TestCase
         return $property;
     }
 
-//    public function testBaseDirectory()
-//    {
-//        $this->assertSame(
-//            'var' . DIRECTORY_SEPARATOR,
-//            $this->getPrivateProperty(
-//                Dotenv::class,
-//                'baseDirectory'
-//            )->getValue(
-//                new Dotenv('var/')
-//            )
-//        );
-//
-//        $this->assertSame(
-//            '/var' . DIRECTORY_SEPARATOR,
-//            $this->getPrivateProperty(
-//                Dotenv::class,
-//                'baseDirectory'
-//            )->getValue(
-//                new Dotenv('/var')
-//            )
-//        );
-//    }
 
     public function testVariableReplace()
     {
@@ -463,4 +440,29 @@ ENV
         $dotenv->loadEnv();
         $this->assertSame([], $dotenv->getEnvCollection()->getCollection());
     }
+
+
+    /**
+     * @dataProvider dataForTestHandleValue
+     */
+    public function testHandleValue($key, $string, $expect)
+    {
+        $dotenv = new Dotenv(__DIR__.'/fixtures/1/.env', flags: Dotenv::CAST_TYPE_ENV_VALUE);
+        $this->assertSame($expect, $dotenv->handleValue($key, $string));
+    }
+
+
+    public function dataForTestHandleValue()
+    {
+        return [
+            ['VAR', '42', 42],
+            ['VAR', '"42"', '42'],
+            ['VAR', "'42'", '42'],
+            ['VAR', null, null],
+            ['VAR', 'str\\\'ing', 'str\\\'ing'],
+            ['VAR', '"str\\\'ing"', 'str\'ing'],
+            ['VAR', "'str\\'ing'", 'str\\\'ing'],
+        ];
+    }
+
 }

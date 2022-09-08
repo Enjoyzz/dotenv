@@ -1,0 +1,2 @@
+APP_ENV=sub
+VAR1=${VAR:=*true}

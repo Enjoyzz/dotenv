@@ -37,9 +37,4 @@ final class Value implements \Stringable
         return $this->value;
     }
 
-    public function getQuote(): ?string
-    {
-        return $this->quote;
-    }
-
 }
