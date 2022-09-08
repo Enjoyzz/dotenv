@@ -24,10 +24,8 @@ class Dotenv
      */
     private array $envRawArray = [];
 
-    /**
-     * @var array<string, string|bool|int|float|null>
-     */
-    private array $envArray = [];
+
+    private EnvCollection $envCollection;
 
 
     private ParserInterface $parser;
@@ -42,6 +40,7 @@ class Dotenv
         ?StorageInterface $storage = null,
         ?ParserInterface $parser = null
     ) {
+        $this->envCollection = new EnvCollection();
         $this->parser = $parser ?? new Parser();
         $this->storage = $storage ?? new Storage();
         $this->variablesResolver = new Variables($this);
@@ -52,7 +51,7 @@ class Dotenv
         $this->readFiles();
         $this->writeEnvs($usePutEnv);
 
-        $_ENV['ENJOYS_DOTENV'] = implode(',', array_keys($this->envArray));
+        $_ENV['ENJOYS_DOTENV'] = implode(',', $this->envCollection->getKeys());
         putenv(sprintf('ENJOYS_DOTENV=%s', $_ENV['ENJOYS_DOTENV']));
     }
 
@@ -110,7 +109,9 @@ class Dotenv
             $value = getenv($key);
         }
 
-        $_ENV[$key] = $dotenv->envArray[$key] = (($dotenv->isCastType() && $quoted === 0) ? Helper::castType($value) : $value);
+        $value = ($dotenv->isCastType() && $quoted === 0) ? Helper::castType($value) : $value;
+        $_ENV[$key] = $value;
+        $dotenv->getEnvCollection()->add($key, $value);
     }
 
     public function getEnvRawArray(): array
@@ -120,7 +121,7 @@ class Dotenv
 
     public function getEnvArray(): array
     {
-        return $this->envArray;
+        return $this->envCollection->getCollection();
     }
 
     /**
@@ -160,5 +161,11 @@ class Dotenv
         foreach (explode(',', (string)($_ENV['ENJOYS_DOTENV'] ?? '')) as $key) {
             unset($_ENV[$key]);
         }
+    }
+
+
+    public function getEnvCollection(): EnvCollection
+    {
+        return $this->envCollection;
     }
 }
