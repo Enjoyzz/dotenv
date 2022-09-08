@@ -29,7 +29,10 @@ final class Variables
                     ($env ?: null) ??
                     $this->dotenv->getEnvCollection()->get($matches['variable']) ??
                     $this->dotenv->getEnvRawArray()[$matches['variable']] ??
-                    ($matches['default_value'] ? $this->resolveDefaultValue($matches['default_value'], $matches['variable']) : null) ??
+                    ($matches['default_value'] ? $this->resolveDefaultValue(
+                        $matches['default_value'],
+                        $matches['variable']
+                    ) : null) ??
                     '';
 
                 return Helper::scalarValueToString($val);
@@ -54,7 +57,11 @@ final class Variables
         }
 
         if ('=' === $default_value[1]) {
-            Dotenv::writeEnv($variable, $value, $this->dotenv);
+            Dotenv::writeEnv(
+                $variable,
+                $this->dotenv->handleValue($variable, $value),
+                $this->dotenv->getEnvCollection()
+            );
         }
         return $value;
     }

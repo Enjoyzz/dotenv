@@ -69,7 +69,7 @@ final class VariablesTest extends TestCase
     {
         $dotenv = new Dotenv(__DIR__.'/fixtures/variables/7');
         $dotenv->setCastType(true);
-        $dotenv::writeEnv('VAR', 'false', $dotenv);
+        $dotenv::writeEnv('VAR', 'false', $dotenv->getEnvCollection());
         $dotenv->loadEnv();
         $this->assertFalse($_ENV['VAR1']);
     }

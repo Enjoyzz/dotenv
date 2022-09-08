@@ -24,16 +24,12 @@ class Dotenv
      */
     private array $envRawArray = [];
 
-
     private EnvCollection $envCollection;
-
-
     private ParserInterface $parser;
     private Variables $variablesResolver;
-
-    private bool $castType = false;
     private StorageInterface $storage;
 
+    private bool $castType = false;
 
     public function __construct(
         private string $envFilePath,
@@ -71,25 +67,19 @@ class Dotenv
                 $this->envFilePath . '.' . ((getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '')
             );
         }
-
     }
 
     private function writeEnvs(bool $usePutEnv): void
     {
         foreach ($this->envRawArray as $key => $value) {
-            self::writeEnv($key, $value, $this, $usePutEnv);
+            self::writeEnv($key, $this->handleValue($key, $value), $this->envCollection, $usePutEnv);
         }
     }
 
-    public static function writeEnv(
-        string $key,
-        ?string $value,
-        Dotenv $dotenv,
-        bool $usePutEnv = false
-    ): void {
-
+    public function handleValue(string $key, ?string $value): float|bool|int|string|null
+    {
         $quoted = 0;
-        if ($value !== null){
+        if ($value !== null) {
             $value = preg_replace_callback('/^([\'"])?(.*)(\1)/', function ($matches) {
                 return match ($matches[1]) {
                     "'" => $matches[2],
@@ -99,19 +89,27 @@ class Dotenv
             }, $value, count: $quoted);
         }
 
-        $value = $dotenv->getVariablesResolver()->resolve($key, $value);
+        $value = $this->getVariablesResolver()->resolve($key, $value);
 
-        if (!getenv($key) && $usePutEnv === true) {
-            putenv(sprintf("%s=%s", $key, $value ?? ''));
-        }
 
         if (getenv($key)) {
             $value = getenv($key);
         }
 
-        $value = ($dotenv->isCastType() && $quoted === 0) ? Helper::castType($value) : $value;
+        return ($this->isCastType() && $quoted === 0) ? Helper::castType($value) : $value;
+    }
+
+    public static function writeEnv(
+        string $key,
+        string|bool|int|float|null $value,
+        EnvCollection $envCollection,
+        bool $usePutEnv = false
+    ): void {
+        if (!getenv($key) && $usePutEnv === true) {
+            putenv(sprintf("%s=%s", $key, Helper::scalarValueToString($value)));
+        }
         $_ENV[$key] = $value;
-        $dotenv->getEnvCollection()->add($key, $value);
+        $envCollection->add($key, $value);
     }
 
     public function getEnvRawArray(): array
@@ -119,9 +117,9 @@ class Dotenv
         return $this->envRawArray;
     }
 
-    public function getEnvArray(): array
+    public function getEnvCollection(): EnvCollection
     {
-        return $this->envCollection->getCollection();
+        return $this->envCollection;
     }
 
     /**
@@ -152,7 +150,7 @@ class Dotenv
     {
         if (false !== $envs = getenv('ENJOYS_DOTENV')) {
             foreach (explode(',', $envs) as $key) {
-                if (!empty($key)){
+                if (!empty($key)) {
                     putenv($key); //unset
                 }
             }
@@ -164,8 +162,4 @@ class Dotenv
     }
 
 
-    public function getEnvCollection(): EnvCollection
-    {
-        return $this->envCollection;
-    }
 }

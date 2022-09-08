@@ -19,7 +19,7 @@ final class EnvCollection
         $this->collection[$key] = $value;
     }
 
-    public function get(string $key, $default = null): float|bool|int|string|null
+    public function get(string $key, float|bool|int|string|null $default = null): float|bool|int|string|null
     {
         return $this->has($key) ? $this->collection[$key] : $default;
     }
@@ -34,6 +34,9 @@ final class EnvCollection
         unset($this->collection[$key]);
     }
 
+    /**
+     * @return string[]
+     */
     public function getKeys(): array
     {
         return array_keys($this->collection);

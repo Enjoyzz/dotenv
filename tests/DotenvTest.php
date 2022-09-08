@@ -280,7 +280,7 @@ class DotenvTest extends TestCase
             'APP_ENV' => 'dev',
             'TEST_DIR' => 'C:/openserver/test',
             'APP_DIR' => 'C:/openserver',
-        ], $dotenv->getEnvArray());
+        ], $dotenv->getEnvCollection()->getCollection());
     }
 
     public function testAutoCastAndEnablePutEnv()
@@ -398,7 +398,7 @@ ENV
     {
         $dotenv = new Dotenv(__DIR__ . '/fixtures/1/.env');
         $dotenv->loadEnv(true);
-        $enjoysDotenvArray = array_keys($dotenv->getEnvArray());
+        $enjoysDotenvArray = $dotenv->getEnvCollection()->getKeys();
         $this->assertSame(implode(",", $enjoysDotenvArray), $_ENV['ENJOYS_DOTENV']);
         $this->assertSame(implode(",", $enjoysDotenvArray), getenv('ENJOYS_DOTENV'));
         Dotenv::clear();
@@ -424,7 +424,7 @@ ENV
         $this->assertSame([
             'APP_ENV' => '5',
             'VAR' => '5',
-        ], $dotenv->getEnvArray());
+        ], $dotenv->getEnvCollection()->getCollection());
         $this->assertSame([
             'APP_ENV' => '5',
             'VAR' => '5',
@@ -440,7 +440,7 @@ ENV
         $this->assertSame([
             'APP_ENV' => '3',
             'VAR' => '3',
-        ], $dotenv->getEnvArray());
+        ], $dotenv->getEnvCollection()->getCollection());
         $this->assertSame([
             'APP_ENV' => '4',
             'VAR' => '3',
@@ -461,6 +461,6 @@ ENV
         $parser = $this->getMockForAbstractClass(\Enjoys\Dotenv\Parser\ParserInterface::class);
         $dotenv = new Dotenv(__DIR__.'/fixtures/1/.env', parser: $parser);
         $dotenv->loadEnv();
-        $this->assertSame([], $dotenv->getEnvArray());
+        $this->assertSame([], $dotenv->getEnvCollection()->getCollection());
     }
 }
