@@ -55,15 +55,8 @@ class Dotenv
         $this->readFiles();
         $this->writeEnvs();
 
-        $_ENV['ENJOYS_DOTENV'] = implode(',', $this->envCollection->getKeys());
 
-       // if ($this->isUsePutEnv()){
-            putenv(sprintf('ENJOYS_DOTENV=%s', $_ENV['ENJOYS_DOTENV']));
-      //  }
-
-      //  if ($this->isPopulateToServer()){
-            $_SERVER['ENJOYS_DOTENV'] = $_ENV['ENJOYS_DOTENV'];
-      //  }
+        putenv(sprintf('ENJOYS_DOTENV=%s', implode(',', $this->envCollection->getKeys())));
 
         if ($this->isClearMemory()) {
             $this->clearMemory();
@@ -162,21 +155,13 @@ class Dotenv
         if (false !== $envs = getenv('ENJOYS_DOTENV')) {
             foreach (explode(',', $envs) as $key) {
                 if (!empty($key)) {
-                    putenv($key); //unset
+                    //unset
+                    putenv($key);
+                    unset($_ENV[$key], $_SERVER[$key]);
                 }
             }
         }
         putenv('ENJOYS_DOTENV');
-
-        foreach (explode(',', (string)($_ENV['ENJOYS_DOTENV'] ?? '')) as $key) {
-            unset($_ENV[$key]);
-        }
-
-        foreach (explode(',', (string)($_SERVER['ENJOYS_DOTENV'] ?? '')) as $key) {
-            unset($_SERVER[$key]);
-        }
-
-        unset($_ENV['ENJOYS_DOTENV'], $_SERVER['ENJOYS_DOTENV']);
     }
 
     public function enableCastType(): void

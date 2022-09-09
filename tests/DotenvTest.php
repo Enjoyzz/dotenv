@@ -376,13 +376,13 @@ ENV
         $dotenv = new Dotenv(__DIR__ . '/fixtures/1/.env');
         $dotenv->loadEnv(true);
         $enjoysDotenvArray = $dotenv->getEnvCollection()->getKeys();
-        $this->assertSame(implode(",", $enjoysDotenvArray), $_ENV['ENJOYS_DOTENV']);
         $this->assertSame(implode(",", $enjoysDotenvArray), getenv('ENJOYS_DOTENV'));
         Dotenv::clear();
         foreach ($enjoysDotenvArray as $key) {
             $this->assertFalse(getenv($key));
             $this->assertFalse($_ENV[$key] ?? false);
         }
+        $this->assertFalse(getenv('ENJOYS_DOTENV'));
     }
 
     public function testLoadAppEnvFile()
