@@ -77,6 +77,7 @@ $dotenv = new Dotenv(__DIR__.'/.env', flags: Dotenv::CAST_TYPE_ENV_VALUE);
 $dotenv->loadEnv();
 ```
 
+[Доступные флаги](#flags)
 
 Ниже примеры как будут кастоваться переменные
 ```shell
@@ -135,3 +136,12 @@ _**Внимание!** Если переменная не установлена
 VAR1=${NOT_DEFINED_VAR:?extended error message} #with error message
 VAR2=${NOT_DEFINED_VAR:?} #or just with empty error message
 ```
+
+### <span id="flags"></span>Доступные флаги
+
+- **CLEAR_MEMORY_AFTER_LOAD_ENV** - очищает память псле установки всех значений в $_ENV, $_SERVER или putenv()
+- **CAST_TYPE_ENV_VALUE** - приводит к типу на основе содержимого (string|bool|int|float|null)
+- **POPULATE_PUTENV** - будут доступны установленные значения помимо $_ENV также из getenv()
+- **POPULATE_SERVER** - будут доступны установленные значения помимо $_ENV также из $_SERVER
+
+Флаги можно комбинировать через `|`, например `Dotenv::CAST_TYPE_ENV_VALUE|Dotenv::POPULATE_PUTENV`
