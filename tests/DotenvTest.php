@@ -106,6 +106,7 @@ class DotenvTest extends TestCase
         $this->assertSame(3.14, $_ENV['VAR_7_1']);
         $this->assertSame('3.14', $_ENV['VAR_7_2']);
         $this->assertSame('', $_ENV['VAR_8']);
+        $this->assertSame('va', $_ENV['VAR_9']);
     }
 
     public function testAutoCastType()

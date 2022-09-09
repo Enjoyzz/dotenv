@@ -112,7 +112,7 @@ final class Parser implements ParserInterface
         }
 
         preg_match(
-            '/^(?<value>([\'"])(?:(?!\1|\\\\).|\\\\.)*\2)(?<comment>.*)?/',
+            '/^(?<value>([\'"])(?:(?!\1|\\\\).|\\\\.)*?\2)(?<comment>.*)?/',
             $rawValue,
             $matches,
             PREG_UNMATCHED_AS_NULL
