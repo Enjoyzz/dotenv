@@ -32,4 +32,17 @@ final class FlagsTest extends TestCase
         $result = $dotenv->getEnvCollection();
     }
 
+    public function testFlag_POPULATE_SERVER()
+    {
+        $dotenv = new Dotenv(__DIR__.'/fixtures/2/.env', flags: Dotenv::POPULATE_SERVER|Dotenv::CAST_TYPE_ENV_VALUE);
+        $dotenv->loadEnv();
+        $this->assertSame(42, $_SERVER['VAR_1_3']);
+    }
+
+    public function testFlag_POPULATE_PUTENV()
+    {
+        $dotenv = new Dotenv(__DIR__.'/fixtures/2/.env', flags: Dotenv::POPULATE_PUTENV|Dotenv::CAST_TYPE_ENV_VALUE);
+        $dotenv->loadEnv();
+        $this->assertSame('42', getenv('VAR_1_3'));
+    }
 }
