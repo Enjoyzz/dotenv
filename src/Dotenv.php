@@ -13,6 +13,8 @@ class Dotenv
 
     public const CLEAR_MEMORY_AFTER_LOAD_ENV = 1;
     public const CAST_TYPE_ENV_VALUE = 2;
+    public const POPULATE_PUTENV = 4;
+    public const POPULATE_SERVER = 8;
 
     private const CHARACTER_MAP = [
         "\\n" => "\n",
@@ -46,11 +48,22 @@ class Dotenv
 
     public function loadEnv(bool $usePutEnv = false): void
     {
+        if ($usePutEnv){
+            $this->flags = $this->flags | self::POPULATE_PUTENV;
+        }
+
         $this->readFiles();
-        $this->writeEnvs($usePutEnv);
+        $this->writeEnvs();
 
         $_ENV['ENJOYS_DOTENV'] = implode(',', $this->envCollection->getKeys());
-        putenv(sprintf('ENJOYS_DOTENV=%s', $_ENV['ENJOYS_DOTENV']));
+
+       // if ($this->isUsePutEnv()){
+            putenv(sprintf('ENJOYS_DOTENV=%s', $_ENV['ENJOYS_DOTENV']));
+      //  }
+
+      //  if ($this->isPopulateToServer()){
+            $_SERVER['ENJOYS_DOTENV'] = $_ENV['ENJOYS_DOTENV'];
+      //  }
 
         if ($this->isClearMemory()) {
             $this->clearMemory();
@@ -75,10 +88,10 @@ class Dotenv
         }
     }
 
-    private function writeEnvs(bool $usePutEnv): void
+    private function writeEnvs(): void
     {
         foreach ($this->envRawArray as $key => $value) {
-            self::writeEnv($key, $this->handleValue($key, $value), $this->envCollection, $usePutEnv);
+            $this->populate($key, $value);
         }
     }
 
@@ -105,17 +118,24 @@ class Dotenv
         return ($this->isCastType() && ($quoted ?? null) === 0) ? Helper::castType($value) : $value;
     }
 
-    public static function writeEnv(
+    public function populate(
         string $key,
-        string|bool|int|float|null $value,
-        EnvCollection $envCollection,
-        bool $usePutEnv = false
+        string|null $value,
     ): void {
-        if (!getenv($key) && $usePutEnv === true) {
+        $value = $this->handleValue($key, $value);
+
+        $_ENV[$key] = $value;
+        $this->envCollection->add($key, $value);
+
+
+        if (!getenv($key) && $this->isUsePutEnv() === true) {
             putenv(sprintf("%s=%s", $key, Helper::scalarValueToString($value)));
         }
-        $_ENV[$key] = $value;
-        $envCollection->add($key, $value);
+
+        if ($this->isPopulateToServer()) {
+            $_SERVER[$key] = $value;
+        }
+
     }
 
     public function getEnvRawArray(): array
@@ -146,10 +166,17 @@ class Dotenv
                 }
             }
         }
+        putenv('ENJOYS_DOTENV');
 
         foreach (explode(',', (string)($_ENV['ENJOYS_DOTENV'] ?? '')) as $key) {
             unset($_ENV[$key]);
         }
+
+        foreach (explode(',', (string)($_SERVER['ENJOYS_DOTENV'] ?? '')) as $key) {
+            unset($_SERVER[$key]);
+        }
+
+        unset($_ENV['ENJOYS_DOTENV'], $_SERVER['ENJOYS_DOTENV']);
     }
 
     public function enableCastType(): void
@@ -165,6 +192,16 @@ class Dotenv
     private function clearMemory(): void
     {
         unset($this->envCollection, $this->variablesResolver);
+    }
+
+    private function isUsePutEnv(): bool
+    {
+        return ($this->flags & self::POPULATE_PUTENV) === self::POPULATE_PUTENV;
+    }
+
+    private function isPopulateToServer(): bool
+    {
+        return ($this->flags & self::POPULATE_SERVER) === self::POPULATE_SERVER;
     }
 
     private function isCastType(): bool

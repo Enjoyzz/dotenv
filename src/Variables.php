@@ -57,10 +57,9 @@ final class Variables
         }
 
         if ('=' === $default_value[1]) {
-            Dotenv::writeEnv(
+            $this->dotenv->populate(
                 $variable,
-                $this->dotenv->handleValue($variable, $value),
-                $this->dotenv->getEnvCollection()
+                $value,
             );
         }
         return $value;
