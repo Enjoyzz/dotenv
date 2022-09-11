@@ -69,7 +69,7 @@ final class VariablesTest extends TestCase
     {
         $dotenv = new Dotenv(__DIR__.'/fixtures/variables/7');
         $dotenv->enableCastType();
-        $dotenv->populate('VAR', 'false', $dotenv->getEnvCollection());
+        $dotenv->populate('VAR', 'false');
         $dotenv->loadEnv();
         $this->assertFalse($_ENV['VAR1']);
     }
@@ -80,7 +80,7 @@ final class VariablesTest extends TestCase
         putenv('VAR=42');
         $dotenv = new Dotenv(__DIR__.'/fixtures/variables/7');
         $dotenv->enableCastType();
-        $dotenv->populate('VAR', 'false', $dotenv->getEnvCollection());
+        $dotenv->getEnvCollection()->add('VAR', 'false');
         $dotenv->loadEnv();
         $this->assertSame(42, $_ENV['VAR1']);
     }

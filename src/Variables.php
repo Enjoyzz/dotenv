@@ -22,11 +22,11 @@ final class Variables
         $result = preg_replace_callback(
             '/(\${(?<variable>.+?)(?<default_value>:[-=?][^}]*)?})/',
             function (array $matches): string {
-                $env = getenv($matches['variable']);
+                $env = getenv($matches['variable']) ?: null;
 
                 /** @var string|bool|int|float|null $val */
                 $val =
-                    ($env ?: null) ??
+                    $env ??
                     $this->dotenv->getEnvCollection()->get($matches['variable']) ??
                     $this->dotenv->getEnvRawArray()[$matches['variable']] ??
                     ($matches['default_value'] ? $this->resolveDefaultValue(
