@@ -1,0 +1,2 @@
+VAR1=${VAR:=default}
+VAR2=${VAR}

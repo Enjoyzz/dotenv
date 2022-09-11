@@ -1,0 +1,3 @@
+VAR1=${VAR:=*true}
+VAR3=${VAR2:=*int 42}
+

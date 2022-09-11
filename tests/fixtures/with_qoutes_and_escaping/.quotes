@@ -4,3 +4,5 @@ VAR3='value in single quotes'
 VAR4=va" #lue"
 VAR5=va" lue"
 VAR6="\\#\"\\" #comment
+VAR7='it\'s single quote' #comment
+VAR8="it\'s double quote" #comment

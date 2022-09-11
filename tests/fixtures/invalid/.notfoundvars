@@ -1,2 +1,2 @@
 FOO = 1
-BAR = ${BAZ}/${FOO}
+BAR = ${BAZ:?}/${FOO}

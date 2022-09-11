@@ -5,177 +5,198 @@ declare(strict_types=1);
 
 namespace Enjoys\Dotenv;
 
-use Webmozart\Assert\Assert;
+use Enjoys\Dotenv\Parser\Parser;
+use Enjoys\Dotenv\Parser\ParserInterface;
 
 class Dotenv
 {
-    private string $baseDirectory;
+
+    public const CLEAR_MEMORY_AFTER_LOAD_ENV = 1;
+    public const CAST_TYPE_ENV_VALUE = 2;
+    public const POPULATE_PUTENV = 4;
+    public const POPULATE_SERVER = 8;
+
+    private const CHARACTER_MAP = [
+        "\\n" => "\n",
+        "\\\"" => "\"",
+        "\\\\" => "\\",
+        '\\\'' => "'",
+        '\\t' => "\t"
+    ];
+
     /**
-     * @var string[]
+     * @var array<string, string|null>
      */
     private array $envRawArray = [];
-    private array $envArray = [];
+
+    private EnvCollection $envCollection;
+    private ParserInterface $parser;
+    private Variables $variablesResolver;
+    private StorageInterface $storage;
 
     public function __construct(
-        string $baseDirectory,
-        private string $envFilename = '.env',
-        private string $distEnvFilename = '.env.dist'
+        private string $envFilePath,
+        ?StorageInterface $storage = null,
+        ?ParserInterface $parser = null,
+        private int $flags = 0
     ) {
-        $this->baseDirectory = rtrim($baseDirectory, "/") . DIRECTORY_SEPARATOR;
+        $this->envCollection = new EnvCollection();
+        $this->parser = $parser ?? new Parser();
+        $this->storage = $storage ?? new Storage();
+        $this->variablesResolver = new Variables($this);
     }
 
     public function loadEnv(bool $usePutEnv = false): void
     {
-        $this->doMerge($this->getGeneralPaths());
-        $this->doMerge($this->getExtraPaths());
-        $this->doLoad($usePutEnv);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getExtraPaths(): array
-    {
-        $env = (getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? null;
-
-        if ($env === '' || $env === null) {
-            return [];
-        }
-        $path = realpath($this->baseDirectory . $this->envFilename . '.' . $env);
-
-        if ($path === false) {
-            return [];
+        if ($usePutEnv){
+            $this->flags = $this->flags | self::POPULATE_PUTENV;
         }
 
-        return [$path];
-    }
+        $this->readFiles();
+        $this->writeEnvs();
 
-    /**
-     * @return string[]
-     */
-    private function getGeneralPaths(): array
-    {
-        $paths = [
-            realpath($this->baseDirectory . $this->distEnvFilename),
-            realpath($this->baseDirectory . $this->envFilename)
-        ];
 
-        return array_filter($paths, function ($item) {
-            return is_string($item);
-        });
-    }
+        putenv(sprintf('ENJOYS_DOTENV=%s', implode(',', $this->envCollection->getKeys())));
 
-    /**
-     * @param string[] $array
-     */
-    private function doMerge(array $array): void
-    {
-        foreach ($array as $path) {
-            $this->envRawArray = array_merge($this->envRawArray, $this->getArrayData($path));
+        if ($this->isClearMemory()) {
+            $this->clearMemory();
         }
     }
 
-    /**
-     * @return string[]
-     */
-    private function getArrayData(string $path): array
+    private function readFiles(): void
     {
-        $result = [];
+        $this->storage->addPath($this->envFilePath . '.dist');
+        $this->storage->addPath($this->envFilePath);
 
-        $data = file_get_contents($path);
-
-        /**
-         * @var string $key
-         * @var string $value
-         */
-        foreach ($this->parseToArray($data) as $key => $value) {
-            $result[$key] = $value;
-        }
-        return $result;
-    }
-
-
-    private function parseToArray(string $input): \Generator
-    {
-        foreach (preg_split("/\R/", $input) as $line) {
-            $line = trim($line);
-
-            if ($this->isComment($line)) {
-                continue;
-            }
-            if (empty($line)) {
+        while (false !== $path = $this->storage->getPath()) {
+            if ($this->storage->isLoaded($path)) {
                 continue;
             }
 
-            $fields = array_map('trim', explode('=', $line, 2));
-            $fields[1] ??= null;
-
-            [$key, $value] = $fields;
-            /** @psalm-suppress PossiblyNullArgument*/
-            Assert::regex(
-                $key,
-                '/^([A-Z_0-9]+)$/i',
-                'The key %s have invalid chars. The key must have only letters (A-Z) digits (0-9) and _'
+            $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv(file_get_contents($path)));
+            $this->storage->markLoaded($path);
+            $this->storage->addPath(
+                $this->envFilePath . '.' . ((getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '')
             );
-
-            yield $key => $this->parseValue($value);
         }
     }
 
-
-    private function doLoad(bool $usePutEnv): void
+    private function writeEnvs(): void
     {
-        /** @var string $key */
         foreach ($this->envRawArray as $key => $value) {
-            $value = ValuesHandler::quotes($value);
-            $value = ValuesHandler::handleVariables($key, $value, $this);
-
-            $value = stripslashes($value);
-
-            if (getenv($key)) {
-                $value = getenv($key);
-            }
-
-            /** @var string $value */
-            $_ENV[$key] = ValuesHandler::cast($value);
-
-            if (!getenv($key) && $usePutEnv === true) {
-                putenv("$key=$value");
-            }
-
-            $this->envArray[$key] = $_ENV[$key];
+            $this->populate($key, $value);
         }
     }
 
-    private function isComment(string $line): bool
+    public function handleValue(string $key, ?string $value): float|bool|int|string|null
     {
-        return str_starts_with($line, '#');
-    }
 
-    private function parseValue(?string $value): string
-    {
-        if ($value === null) {
-            return '*null';
+        if ($value !== null) {
+            $value = preg_replace_callback('/^(?<quote>[\'"])?(?<value>.*)\1/', function ($matches) {
+                return match ($matches['quote']) {
+                    "'" => $matches['value'],
+                    "\"" => strtr($matches['value'], self::CHARACTER_MAP)
+                };
+            }, $value, count: $quoted);
+
         }
 
-        preg_match('/^([\'"])(?<value>(?:(?!\1|\\\\).|\\\\.)*)\1/', $value, $matches);
-        if (isset($matches['value'])) {
-            return $matches['value'];
+        $value = $this->variablesResolver->resolve($key, $value);
+
+
+        if (getenv($key)) {
+            $value = getenv($key);
         }
-        return array_map('trim', explode('#', $value, 2))[0];
+
+        return ($this->isCastType() && ($quoted ?? null) === 0) ? Helper::castType($value) : $value;
     }
 
-    /**
-     * @return string[]
-     */
+    public function populate(
+        string $key,
+        string|null $value,
+    ): void {
+        $value = $this->handleValue($key, $value);
+
+        $_ENV[$key] = $value;
+        $this->envCollection->add($key, $value);
+
+
+        if (!getenv($key) && $this->isUsePutEnv() === true) {
+            putenv(sprintf("%s=%s", $key, Helper::scalarValueToString($value)));
+        }
+
+        if ($this->isPopulateToServer()) {
+            $_SERVER[$key] = $value;
+        }
+
+    }
+
     public function getEnvRawArray(): array
     {
         return $this->envRawArray;
     }
 
-    public function getEnvArray(): array
+    public function getEnvCollection(): EnvCollection
     {
-        return $this->envArray;
+        return $this->envCollection;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getLoadedPaths(): array
+    {
+        return $this->storage->getLoadedPaths();
+    }
+
+
+    public static function clear(): void
+    {
+        if (false !== $envs = getenv('ENJOYS_DOTENV')) {
+            foreach (explode(',', $envs) as $key) {
+                if (!empty($key)) {
+                    //unset
+                    putenv($key);
+                    unset($_ENV[$key], $_SERVER[$key]);
+                }
+            }
+        }
+        putenv('ENJOYS_DOTENV');
+    }
+
+    public function enableCastType(): void
+    {
+        $this->flags = $this->flags | self::CAST_TYPE_ENV_VALUE;
+    }
+
+    public function disableCastType(): void
+    {
+        $this->flags = $this->flags ^ self::CAST_TYPE_ENV_VALUE;
+    }
+
+    private function clearMemory(): void
+    {
+        unset($this->envCollection, $this->variablesResolver);
+    }
+
+    private function isUsePutEnv(): bool
+    {
+        return ($this->flags & self::POPULATE_PUTENV) === self::POPULATE_PUTENV;
+    }
+
+    private function isPopulateToServer(): bool
+    {
+        return ($this->flags & self::POPULATE_SERVER) === self::POPULATE_SERVER;
+    }
+
+    private function isCastType(): bool
+    {
+        return ($this->flags & self::CAST_TYPE_ENV_VALUE) === self::CAST_TYPE_ENV_VALUE;
+    }
+
+    private function isClearMemory(): bool
+    {
+        return ($this->flags & self::CLEAR_MEMORY_AFTER_LOAD_ENV) === self::CLEAR_MEMORY_AFTER_LOAD_ENV;
     }
 
 }
