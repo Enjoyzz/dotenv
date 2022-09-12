@@ -1,0 +1,57 @@
+name: infection
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+
+      - name: Check output
+        run: echo ${{ steps.vars.outputs.short_ref }}
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          ini-values: |
+            date.timezone='UTC'
+            memory_limit=-1
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Determine composer cache directory on Linux
+        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php@v1-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php@v1-
+
+      - name: Update composer
+        run: composer self-update
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run infection
+        run: |
+          git fetch --depth=1 origin ${{ steps.vars.outputs.short_ref }}
+          vendor/bin/infection -j2 --git-diff-filter=A --git-diff-base=origin/${{ steps.vars.outputs.short_ref }} --logger-github --ignore-msi-with-no-mutations --only-covered
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+
