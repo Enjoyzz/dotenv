@@ -50,8 +50,7 @@ jobs:
 
       - name: Run infection
         run: |
-          git fetch --depth=1 origin ${{ steps.vars.outputs.short_ref }}
-          vendor/bin/infection -j2 --git-diff-filter=A --git-diff-base=origin/${{ steps.vars.outputs.short_ref }} --logger-github --ignore-msi-with-no-mutations --only-covered
+          vendor/bin/infection -j2  --ignore-msi-with-no-mutations --only-covered
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
