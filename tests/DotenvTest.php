@@ -195,7 +195,6 @@ class DotenvTest extends TestCase
         putenv('SYS_VAR2=456');
         $dotenv = new Dotenv(__DIR__ . '/fixtures/without_defined_vars/.env');
         $dotenv->loadEnv();
-        $this->assertSame('123', $_ENV['VAR']);
         $this->assertSame('123', $_ENV['VAR2']);
         $this->assertSame('456', $_ENV['VAR3']);
         putenv('SYS_VAR');
