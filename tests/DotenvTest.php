@@ -14,6 +14,11 @@ class DotenvTest extends TestCase
         Dotenv::clear();
     }
 
+    protected function tearDown(): void
+    {
+        Dotenv::clear();
+    }
+
     /**
      * @param class-string|object $className
      * @param string $propertyName
@@ -111,7 +116,6 @@ class DotenvTest extends TestCase
 
     public function testAutoCastType()
     {
-
         $dotenv = new Dotenv(__DIR__ . '/fixtures/2/.auto_cast_type');
         $dotenv->enableCastType();
         $dotenv->loadEnv();
@@ -188,7 +192,6 @@ class DotenvTest extends TestCase
     }
 
 
-
     public function testReplaceValueInEnvFilesDefinedInPutenvOrExport()
     {
         putenv('SYS_VAR=123');
@@ -262,7 +265,6 @@ class DotenvTest extends TestCase
 
     public function testAutoCastAndEnablePutEnv()
     {
-
         $dotenv = new Dotenv(
             __DIR__ . '/fixtures/2/.auto_cast_type'
         );
@@ -364,6 +366,7 @@ ENV
             $_ENV['VAR']
         );
     }
+
     public function testMultilineInvalid()
     {
         $this->expectException(\Enjoys\Dotenv\Exception\InvalidArgumentException::class);
@@ -394,7 +397,7 @@ ENV
 
     public function testNestedManyTimesAppEnvFromFiles()
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures/nestedAppEnv/.env');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/nestedAppEnv/.env');
         $dotenv->loadEnv();
         $this->assertCount(6, $dotenv->getLoadedPaths());
         $this->assertSame('5', $_ENV['VAR']);
@@ -411,7 +414,7 @@ ENV
     public function testNestedManyTimesAppEnvFromGetEnv()
     {
         putenv('APP_ENV=3');
-        $dotenv = new Dotenv(__DIR__.'/fixtures/nestedAppEnv/.env');
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/nestedAppEnv/.env');
         $dotenv->loadEnv();
         $this->assertCount(2, $dotenv->getLoadedPaths());
         $this->assertSame([
@@ -428,7 +431,7 @@ ENV
     public function testOtherImplementationStorage()
     {
         $storage = $this->getMockForAbstractClass(\Enjoys\Dotenv\StorageInterface::class);
-        $dotenv = new Dotenv(__DIR__.'/fixtures/1/.env', storage: $storage);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/1/.env', storage: $storage);
         $dotenv->loadEnv();
         $this->assertSame([], $dotenv->getLoadedPaths());
     }
@@ -436,7 +439,7 @@ ENV
     public function testOtherImplementationParser()
     {
         $parser = $this->getMockForAbstractClass(\Enjoys\Dotenv\Parser\ParserInterface::class);
-        $dotenv = new Dotenv(__DIR__.'/fixtures/1/.env', parser: $parser);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/1/.env', parser: $parser);
         $dotenv->loadEnv();
         $this->assertSame([], $dotenv->getEnvCollection()->getCollection());
     }
@@ -447,7 +450,7 @@ ENV
      */
     public function testHandleValue($key, $string, $expect)
     {
-        $dotenv = new Dotenv(__DIR__.'/fixtures/1/.env', flags: Dotenv::CAST_TYPE_ENV_VALUE);
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/1/.env', flags: Dotenv::CAST_TYPE_ENV_VALUE);
         $this->assertSame($expect, $dotenv->handleValue($key, $string));
     }
 
