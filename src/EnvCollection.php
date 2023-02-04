@@ -14,12 +14,22 @@ final class EnvCollection
      */
     private array $collection = [];
 
-    public function add(string $key, string|bool|int|float|null $value): void
+    /**
+     * @param string $key
+     * @param string|bool|int|float|null  $value
+     * @return void
+     */
+    public function add(string $key, $value): void
     {
         $this->collection[$key] = $value;
     }
 
-    public function get(string $key, float|bool|int|string|null $default = null): float|bool|int|string|null
+    /**
+     * @param string $key
+     * @param float|bool|int|string|null  $default
+     * @return float|bool|int|string|null
+     */
+    public function get(string $key, $default = null)
     {
         return $this->has($key) ? $this->collection[$key] : $default;
     }

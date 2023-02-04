@@ -12,8 +12,15 @@ use Enjoys\Dotenv\Parser\Env\Value;
 
 final class EnvLine implements LineInterface
 {
-    public function __construct(private Key $key, private ?Value $value = null, private ?Comment $comment = null)
+    private Key $key;
+    private ?Value $value;
+    private ?Comment $comment;
+
+    public function __construct(Key $key, ?Value $value = null, ?Comment $comment = null)
     {
+        $this->key = $key;
+        $this->value = $value;
+        $this->comment = $comment;
     }
 
     public function __toString(): string

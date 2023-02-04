@@ -28,7 +28,7 @@ final class Parser implements ParserInterface
         /** @var LineInterface $line */
         foreach ($this->parseLines($content) as $line) {
             if ($line instanceof EnvLine){
-                $envArray[$line->getKey()->getValue()] = $line->getValue()?->getValue();
+                $envArray[$line->getKey()->getValue()] = ($line->getValue() === null) ? null : $line->getValue()->getValue();
             }
         }
         return $envArray;

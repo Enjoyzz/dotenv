@@ -32,15 +32,24 @@ final class ValueTypecasting
         Int16Type::class
     ];
 
-    private float|bool|int|string|null $castedValue;
+    /**
+     * @var float|bool|int|string|null
+     */
+    private $castedValue;
+    private string $originalValue;
 
-    public function __construct(private string $originalValue)
+    public function __construct(string $originalValue)
     {
+        $this->originalValue = $originalValue;
         $this->castedValue = $this->originalValue;
         $this->determine();
+
     }
 
-    public function getCastValue(): float|bool|int|string|null
+    /**
+     * @return float|bool|int|string|null
+     */
+    public function getCastValue()
     {
         return $this->castedValue;
     }

@@ -17,7 +17,10 @@ final class Storage implements StorageInterface
      */
     private array $paths = [];
 
-    public function getPath(): string|false
+    /**
+     * @return string|false
+     */
+    public function getPath()
     {
         $key = key($this->paths);
         if ($key === null) {

@@ -13,12 +13,17 @@ final class Multiline
      * @var string[]
      */
     private array $output = [];
+    /**
+     * @var string[]
+     */
+    private array $rawLines;
 
     /**
      * @param string[] $rawLines
      */
-    private function __construct(private array $rawLines)
+    private function __construct(array $rawLines)
     {
+        $this->rawLines = $rawLines;
     }
 
     /**

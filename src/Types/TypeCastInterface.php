@@ -6,5 +6,8 @@ interface TypeCastInterface
 {
     public function isPossible(): bool;
 
-    public function getCastedValue(): string|bool|int|float|null;
+    /**
+     * @return string|bool|int|float|null
+     */
+    public function getCastedValue();
 }

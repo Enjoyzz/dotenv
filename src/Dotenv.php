@@ -33,13 +33,17 @@ class Dotenv
     private ParserInterface $parser;
     private Variables $variablesResolver;
     private StorageInterface $storage;
+    private string $envFilePath;
+    private int $flags;
 
     public function __construct(
-        private string $envFilePath,
+        string $envFilePath,
         ?StorageInterface $storage = null,
         ?ParserInterface $parser = null,
-        private int $flags = 0
+        int $flags = 0
     ) {
+        $this->envFilePath = $envFilePath;
+        $this->flags = $flags;
         $this->envCollection = new EnvCollection();
         $this->parser = $parser ?? new Parser();
         $this->storage = $storage ?? new Storage();
@@ -88,16 +92,28 @@ class Dotenv
         }
     }
 
-    public function handleValue(string $key, ?string $value): float|bool|int|string|null
+    /**
+     * @param string $key
+     * @param string|null $value
+     * @return float|bool|int|string|null
+     */
+    public function handleValue(string $key, ?string $value)
     {
 
         if ($value !== null) {
             $value = preg_replace_callback('/^(?<quote>[\'"])?(?<value>.*)\1/', function ($matches) {
-                return match ($matches['quote']) {
-                    "'" => $matches['value'],
-                    "\"" => strtr($matches['value'], self::CHARACTER_MAP)
-                };
-            }, $value, count: $quoted);
+                switch ($matches['quote']){
+                    default:
+                    case "'":
+                        $return =  $matches['value'];
+                        break;
+                    case "\"":
+                        $return = strtr($matches['value'], self::CHARACTER_MAP);
+                        break;
+                }
+                return $return;
+
+            }, $value,  -1,  $quoted);
 
         }
 
@@ -113,7 +129,7 @@ class Dotenv
 
     public function populate(
         string $key,
-        string|null $value,
+        ?string $value
     ): void {
         $value = $this->handleValue($key, $value);
 

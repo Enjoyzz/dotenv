@@ -8,8 +8,11 @@ namespace Enjoys\Dotenv\Types;
 
 final class IntType implements TypeCastInterface
 {
-    public function __construct(private string $value)
+    private string $value;
+
+    public function __construct(string $value)
     {
+        $this->value = $value;
     }
 
     public function isPossible(): bool

@@ -7,12 +7,14 @@ namespace Enjoys\Dotenv\Parser\Env;
 final class Value implements \Stringable
 {
     private string $value;
+    private ?string $quote;
 
 
     public function __construct(
         string $value,
-        private ?string $quote = null
+        ?string $quote = null
     ) {
+        $this->quote = $quote;
         $this->value = $this->handleValue($value);
     }
 

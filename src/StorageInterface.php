@@ -4,7 +4,10 @@ namespace Enjoys\Dotenv;
 
 interface StorageInterface
 {
-    public function getPath(): string|false;
+    /**
+     * @return string|false
+     */
+    public function getPath();
 
     public function isLoaded(string $path): bool;
 

@@ -8,9 +8,11 @@ namespace Enjoys\Dotenv\Types;
 
 final class NullType implements TypeCastInterface
 {
-    public function __construct(private string $value)
-    {
+    private string $value;
 
+    public function __construct(string $value)
+    {
+        $this->value = $value;
     }
 
     public function isPossible(): bool
@@ -21,7 +23,7 @@ final class NullType implements TypeCastInterface
         return false;
     }
 
-    public function getCastedValue(): string|null
+    public function getCastedValue(): ?string
     {
         return null;
     }

@@ -8,7 +8,11 @@ namespace Enjoys\Dotenv;
 
 final class Helper
 {
-    public static function scalarValueToString(string|bool|int|float|null $value): string
+    /**
+     * @param string|bool|int|float|null  $value
+     * @return string
+     */
+    public static function scalarValueToString($value): string
     {
         if (gettype($value) === 'boolean') {
             return $value ? 'true' : 'false';
@@ -16,7 +20,11 @@ final class Helper
         return (string)$value;
     }
 
-    public static function castType(string|bool|int|float|null $value): string|bool|int|float|null
+    /**
+     * @param string|bool|int|float|null  $value
+     * @return string|bool|int|float|null
+     */
+    public static function castType($value)
     {
         if (gettype($value) !== 'string') {
             return $value;

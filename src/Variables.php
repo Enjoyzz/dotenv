@@ -10,8 +10,11 @@ use Enjoys\Dotenv\Exception\InvalidArgumentException;
 
 final class Variables
 {
-    public function __construct(private Dotenv $dotenv)
+    private Dotenv $dotenv;
+
+    public function __construct(Dotenv $dotenv)
     {
+        $this->dotenv = $dotenv;
     }
 
     public function resolve(string $key, ?string $value): ?string
@@ -38,7 +41,9 @@ final class Variables
                 return Helper::scalarValueToString($val);
             },
             $value,
-            flags: PREG_UNMATCHED_AS_NULL
+            -1,
+            $count,
+            PREG_UNMATCHED_AS_NULL
         );
 
         if (preg_match('/(\${(.+?)})/', $result)) {
