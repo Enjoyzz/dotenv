@@ -57,7 +57,7 @@ final class Parser implements ParserInterface
         foreach (Multiline::handle(
             array_map(
                 'trim',
-                preg_split("/\R/", $content)
+                preg_split("/\R/u", $content)
             )
         ) as $line) {
             if (empty($line)) {

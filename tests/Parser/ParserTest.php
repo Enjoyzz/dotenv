@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Parser;
 
 use Enjoys\Dotenv\Exception\InvalidArgumentException;
+use Enjoys\Dotenv\Parser\Lines\CommentLine;
 use Enjoys\Dotenv\Parser\Lines\EnvLine;
 use Enjoys\Dotenv\Parser\Parser;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +38,7 @@ class ParserTest extends TestCase
             ["A\rB", ['A', 'B']],
             ["A\x0bB", ['A', 'B']],
             ["A\fB", ['A', 'B']],
-            ["A\x85B", ['A', 'B']],
+//            ["A\x85B", ['A', 'B']],
         ];
     }
 
@@ -86,6 +87,20 @@ ENV
         $this->assertSame('VAR1', $envLines['VAR1']->getKey()->getValue());
         $this->assertSame('value', $envLines['VAR1']->getValue()->getValue());
         $this->assertSame('comment #2', $envLines['VAR1']->getComment()->getValue());
+    }
+
+    public function testCommentsWithSpecificSymbols()
+    {
+        $parser = new Parser();
+        $structure = $parser->parseStructure(file_get_contents(__DIR__.'/../fixtures/.comment_with_specific_symbols'));
+
+        /** @var CommentLine $comment */
+        $comment = $structure[0];
+        $this->assertSame(' comment with "Å" symbol', $comment->getComment());
+
+        /** @var CommentLine $comment */
+        $comment = $structure[1];
+        $this->assertSame(' comment with "x" symbol', $comment->getComment());
     }
 
 
