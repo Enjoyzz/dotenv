@@ -468,4 +468,11 @@ ENV
         ];
     }
 
+    public function testCommentWithSpecificSymbols()
+    {
+        $dotenv = new Dotenv(__DIR__ . '/fixtures/.comment_with_specific_symbols');
+        $dotenv->loadEnv();
+        $this->assertSame("1", $_ENV['VAR']);
+    }
+
 }
