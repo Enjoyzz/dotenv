@@ -26,7 +26,8 @@ final class FlagsTest extends TestCase
 
     public function testFlag_CLEAR_MEMORY_AFTER_LOAD_ENV()
     {
-        $this->expectErrorMessage('Typed property Enjoys\Dotenv\Dotenv::$envCollection must not be accessed before initialization');
+
+        $this->expectExceptionMessage('Typed property Enjoys\Dotenv\Dotenv::$envCollection must not be accessed before initialization');
         $dotenv = new Dotenv(__DIR__.'/fixtures/2/.env', flags: Dotenv::CLEAR_MEMORY_AFTER_LOAD_ENV);
         $dotenv->loadEnv();
         $result = $dotenv->getEnvCollection();
