@@ -1,4 +1,4 @@
-name: build
+name: psalm
 
 on:
   push:
@@ -16,7 +16,6 @@ jobs:
         php:
           - "8.0"
           - "8.1"
-          - "8.2"
     name: PHP ${{ matrix.php }} Test on ${{ matrix.os }}
 
     steps:
@@ -49,6 +48,6 @@ jobs:
         if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-progress --no-suggest
 
-      - name: Run tests with phpunit
-        run: vendor/bin/phpunit --colors=always
+      - name: Run psalm
+        run: composer run-script psalm
 

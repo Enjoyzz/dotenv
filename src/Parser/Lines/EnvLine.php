@@ -26,8 +26,12 @@ final class EnvLine implements LineInterface
     public function __toString(): string
     {
         $format = ($this->value === null) ? '%s%s%s' : '%s=%s%s';
-        /** @psalm-suppress  ImplicitToStringCast, PossiblyNullArgument */
-        return sprintf($format, $this->key, $this->value, $this->comment);
+        return sprintf(
+            $format,
+            (string)$this->key,
+            (string)($this->value ?? ''),
+            (string)($this->comment ?? '')
+        );
     }
 
     public function getKey(): Key

@@ -52,7 +52,6 @@ final class Multiline
         $multilineBuffer = [];
 
         foreach ($this->rawLines as $line) {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             [$multiline, $line, $multilineBuffer] = $this->multilineProcess($multiline, $line, $multilineBuffer);
 
             if (!$multiline) {
@@ -65,7 +64,7 @@ final class Multiline
      * @param bool $multiline
      * @param string $line
      * @param string[] $buffer
-     * @return array{0: bool, 1: string, 2: array}
+     * @return array{0: bool, 1: string, 2: string[]}
      */
     private function multilineProcess(bool $multiline, string $line, array $buffer): array
     {
