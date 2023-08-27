@@ -30,23 +30,16 @@ jobs:
           coverage: pcov
           tools: composer:v2
 
-      - name: Determine composer cache directory on Linux
-        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
-
       - name: Cache Composer packages
         id: composer-cache
         uses: actions/cache@v3
         with:
           path: vendor
-          key: ${{ runner.os }}-php@v1-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php@v1-
-
-      - name: Update composer
-        run: composer self-update
+          key: ${{ runner.os }}-php-8.0
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run infection
         run: |
