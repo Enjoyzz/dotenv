@@ -81,7 +81,7 @@ final class Parser implements ParserInterface
 
     /**
      * @param string $rawLine
-     * @return array{0: Key, 1: Value|null, 2: Comment|null}
+     * @return list{0: Key, 1: Value|null, 2: Comment|null}
      */
     private function parseEnvLine(string $rawLine): array
     {
@@ -100,7 +100,7 @@ final class Parser implements ParserInterface
 
     /**
      * @param string|null $rawValue
-     * @return array<int, Value|Comment|null>
+     * @return list{0: Value|null, 1: Comment|null}
      */
     private function parseValue(?string $rawValue): array
     {
@@ -129,9 +129,11 @@ final class Parser implements ParserInterface
         }
 
         $unquotedValue = array_map('trim', explode('#', $rawValue, 2));
+        $value = $unquotedValue[0];
+        $comment = $unquotedValue[1] ?? null;
         return [
-            new Value($unquotedValue[0]),
-            ($unquotedValue[1] ?? null) ? new Comment($unquotedValue[1]) : null
+            new Value($value),
+            $comment ? new Comment($comment) : null
         ];
     }
 

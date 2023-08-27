@@ -92,6 +92,7 @@ class Dotenv
     {
 
         if ($value !== null) {
+            $quoted = 0;
             $value = preg_replace_callback('/^(?<quote>[\'"])?(?<value>.*)\1/', function ($matches) {
                 return match ($matches['quote']) {
                     "'" => $matches['value'],
