@@ -16,11 +16,4 @@ final class Helper
         return (string)$value;
     }
 
-    public static function castType(string|bool|int|float|null $value): string|bool|int|float|null
-    {
-        if (gettype($value) !== 'string') {
-            return $value;
-        }
-        return (new ValueTypeCasting($value))->getCastValue();
-    }
 }

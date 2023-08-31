@@ -40,6 +40,14 @@ final class ValueTypeCasting
         $this->determine();
     }
 
+    public static function castType(string|bool|int|float|null $value): string|bool|int|float|null
+    {
+        if (gettype($value) !== 'string') {
+            return $value;
+        }
+        return (new self($value))->getCastValue();
+    }
+
     public function getCastValue(): float|bool|int|string|null
     {
         return $this->castedValue;

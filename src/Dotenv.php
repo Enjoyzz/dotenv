@@ -109,7 +109,7 @@ final class Dotenv
             $value = getenv($key);
         }
 
-        return ($this->isCastType() && ($quoted ?? null) === 0) ? Helper::castType($value) : $value;
+        return ($this->isCastType() && ($quoted ?? null) === 0) ? ValueTypeCasting::castType($value) : $value;
     }
 
     public function populate(
