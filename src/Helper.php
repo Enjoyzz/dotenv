@@ -21,6 +21,6 @@ final class Helper
         if (gettype($value) !== 'string') {
             return $value;
         }
-        return (new ValueTypecasting($value))->getCastValue();
+        return (new ValueTypeCasting($value))->getCastValue();
     }
 }

@@ -17,7 +17,7 @@ use Enjoys\Dotenv\Types\StringType;
 use Enjoys\Dotenv\Types\TrueType;
 use Enjoys\Dotenv\Types\TypeCastInterface;
 
-final class ValueTypecasting
+final class ValueTypeCasting
 {
 
     private const DEFINABLE_TYPES_MAP = [

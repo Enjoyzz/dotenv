@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Parser\Helpers;
 
-use Enjoys\Dotenv\ValueTypecasting;
+use Enjoys\Dotenv\ValueTypeCasting;
 use PHPUnit\Framework\TestCase;
 
 class ValueTypecastingTest extends TestCase
@@ -16,7 +16,7 @@ class ValueTypecastingTest extends TestCase
     public function testAutoDetermineType($input, $expectType, $expectValue)
     {
         $expectValue ??= $input;
-        $determinant = new ValueTypecasting($input);
+        $determinant = new ValueTypeCasting($input);
         $value = $determinant->getCastValue();
         $this->assertSame($expectType, get_debug_type($value));
         $this->assertSame($expectValue, $value);
