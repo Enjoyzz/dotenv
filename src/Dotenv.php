@@ -8,7 +8,7 @@ namespace Enjoys\Dotenv;
 use Enjoys\Dotenv\Parser\Parser;
 use Enjoys\Dotenv\Parser\ParserInterface;
 
-class Dotenv
+final class Dotenv
 {
 
     public const CLEAR_MEMORY_AFTER_LOAD_ENV = 1;
