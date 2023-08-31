@@ -16,14 +16,15 @@ final class EnvLine implements LineInterface
     {
     }
 
+
     public function __toString(): string
     {
         $format = ($this->value === null) ? '%s%s%s' : '%s=%s%s';
         return sprintf(
             $format,
-            (string)$this->key,
-            (string)($this->value ?? ''),
-            (string)($this->comment ?? '')
+            $this->key->__toString(),
+            $this->value?->__toString() ?? '',
+            $this->comment?->__toString() ?? ''
         );
     }
 
