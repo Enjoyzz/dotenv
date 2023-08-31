@@ -7,8 +7,13 @@
          beStrictAboutCoversAnnotation="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTodoAnnotatedTests="true"
+         convertDeprecationsToExceptions="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
          failOnRisky="true"
          failOnWarning="true"
+
          verbose="true">
     <testsuites>
         <testsuite name="default">
