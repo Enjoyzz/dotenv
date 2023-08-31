@@ -48,7 +48,7 @@ final class Dotenv
 
     public function loadEnv(bool $usePutEnv = false): void
     {
-        if ($usePutEnv){
+        if ($usePutEnv) {
             $this->flags = $this->flags | self::POPULATE_PUTENV;
         }
 
@@ -69,15 +69,13 @@ final class Dotenv
         $this->storage->addPath($this->envFilePath);
 
         while (false !== $path = $this->storage->getPath()) {
-            if ($this->storage->isLoaded($path)) {
-                continue;
+            if (!$this->storage->isLoaded($path)) {
+                $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv(file_get_contents($path)));
+                $this->storage->markLoaded($path);
+                $this->storage->addPath(
+                    $this->envFilePath . '.' . ((getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '')
+                );
             }
-
-            $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv(file_get_contents($path)));
-            $this->storage->markLoaded($path);
-            $this->storage->addPath(
-                $this->envFilePath . '.' . ((getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '')
-            );
         }
     }
 
@@ -90,16 +88,14 @@ final class Dotenv
 
     public function handleValue(string $key, ?string $value): float|bool|int|string|null
     {
-
         if ($value !== null) {
-            $quoted = 0;
+            $quoted = null;
             $value = preg_replace_callback('/^(?<quote>[\'"])?(?<value>.*)\1/', function ($matches) {
                 return match ($matches['quote']) {
                     "'" => $matches['value'],
                     "\"" => strtr($matches['value'], self::CHARACTER_MAP)
                 };
             }, $value, count: $quoted);
-
         }
 
         $value = $this->variablesResolver->resolve($key, $value);
@@ -129,7 +125,6 @@ final class Dotenv
         if ($this->isPopulateToServer()) {
             $_SERVER[$key] = $value;
         }
-
     }
 
     public function getEnvRawArray(): array

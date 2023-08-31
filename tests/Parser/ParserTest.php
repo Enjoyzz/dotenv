@@ -101,6 +101,8 @@ ENV
         /** @var CommentLine $comment */
         $comment = $structure[1];
         $this->assertSame(' comment with "x" symbol', $comment->getComment());
+
+        $this->assertSame([0,1, 'VAR', 2], array_keys($structure));
     }
 
 
