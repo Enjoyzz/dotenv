@@ -14,6 +14,14 @@ final class Variables
     {
     }
 
+    public static function scalarValueToString(string|bool|int|float|null $value): string
+    {
+        if (gettype($value) === 'boolean') {
+            return $value ? 'true' : 'false';
+        }
+        return (string)$value;
+    }
+
     public function resolve(string $key, ?string $value): ?string
     {
         if ($value === null) {
@@ -35,7 +43,7 @@ final class Variables
                     ) : null) ??
                     '';
 
-                return Helper::scalarValueToString($val);
+                return self::scalarValueToString($val);
             },
             $value,
             flags: PREG_UNMATCHED_AS_NULL

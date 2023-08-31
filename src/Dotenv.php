@@ -123,7 +123,7 @@ final class Dotenv
 
 
         if (!getenv($key) && $this->isUsePutEnv() === true) {
-            putenv(sprintf("%s=%s", $key, Helper::scalarValueToString($value)));
+            putenv(sprintf("%s=%s", $key, Variables::scalarValueToString($value)));
         }
 
         if ($this->isPopulateToServer()) {

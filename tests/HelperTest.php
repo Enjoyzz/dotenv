@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 
 use Enjoys\Dotenv\Helper;
+use Enjoys\Dotenv\Variables;
 use PHPUnit\Framework\TestCase;
 
 class HelperTest extends TestCase
@@ -13,7 +14,7 @@ class HelperTest extends TestCase
      */
     public function testScalarToString($input, $expect)
     {
-        $value = Helper::scalarValueToString($input);
+        $value = Variables::scalarValueToString($input);
         $this->assertSame($expect, $value);
     }
 
