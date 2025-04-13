@@ -54,11 +54,12 @@ final class Parser implements ParserInterface
 
     public function parseLines(string $content): \Generator
     {
+        $contentSplit = preg_split("/\R/u", $content);
         foreach (
             Multiline::handle(
                 array_map(
                     'trim',
-                    preg_split("/\R/u", $content)
+                    $contentSplit === false ? [] : $contentSplit
                 )
             ) as $line
         ) {

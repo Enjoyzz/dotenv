@@ -14,7 +14,7 @@ final class FloatType implements TypeCastInterface
 
     public function isPossible(): bool
     {
-        $this->value = str_replace(',', '.', preg_replace('/^(\*float\s*|\*double\s*)/', '', $this->value));
+        $this->value = str_replace(',', '.', preg_replace('/^(\*float\s*|\*double\s*)/', '', $this->value) ?? '');
 
         if (is_numeric($this->value)) {
             return (string)(float)$this->value === $this->value;

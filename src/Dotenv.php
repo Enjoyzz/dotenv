@@ -70,7 +70,8 @@ final class Dotenv
 
         while (false !== $path = $this->storage->getPath()) {
             if (!$this->storage->isLoaded($path)) {
-                $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv(file_get_contents($path)));
+                $contents = file_get_contents($path);
+                $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv($contents !== false ? $contents : ''));
                 $this->storage->markLoaded($path);
                 $this->storage->addPath(
                     $this->envFilePath . '.' . ((getenv('APP_ENV') !== false ? (string)getenv('APP_ENV') : null) ?? $this->envRawArray['APP_ENV'] ?? '')

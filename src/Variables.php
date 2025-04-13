@@ -51,7 +51,7 @@ final class Variables
             flags: PREG_UNMATCHED_AS_NULL
         );
 
-        if (preg_match('/(\${(.+?)})/', $result)) {
+        if (preg_match('/(\${(.+?)})/', $result ?? '')) {
             return $this->resolve($key, $result);
         }
 

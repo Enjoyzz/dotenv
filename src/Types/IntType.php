@@ -14,7 +14,7 @@ final class IntType implements TypeCastInterface
 
     public function isPossible(): bool
     {
-        $this->value = preg_replace('/^(\*int\s*)/', '', $this->value);
+        $this->value = preg_replace('/^(\*int\s*)/', '', $this->value) ?? '';
 
         if (is_numeric($this->value)) {
             return (string)(int)$this->value === $this->value;
