@@ -12,6 +12,7 @@ final class StringType implements TypeCastInterface
     {
     }
 
+    #[\Override]
     public function isPossible(): bool
     {
         if (str_starts_with($this->value, '*string')){
@@ -21,6 +22,7 @@ final class StringType implements TypeCastInterface
         return false;
     }
 
+    #[\Override]
     public function getCastedValue(): string
     {
         return $this->value;

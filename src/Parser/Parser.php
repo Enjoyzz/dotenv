@@ -22,6 +22,7 @@ final class Parser implements ParserInterface
      * @param string $content
      * @return array<string, string|null>
      */
+    #[\Override]
     public function parseEnv(string $content): array
     {
         $envArray = [];
@@ -38,6 +39,7 @@ final class Parser implements ParserInterface
      * @param string $content
      * @return array<array-key, LineInterface>
      */
+    #[\Override]
     public function parseStructure(string $content): array
     {
         $structure = [];

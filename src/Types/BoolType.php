@@ -12,6 +12,7 @@ final class BoolType implements TypeCastInterface
     {
     }
 
+    #[\Override]
     public function isPossible(): bool
     {
         if (str_starts_with($this->value, '*bool')){
@@ -21,6 +22,7 @@ final class BoolType implements TypeCastInterface
         return false;
     }
 
+    #[\Override]
     public function getCastedValue(): bool
     {
         return !empty($this->value);

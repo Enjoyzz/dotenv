@@ -12,6 +12,7 @@ final class FloatType implements TypeCastInterface
     {
     }
 
+    #[\Override]
     public function isPossible(): bool
     {
         $this->value = str_replace(',', '.', preg_replace('/^(\*float\s*|\*double\s*)/', '', $this->value) ?? '');
@@ -22,6 +23,7 @@ final class FloatType implements TypeCastInterface
         return false;
     }
 
+    #[\Override]
     public function getCastedValue(): float
     {
         return (float)$this->value;
