@@ -12,15 +12,17 @@ final class BoolType implements TypeCastInterface
     {
     }
 
+    #[\Override]
     public function isPossible(): bool
     {
         if (str_starts_with($this->value, '*bool')){
-            $this->value = preg_replace('/^(\*bool\s*)/', '', $this->value);
+            $this->value = preg_replace('/^(\*bool\s*)/', '', $this->value) ?? '';
             return true;
         }
         return false;
     }
 
+    #[\Override]
     public function getCastedValue(): bool
     {
         return !empty($this->value);

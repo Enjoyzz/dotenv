@@ -27,21 +27,23 @@ final class Variables
         if ($value === null) {
             return null;
         }
+
         $result = preg_replace_callback(
             '/(\${(?<variable>.+?)(?<default_value>:[-=?][^}]*)?})/',
             function (array $matches): string {
-                $env = getenv($matches['variable']) ?: null;
+                $env = getenv($matches['variable']) !== false ? getenv($matches['variable']) : null;
 
                 /** @var string|bool|int|float|null $val */
                 $val =
                     $env ??
                     $this->dotenv->getEnvCollection()->get($matches['variable']) ??
                     $this->dotenv->getEnvRawArray()[$matches['variable']] ??
-                    ($matches['default_value'] ? $this->resolveDefaultValue(
-                        $matches['default_value'],
-                        $matches['variable']
-                    ) : null) ??
-                    '';
+                    (($matches['default_value'] ?? null) !== null
+                        ? $this->resolveDefaultValue(
+                            $matches['default_value'],
+                            $matches['variable']
+                        ) : null)
+                    ?? '';
 
                 return self::scalarValueToString($val);
             },
@@ -49,7 +51,7 @@ final class Variables
             flags: PREG_UNMATCHED_AS_NULL
         );
 
-        if (preg_match('/(\${(.+?)})/', $result)) {
+        if (preg_match('/(\${(.+?)})/', $result ?? '')) {
             return $this->resolve($key, $result);
         }
 

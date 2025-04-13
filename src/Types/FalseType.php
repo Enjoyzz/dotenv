@@ -13,6 +13,7 @@ final class FalseType implements TypeCastInterface
 
     }
 
+    #[\Override]
     public function isPossible(): bool
     {
         if (str_starts_with($this->value, '*false')){
@@ -21,6 +22,7 @@ final class FalseType implements TypeCastInterface
         return strtolower($this->value) === 'false';
     }
 
+    #[\Override]
     public function getCastedValue(): bool
     {
         return false;

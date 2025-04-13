@@ -12,9 +12,10 @@ final class IntType implements TypeCastInterface
     {
     }
 
+    #[\Override]
     public function isPossible(): bool
     {
-        $this->value = preg_replace('/^(\*int\s*)/', '', $this->value);
+        $this->value = preg_replace('/^(\*int\s*)/', '', $this->value) ?? '';
 
         if (is_numeric($this->value)) {
             return (string)(int)$this->value === $this->value;
@@ -22,6 +23,7 @@ final class IntType implements TypeCastInterface
         return false;
     }
 
+    #[\Override]
     public function getCastedValue(): int
     {
         return (int) $this->value;

@@ -17,6 +17,7 @@ final class Storage implements StorageInterface
      */
     private array $paths = [];
 
+    #[\Override]
     public function getPath(): string|false
     {
         $key = key($this->paths);
@@ -28,20 +29,23 @@ final class Storage implements StorageInterface
         return $result;
     }
 
+    #[\Override]
     public function isLoaded(string $path): bool
     {
         return in_array($path, $this->loadedPaths, true);
     }
 
+    #[\Override]
     public function markLoaded(string $path): void
     {
         $this->loadedPaths[] = $path;
     }
 
+    #[\Override]
     public function addPath(string $path): void
     {
         $path = realpath($path);
-        if ($path) {
+        if ($path !== false) {
             $this->paths[] = $path;
         }
     }
@@ -49,6 +53,7 @@ final class Storage implements StorageInterface
     /**
      * @return string[]
      */
+    #[\Override]
     public function getLoadedPaths(): array
     {
         return $this->loadedPaths;

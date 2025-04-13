@@ -24,6 +24,7 @@ final class Key implements \Stringable
         $this->value = $value;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->value;

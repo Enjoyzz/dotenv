@@ -13,6 +13,7 @@ final class NullType implements TypeCastInterface
 
     }
 
+    #[\Override]
     public function isPossible(): bool
     {
         if (str_starts_with($this->value, '*null')){
@@ -21,6 +22,7 @@ final class NullType implements TypeCastInterface
         return false;
     }
 
+    #[\Override]
     public function getCastedValue(): string|null
     {
         return null;

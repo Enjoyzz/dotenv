@@ -13,6 +13,7 @@ final class TrueType implements TypeCastInterface
 
     }
 
+    #[\Override]
     public function isPossible(): bool
     {
         if (str_starts_with($this->value, '*true')){
@@ -21,6 +22,7 @@ final class TrueType implements TypeCastInterface
         return strtolower($this->value) === 'true';
     }
 
+    #[\Override]
     public function getCastedValue(): bool
     {
         return true;

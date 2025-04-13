@@ -22,12 +22,13 @@ final class Parser implements ParserInterface
      * @param string $content
      * @return array<string, string|null>
      */
+    #[\Override]
     public function parseEnv(string $content): array
     {
         $envArray = [];
         /** @var LineInterface $line */
         foreach ($this->parseLines($content) as $line) {
-            if ($line instanceof EnvLine){
+            if ($line instanceof EnvLine) {
                 $envArray[$line->getKey()->getValue()] = $line->getValue()?->getValue();
             }
         }
@@ -38,12 +39,13 @@ final class Parser implements ParserInterface
      * @param string $content
      * @return array<array-key, LineInterface>
      */
+    #[\Override]
     public function parseStructure(string $content): array
     {
         $structure = [];
         /** @var LineInterface $line */
         foreach ($this->parseLines($content) as $line) {
-            if ($line instanceof EnvLine){
+            if ($line instanceof EnvLine) {
                 $structure[$line->getKey()->getValue()] = $line;
                 continue;
             }
@@ -54,12 +56,15 @@ final class Parser implements ParserInterface
 
     public function parseLines(string $content): \Generator
     {
-        foreach (Multiline::handle(
-            array_map(
-                'trim',
-                preg_split("/\R/u", $content)
-            )
-        ) as $line) {
+        $contentSplit = preg_split("/\R/u", $content);
+        foreach (
+            Multiline::handle(
+                array_map(
+                    'trim',
+                    $contentSplit === false ? [] : $contentSplit
+                )
+            ) as $line
+        ) {
             if (empty($line)) {
                 yield new EmptyLine();
                 continue;
@@ -81,7 +86,7 @@ final class Parser implements ParserInterface
 
     /**
      * @param string $rawLine
-     * @return list{0: Key, 1: Value|null, 2: Comment|null}
+     * @return list{Key, ?Value, ?Comment}
      */
     private function parseEnvLine(string $rawLine): array
     {
@@ -100,7 +105,7 @@ final class Parser implements ParserInterface
 
     /**
      * @param string|null $rawValue
-     * @return list{0: Value|null, 1: Comment|null}
+     * @return list{?Value, ?Comment}
      */
     private function parseValue(?string $rawValue): array
     {
@@ -121,10 +126,10 @@ final class Parser implements ParserInterface
         $matches['value'] ??= false;
         $matches['comment'] ??= null;
 
-        if ($matches['value']) {
+        if ($matches['value'] !== false) {
             return [
                 new Value($matches['value']),
-                $matches['comment'] ? new Comment($matches['comment']) : null
+                ($matches['comment'] === '' || $matches['comment'] === null) ? null : new Comment($matches['comment'])
             ];
         }
 
@@ -133,7 +138,7 @@ final class Parser implements ParserInterface
         $comment = $unquotedValue[1] ?? null;
         return [
             new Value($value),
-            $comment ? new Comment($comment) : null
+            $comment !== null ? new Comment($comment) : null
         ];
     }
 

@@ -24,9 +24,10 @@ final class Value implements \Stringable
         if (preg_match('/^["\']+/', $value)) {
             $this->quote = null;
         }
-        return $this->quote ? sprintf('%2$s%1$s%2$s', $value, $this->quote) : $value;
+        return $this->quote !== null ? sprintf('%2$s%1$s%2$s', $value, $this->quote) : $value;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->value;

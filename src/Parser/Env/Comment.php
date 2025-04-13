@@ -15,6 +15,7 @@ final class Comment implements \Stringable
         $this->value = ltrim(trim($value), "#");
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return sprintf(' #%s', $this->value);
