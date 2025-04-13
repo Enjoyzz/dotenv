@@ -41,7 +41,7 @@ final class Storage implements StorageInterface
     public function addPath(string $path): void
     {
         $path = realpath($path);
-        if ($path) {
+        if ($path !== false) {
             $this->paths[] = $path;
         }
     }

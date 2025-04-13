@@ -73,7 +73,7 @@ final class Dotenv
                 $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv(file_get_contents($path)));
                 $this->storage->markLoaded($path);
                 $this->storage->addPath(
-                    $this->envFilePath . '.' . ((getenv('APP_ENV') ?: null) ?? $this->envRawArray['APP_ENV'] ?? '')
+                    $this->envFilePath . '.' . ((getenv('APP_ENV') !== false ? (string)getenv('APP_ENV') : null) ?? $this->envRawArray['APP_ENV'] ?? '')
                 );
             }
         }
@@ -101,7 +101,7 @@ final class Dotenv
         $value = $this->variablesResolver->resolve($key, $value);
 
 
-        if (getenv($key)) {
+        if (getenv($key) !== false) {
             $value = getenv($key);
         }
 
@@ -118,7 +118,7 @@ final class Dotenv
         $this->envCollection->add($key, $value);
 
 
-        if (!getenv($key) && $this->isUsePutEnv() === true) {
+        if (getenv($key) === false && $this->isUsePutEnv() === true) {
             putenv(sprintf("%s=%s", $key, Variables::scalarValueToString($value)));
         }
 
