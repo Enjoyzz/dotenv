@@ -18,17 +18,20 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^12.0",
+        "phpstan/phpstan": "^2.1",
         "vimeo/psalm": "~6.4.1",
         "infection/infection": "^0.29",
         "symfony/var-dumper": "^7.0"
     },
     "scripts": {
         "psalm": "psalm",
+        "phpstan": "phpstan analyze src --level 1",
         "infection": "XDEBUG_MODE=coverage infection -j2 --configuration=infection.json",
         "test": "phpunit",
         "static": [
             "@test",
-            "@psalm"
+            "@psalm",
+            "@phpstan"
         ]
     },
     "config": {
