@@ -8,14 +8,13 @@ use Enjoys\Dotenv\Exception\InvalidArgumentException;
 use Enjoys\Dotenv\Parser\Lines\CommentLine;
 use Enjoys\Dotenv\Parser\Lines\EnvLine;
 use Enjoys\Dotenv\Parser\Parser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ParserTest extends TestCase
 {
 
-    /**
-     * @dataProvider dataForTestSplitContentOnRawArray
-     */
+    #[DataProvider('dataForTestSplitContentOnRawArray')]
     public function testSplitContentOnRawArray($input, $expect)
     {
         if ($expect === false) {
@@ -28,7 +27,7 @@ class ParserTest extends TestCase
         );
     }
 
-    public function dataForTestSplitContentOnRawArray(): array
+    public static function dataForTestSplitContentOnRawArray(): array
     {
         return [
             ["", ['']],

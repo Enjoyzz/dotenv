@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Parser\Helpers;
 
 use Enjoys\Dotenv\ValueTypeCasting;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ValueTypecastingTest extends TestCase
 {
 
-    /**
-     * @dataProvider dataForTestGetPossibleType
-     */
+    #[DataProvider('dataForTestGetPossibleType')]
     public function testAutoDetermineType($input, $expectType, $expectValue)
     {
         $expectValue ??= $input;
@@ -22,7 +21,7 @@ class ValueTypecastingTest extends TestCase
         $this->assertSame($expectValue, $value);
     }
 
-    public function dataForTestGetPossibleType(): array
+    public static function dataForTestGetPossibleType(): array
     {
         return [
             ['42', 'int', 42],

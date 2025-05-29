@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 
 use Enjoys\Dotenv\Dotenv;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class DotenvTest extends TestCase
@@ -430,7 +431,7 @@ ENV
 
     public function testOtherImplementationStorage()
     {
-        $storage = $this->getMockForAbstractClass(\Enjoys\Dotenv\StorageInterface::class);
+        $storage = $this->createMock(\Enjoys\Dotenv\StorageInterface::class);
         $dotenv = new Dotenv(__DIR__ . '/fixtures/1/.env', storage: $storage);
         $dotenv->loadEnv();
         $this->assertSame([], $dotenv->getLoadedPaths());
@@ -438,16 +439,13 @@ ENV
 
     public function testOtherImplementationParser()
     {
-        $parser = $this->getMockForAbstractClass(\Enjoys\Dotenv\Parser\ParserInterface::class);
+        $parser = $this->createMock(\Enjoys\Dotenv\Parser\ParserInterface::class);
         $dotenv = new Dotenv(__DIR__ . '/fixtures/1/.env', parser: $parser);
         $dotenv->loadEnv();
         $this->assertSame([], $dotenv->getEnvCollection()->getCollection());
     }
 
-
-    /**
-     * @dataProvider dataForTestHandleValue
-     */
+    #[DataProvider('dataForTestHandleValue')]
     public function testHandleValue($key, $string, $expect)
     {
         $dotenv = new Dotenv(__DIR__ . '/fixtures/1/.env', flags: Dotenv::CAST_TYPE_ENV_VALUE);
@@ -455,7 +453,7 @@ ENV
     }
 
 
-    public function dataForTestHandleValue()
+    public static function dataForTestHandleValue(): array
     {
         return [
             ['VAR', '42', 42],

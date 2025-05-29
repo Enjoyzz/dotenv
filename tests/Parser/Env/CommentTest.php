@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Parser\Env;
 
 use Enjoys\Dotenv\Parser\Env\Comment;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CommentTest extends TestCase
 {
 
-    /**
-     * @dataProvider data
-     */
+    #[DataProvider('data')]
     public function testCommentInEnv($value, $expect)
     {
         $comment = new Comment($value);
@@ -20,7 +19,7 @@ class CommentTest extends TestCase
         $this->assertSame(' #'.$expect, $comment->__toString());
     }
 
-    public function data()
+    public static function data()
     {
         return [
             ['      #comment', 'comment'],

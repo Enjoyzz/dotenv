@@ -5,20 +5,20 @@ declare(strict_types=1);
 
 use Enjoys\Dotenv\Helper;
 use Enjoys\Dotenv\Variables;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class HelperTest extends TestCase
 {
-    /**
-     * @dataProvider dataForTestScalarToString
-     */
+
+    #[DataProvider('dataForTestScalarToString')]
     public function testScalarToString($input, $expect)
     {
         $value = Variables::scalarValueToString($input);
         $this->assertSame($expect, $value);
     }
 
-    public function dataForTestScalarToString()
+    public static function dataForTestScalarToString(): array
     {
         return [
             [true, 'true'],

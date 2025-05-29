@@ -6,13 +6,12 @@ namespace Parser\Env;
 
 use Enjoys\Dotenv\Exception\InvalidArgumentException;
 use Enjoys\Dotenv\Parser\Env\Key;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class KeyTest extends TestCase
 {
-    /**
-     * @dataProvider dataForTestValidKeys
-     */
+    #[DataProvider('dataForTestValidKeys')]
     public function testValidKeys($value, $expect): void
     {
         if ($expect === false){
@@ -22,7 +21,7 @@ class KeyTest extends TestCase
         $this->assertSame($value, $key->getValue());
     }
 
-    public function dataForTestValidKeys(): array
+    public static function dataForTestValidKeys(): array
     {
         return [
             ['VAR1', true],
