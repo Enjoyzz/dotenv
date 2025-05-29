@@ -93,8 +93,8 @@ final class Dotenv
             $quoted = null;
             $value = preg_replace_callback('/^(?<quote>[\'"])?(?<value>.*)\1/', function ($matches) {
                 return match ($matches['quote']) {
-                    "'" => $matches['value'],
-                    "\"" => strtr($matches['value'], self::CHARACTER_MAP)
+                    "\"" => strtr($matches['value'], self::CHARACTER_MAP),
+                     default => $matches['value'] // one quote character or empty
                 };
             }, $value, count: $quoted);
         }
@@ -128,6 +128,9 @@ final class Dotenv
         }
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     public function getEnvRawArray(): array
     {
         return $this->envRawArray;

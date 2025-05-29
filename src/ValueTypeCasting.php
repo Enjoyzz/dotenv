@@ -56,7 +56,7 @@ final class ValueTypeCasting
     private function determine(): void
     {
          foreach (self::DEFINABLE_TYPES_MAP as $typeClass) {
-             /** @var TypeCastInterface $type */
+             /** @var IntType|FloatType|TrueType|FalseType|NullType|BoolType|StringType|Int8Type|Int16Type $type */
              $type = new $typeClass($this->originalValue);
             if ($type->isPossible()){
                 $this->castedValue = $type->getCastedValue();

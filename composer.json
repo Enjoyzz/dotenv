@@ -25,7 +25,7 @@
     },
     "scripts": {
         "psalm": "psalm",
-        "phpstan": "phpstan analyze src --level 1",
+        "phpstan": "phpstan analyze src --level 9",
         "infection": "XDEBUG_MODE=coverage infection -j2 --configuration=infection.json",
         "test": "phpunit",
         "static": [

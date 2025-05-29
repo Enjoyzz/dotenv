@@ -43,6 +43,9 @@ final class EnvCollection
     }
 
 
+    /**
+     * @return array<string, string|bool|int|float|null>
+     */
     public function getCollection(): array
     {
         return $this->collection;
