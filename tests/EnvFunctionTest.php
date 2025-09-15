@@ -218,6 +218,6 @@ class EnvFunctionTest extends TestCase
         putenv('EMPTY_VAR=');
 
         $result = env('EMPTY_VAR', true);
-        $this->assertSame(true, $result);
+        $this->assertSame('', $result);
     }
 }
