@@ -14,7 +14,7 @@ final class Variables
     {
     }
 
-    public static function scalarValueToString(string|bool|int|float|null $value): string
+    public static function scalarValueToString(mixed $value): string
     {
         if (gettype($value) === 'boolean') {
             return $value ? 'true' : 'false';

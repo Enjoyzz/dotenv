@@ -87,7 +87,7 @@ final class Dotenv
         }
     }
 
-    public function handleValue(string $key, ?string $value): float|bool|int|string|null
+    public function handleValue(string $key, ?string $value): mixed
     {
         if ($value !== null) {
             $quoted = null;
@@ -100,7 +100,6 @@ final class Dotenv
         }
 
         $value = $this->variablesResolver->resolve($key, $value);
-
 
         if (getenv($key) !== false) {
             $value = getenv($key);

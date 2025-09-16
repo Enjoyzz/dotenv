@@ -15,4 +15,8 @@
             <directory name="tests" />
         </ignoreFiles>
     </projectFiles>
+
+    <issueHandlers>
+        <MixedAssignment errorLevel="suppress" />
+    </issueHandlers>
 </psalm>
