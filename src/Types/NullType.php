@@ -19,7 +19,7 @@ final class NullType implements TypeCastInterface
         if (str_starts_with($this->value, '*null')){
             return true;
         }
-        return false;
+        return strtolower($this->value) === 'null';
     }
 
     #[\Override]
