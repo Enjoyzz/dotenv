@@ -114,18 +114,22 @@ VAR = "3.14"  #string
 
 **НЕ РЕКОМЕНДУЕТСЯ использовать флаг `Dotenv::CAST_TYPE_ENV_VALUE` или `enableCastType()`.**
 
-_Хотя автоматическое приведение типов может быть удобным, его использование напрямую через `$_ENV` может быть неочевидным
+_Хотя автоматическое приведение типов может быть удобным, его использование напрямую через `$_ENV` может быть
+неочевидным
 для других разработчиков и усложняет отладку. Значения, приведённые к типам, будут доступны только в рамках текущего
 PHP-процесса, где была использована эта библиотека._
 
-***Критически важно понимать***_, что при использовании функции `getenv()` (которая часто используется для чтения переменных
+***Критически важно понимать***_, что при использовании функции `getenv()` (которая часто используется для чтения
+переменных
 окружения) всегда возвращаются строковые значения, даже если тип был приведён на уровне парсера и сохранён
-в `$_ENV`. Это может привести к неожиданным результатам и ошибкам, если код использует смешанный доступ к переменным через 
+в `$_ENV`. Это может привести к неожиданным результатам и ошибкам, если код использует смешанный доступ к переменным
+через
 `$_ENV` и `getenv()`._
 
 _Также эта функция замедляет парсинг переменных, что особенно заметно на больших объёмах данных._
 
-_Для более предсказуемого и согласованного поведения **рекомендуется использовать функцию** **`env()`**. Она предоставляет те же
+_Для более предсказуемого и согласованного поведения **рекомендуется использовать функцию** **`env()`**. Она
+предоставляет те же
 возможности по приведению типов, но делает это явно в момент обращения к значению. Это делает код читаемым и
 предотвращает ошибки, связанные с неявным преобразованием типов и различиями в способах хранения переменных (
 в `$_ENV`, `getenv()` или `$_SERVER`)._
@@ -176,7 +180,8 @@ VAR2=${NOT_DEFINED_VAR:?} #or just with empty error message
 
 # Функция `env()`
 
-Удобная функция для работы с переменными окружения с поддержкой автоматического преобразования типов.
+Удобная функция для работы с переменными окружения с поддержкой преобразования типов, валидации и гибкой обработки
+значений.
 
 ## Базовое использование
 
@@ -225,80 +230,78 @@ env('PORT', '8080');     // → int(8080)
 env('PRICE', '99.99');   // → float(99.99)
 env('PRICE', '99,99');   // → float(99.99) - запятые автоматически заменяются
 
-// Строки
+// Строки и null
 env('NAME', 'John Doe'); // → string("John Doe")
+env('OPTIONAL', 'null');     // → null
 ```
 
-### Кастомные функции преобразования
-
-#### Встроенные функции PHP
-
-```php
-// Преобразование типов
-$port = env('PORT', 8080, 'intval');        // → int(8080)
-$price = env('PRICE', 99.99, 'floatval');   // → float(99.99)
-$debug = env('DEBUG', false, 'boolval');    // → bool(false)
-$name = env('NAME', 'test', 'strval');      // → string("test")
-
-// Обработка строк
-$token = env('API_TOKEN', '', 'trim');          // → обрезает пробелы
-$env = env('APP_ENV', 'prod', 'strtoupper');    // → "PROD"
-$key = env('API_KEY', '', 'strtolower');        // → "api_key"
-```
-
-#### Arrow-функции
+### Преобразование значений
 
 ```php
 // Простое преобразование типов
-$port = env('PORT', 8080, fn($v) => (int) $v);
-$price = env('PRICE', 99.99, fn($v) => (float) $v);
-$debug = env('DEBUG', false, fn($v) => (bool) $v);
+$port = env('DB_PORT', 3306, fn($v) => (int) $v);
+$debug = env('APP_DEBUG', false, fn($v) => (bool) $v);
 
-// Валидация с преобразованием
-$port = env('PORT', 8080, function($v) {
-    $port = (int) $v;
-    if ($port < 1 || $port > 65535) {
-        throw new InvalidArgumentException('Invalid port number');
-    }
-    return $port;
+// Комплексное преобразование
+$allowedHosts = env('ALLOWED_HOSTS', 'localhost,127.0.0.1', function($v) {
+    return array_filter(array_map('trim', explode(',', $v)));
 });
 
-// Преобразование с логикой
-$retries = env('RETRY_COUNT', 3, fn($v) => max(0, min(10, (int) $v)));
+// Использование встроенных функций PHP
+$env = env('APP_ENV', 'prod', 'strtoupper');
+$name = env('APP_NAME', 'My App', 'trim');
+```
 
-// Работа с массивами
-$hosts = env('ALLOWED_HOSTS', 'localhost,127.0.0.1', fn($v) => explode(',', $v));
+### Валидация значений
 
-// JSON parsing
-$config = env('APP_CONFIG', '{}', fn($v) => json_decode($v, true) ?? []);
+```php
+// Простая валидация
+$port = env('PORT', 8080, validator: function($v) {
+    return $v >= 1 && $v <= 65535;
+});
 
-// Комплексная обработка
-$email = env('EMAIL', '  USER@EXAMPLE.COM  ', function($v) {
-    return strtolower(trim($v)); // → "user@example.com"
+// Комплексная валидация с преобразованием
+$email = env('ADMIN_EMAIL', validator: function($v) {
+    return filter_var($v, FILTER_VALIDATE_EMAIL) ? $v : null;
+}, function($v) {
+    return $v !== null;
+});
+
+// Валидация с кастомными сообщениями
+$apiKey = env('API_KEY', null, validator: function($v) use ($key) {
+    if (empty($v)) {
+        throw new InvalidArgumentException("API_KEY is required");
+    }
+    return strlen($v) >= 32;
 });
 ```
 
-#### Композиция функций
+### Комбинирование преобразования и валидации
 
 ```php
-// Создаем композицию функций
-$compose = function(callable ...$functions) {
-    return fn($value) => array_reduce(
-        $functions,
-        fn($carry, $function) => $function($carry),
-        $value
-    );
-};
-
-// Применяем цепочку преобразований
-$cleanUsername = $compose('trim', 'strtolower');
-$username = env('USERNAME', '', $cleanUsername); // → "admin"
-
-$validatedPort = $compose(
-    'intval',
-    fn($v) => $v >= 1 && $v <= 65535 ? $v : throw new InvalidArgumentException('Invalid port')
+// Преобразование + валидация
+$retryCount = env(
+    key: 'RETRY_COUNT', 
+    default: 3, 
+    transform: fn($v) => (int) $v, // преобразование
+    validator: fn($v) => $v >= 0 && $v <= 10 // валидация
 );
-$port = env('PORT', 8080, $validatedPort);
+
+// Сложный пример
+$config = env('APP_CONFIG', '{}', 
+    fn($v) => json_decode($v, true) ?? [],
+    fn($v) => is_array($v) && !empty($v)
+);
+```
+
+### Получение сырых значений
+
+```php
+// Получить значение без преобразования и валидации
+$rawValue = env('SOME_VAR', raw: true);
+
+// Полезно для отладки
+var_dump(env('COMPLEX_CONFIG', raw: true));
 ```
 
 ## Практические примеры
@@ -307,27 +310,21 @@ $port = env('PORT', 8080, $validatedPort);
 
 ```php
 return [
-    'debug' => env('APP_DEBUG', false, 'boolval'),
+    'debug' => env('APP_DEBUG', false, fn($v) => (bool) $v),
     'env' => env('APP_ENV', 'production', 'strtolower'),
     'name' => env('APP_NAME', 'My App', 'trim'),
     
     'database' => [
         'host' => env('DB_HOST', 'localhost'),
-        'port' => env('DB_PORT', 3306, fn($v) => (int) $v),
-        'database' => env('DB_DATABASE', 'forge'),
-        'username' => env('DB_USERNAME', 'forge'),
-        'password' => env('DB_PASSWORD', ''),
-    ],
-    
-    'redis' => [
-        'host' => env('REDIS_HOST', '127.0.0.1'),
-        'port' => env('REDIS_PORT', 6379, fn($v) => max(1, min(65535, (int) $v))),
-        'password' => env('REDIS_PASSWORD', null),
+        'port' => env('DB_PORT', 3306, fn($v) => (int) $v, fn($v) => $v > 0),
+        'name' => env('DB_NAME', 'app'),
+        'user' => env('DB_USER', 'root'),
+        'pass' => env('DB_PASS', '', validator: fn($v) => !empty($v)),
     ],
     
     'api' => [
-        'timeout' => env('API_TIMEOUT', 30, fn($v) => max(1, (float) $v)),
-        'retries' => env('API_RETRIES', 3, fn($v) => max(0, min(10, (int) $v))),
+        'timeout' => env('API_TIMEOUT', 30.0, fn($v) => (float) $v),
+        'retries' => env('API_RETRIES', 3, fn($v) => (int) $v, fn($v) => $v >= 0),
     ]
 ];
 ```
@@ -335,32 +332,23 @@ return [
 Безопасные значения с валидацией:
 
 ```php
-// Порты с валидацией
-$port = env('PORT', 8080, function($v) {
-    $port = (int) $v;
-    if ($port < 1 || $port > 65535) {
-        throw new InvalidArgumentException("Invalid port number: $port");
-    }
-    return $port;
-});
+// Email с валидацией
+$adminEmail = env('ADMIN_EMAIL', null, 
+    fn($v) => filter_var(trim($v), FILTER_VALIDATE_EMAIL),
+    fn($v) => $v !== false
+);
 
-// Массивы хостов
-$allowedHosts = env('ALLOWED_HOSTS', 'localhost,127.0.0.1', function($v) {
-    return array_filter(array_map('trim', explode(',', $v)));
-});
+// Порты с валидацией диапазона
+$port = env('APP_PORT', 8080, 
+    fn($v) => (int) $v,
+    fn($v) => $v >= 1 && $v <= 65535
+);
 
 // Enum-значения
-$logLevel = env('LOG_LEVEL', 'info', function($v) {
-    $allowed = ['debug', 'info', 'warning', 'error', 'critical'];
-    $level = strtolower($v);
-    return in_array($level, $allowed) ? $level : 'info';
-});
-
-// Email с валидацией
-$adminEmail = env('ADMIN_EMAIL', '', function($v) {
-    $email = trim($v);
-    return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : '';
-});
+$logLevel = env('LOG_LEVEL', 'info', 
+    fn($v) => strtolower($v),
+    fn($v) => in_array($v, ['debug', 'info', 'warning', 'error', 'critical'])
+);
 ```
 
 ## Особенности работы
@@ -380,3 +368,14 @@ $_ENV['TEST_VAR'] = 'env_value';
 
 env('TEST_VAR'); // → "system_value"
 ```
+
+**Обработка ошибок валидации**
+
+При неудачной валидации выбрасывается `InvalidArgumentException` с информативным сообщением:
+
+```php
+// Выбросит исключение с сообщением:
+// "Environment variable "API_PORT" validation failed. Got: 99999"
+env('API_PORT', 99999, null, fn($v) => $v <= 65535);
+```
+
