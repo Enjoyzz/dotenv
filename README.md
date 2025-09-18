@@ -261,14 +261,13 @@ $port = env('PORT', 8080, validator: function($v) {
 });
 
 // Комплексная валидация с преобразованием
-$email = env('ADMIN_EMAIL', validator: function($v) {
-    return filter_var($v, FILTER_VALIDATE_EMAIL) ? $v : null;
-}, function($v) {
-    return $v !== null;
-});
+$email = env('ADMIN_EMAIL', 
+    tramsform: fn($v) => filter_var($v, FILTER_VALIDATE_EMAIL) ? $v : null, 
+    validator: fn($v) => $v !== null
+);
 
 // Валидация с кастомными сообщениями
-$apiKey = env('API_KEY', null, validator: function($v) use ($key) {
+$apiKey = env('API_KEY', validator: function($v) use ($key) {
     if (empty($v)) {
         throw new InvalidArgumentException("API_KEY is required");
     }
