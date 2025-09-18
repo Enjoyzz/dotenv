@@ -186,6 +186,14 @@ class EnvFunctionTest extends TestCase
         $this->assertNull($result);
     }
 
+    public function testDefaultCallbackFunctionWithNull()
+    {
+        putenv('STAR_NULL_VAR=Null');
+
+        $result = env('STAR_NULL_VAR');
+        $this->assertNull($result);
+    }
+
     public function testCustomCallbackFunction()
     {
         putenv('NUMBER_VAR=123');
@@ -220,24 +228,16 @@ class EnvFunctionTest extends TestCase
         $this->assertIsString($result);
     }
 
-    public function testCallbackWithKeyParameter()
-    {
-        putenv('TEST_VAR=value');
 
-        $result = env('TEST_VAR', null, function($value, $key) {
-            return "{$key}:{$value}";
-        });
-        $this->assertEquals('TEST_VAR:value', $result);
-    }
 
     public function testCallbackWithValidationAndTransformation()
     {
         putenv('PORT_VAR=8080');
 
-        $result = env('PORT_VAR', 3000, function($value, $key) {
+        $result = env('PORT_VAR', 3000, function($value) {
             $value = (int) $value;
             if ($value < 1 || $value > 65535) {
-                throw new InvalidArgumentException("Port $value is out of range for $key");
+                throw new InvalidArgumentException("Port $value is out of range for PORT_VAR");
             }
             return $value;
         });
@@ -251,10 +251,10 @@ class EnvFunctionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Port 70000 is out of range for PORT_VAR');
 
-        env('PORT_VAR', 3000, function($value, $key) {
+        env('PORT_VAR', 3000, function($value) {
             $value = (int) $value;
             if ($value < 1 || $value > 65535) {
-                throw new InvalidArgumentException("Port $value is out of range for $key");
+                throw new InvalidArgumentException("Port $value is out of range for PORT_VAR");
             }
             return $value;
         });
@@ -367,10 +367,10 @@ class EnvFunctionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Custom error message for PORT_VAR');
 
-        env('PORT_VAR', 3000, function($value, $key) {
+        env('PORT_VAR', 3000, function($value) {
             $value = (int) $value;
             if ($value < 1 || $value > 65535) {
-                throw new InvalidArgumentException("Custom error message for $key");
+                throw new InvalidArgumentException("Custom error message for PORT_VAR");
             }
             return $value;
         });

@@ -273,18 +273,6 @@ $allowedHosts = env('ALLOWED_HOSTS', 'localhost', function($value) {
 });
 ```
 
-### Использование ключа в callback
-```php
-$apiKey = env('API_KEY', null, function($value, $key) {
-    if (empty($value)) {
-        throw new InvalidArgumentException("$key is required");
-    }
-    if (strlen($value) < 32) {
-        throw new InvalidArgumentException("$key must be at least 32 characters");
-    }
-    return trim($value);
-});
-```
 ### Получение сырых значений (RAW)
 
 ```php
