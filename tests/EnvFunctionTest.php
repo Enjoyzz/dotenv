@@ -61,7 +61,7 @@ class EnvFunctionTest extends TestCase
         $this->assertEquals('getenv_value', $result);
     }
 
-    public function testDefaultTransformFunctionWithBooleanTrue()
+    public function testDefaultCallbackFunctionWithBooleanTrue()
     {
         putenv('BOOL_VAR=true');
 
@@ -70,7 +70,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsBool($result);
     }
 
-    public function testDefaultTransformFunctionWithBooleanFalse()
+    public function testDefaultCallbackFunctionWithBooleanFalse()
     {
         putenv('BOOL_VAR=false');
 
@@ -79,7 +79,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsBool($result);
     }
 
-    public function testDefaultTransformFunctionWithStarTrue()
+    public function testDefaultCallbackFunctionWithStarTrue()
     {
         putenv('STAR_TRUE_VAR=*true');
 
@@ -88,7 +88,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsBool($result);
     }
 
-    public function testDefaultTransformFunctionWithStarFalse()
+    public function testDefaultCallbackFunctionWithStarFalse()
     {
         putenv('STAR_FALSE_VAR=*false');
 
@@ -97,7 +97,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsBool($result);
     }
 
-    public function testDefaultTransformFunctionWithStarBoolTrue()
+    public function testDefaultCallbackFunctionWithStarBoolTrue()
     {
         putenv('STAR_BOOL_TRUE_VAR=*bool something');
 
@@ -106,7 +106,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsBool($result);
     }
 
-    public function testDefaultTransformFunctionWithStarBoolFalse()
+    public function testDefaultCallbackFunctionWithStarBoolFalse()
     {
         putenv('STAR_BOOL_FALSE_VAR=*bool');
 
@@ -115,7 +115,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsBool($result);
     }
 
-    public function testDefaultTransformFunctionWithStarInt()
+    public function testDefaultCallbackFunctionWithStarInt()
     {
         putenv('STAR_INT_VAR=*int 42');
 
@@ -124,7 +124,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsInt($result);
     }
 
-    public function testDefaultTransformFunctionWithNumericString()
+    public function testDefaultCallbackFunctionWithNumericString()
     {
         putenv('NUMERIC_STRING_VAR=42');
 
@@ -133,7 +133,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsInt($result);
     }
 
-    public function testDefaultTransformFunctionWithFloat()
+    public function testDefaultCallbackFunctionWithFloat()
     {
         putenv('FLOAT_VAR=3.14');
 
@@ -142,7 +142,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsFloat($result);
     }
 
-    public function testDefaultTransformFunctionWithCommaFloat()
+    public function testDefaultCallbackFunctionWithCommaFloat()
     {
         putenv('COMMA_FLOAT_VAR=3,14');
 
@@ -151,7 +151,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsFloat($result);
     }
 
-    public function testDefaultTransformFunctionWithStarFloat()
+    public function testDefaultCallbackFunctionWithStarFloat()
     {
         putenv('STAR_FLOAT_VAR=*float 3,14');
 
@@ -160,7 +160,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsFloat($result);
     }
 
-    public function testDefaultTransformFunctionWithStarDouble()
+    public function testDefaultCallbackFunctionWithStarDouble()
     {
         putenv('STAR_DOUBLE_VAR=*double 3.14');
 
@@ -169,7 +169,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsFloat($result);
     }
 
-    public function testDefaultTransformFunctionWithStarString()
+    public function testDefaultCallbackFunctionWithStarString()
     {
         putenv('STAR_STRING_VAR=*string *int');
 
@@ -178,7 +178,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsString($result);
     }
 
-    public function testDefaultTransformFunctionWithStarNull()
+    public function testDefaultCallbackFunctionWithStarNull()
     {
         putenv('STAR_NULL_VAR=*null');
 
@@ -186,7 +186,7 @@ class EnvFunctionTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testCustomTransformFunction()
+    public function testCustomCallbackFunction()
     {
         putenv('NUMBER_VAR=123');
 
@@ -195,7 +195,7 @@ class EnvFunctionTest extends TestCase
         $this->assertIsInt($result);
     }
 
-    public function testCustomTransformWithDefaultValue()
+    public function testCustomCallbackWithDefaultValue()
     {
         $result = env('NON_EXISTENT_VAR', 'hello', fn($v) => strtoupper($v));
         $this->assertEquals('HELLO', $result);
@@ -209,133 +209,126 @@ class EnvFunctionTest extends TestCase
         $this->assertEquals('', $result);
     }
 
-    public function testRawModeReturnsOriginalValue()
+    public function testRawModeWithCustomCallback()
     {
         putenv('TEST_VAR=123');
 
-        $result = env('TEST_VAR', null, null, null, true);
+        $result = env('TEST_VAR', null, function($value) {
+            return $value; // возвращаем как есть (аналог raw mode)
+        });
         $this->assertEquals('123', $result);
         $this->assertIsString($result);
     }
 
-    public function testRawModeWithDefaultValue()
+    public function testCallbackWithKeyParameter()
     {
-        $result = env('NON_EXISTENT_VAR', 'default', null, null, true);
-        $this->assertEquals('default', $result);
+        putenv('TEST_VAR=value');
+
+        $result = env('TEST_VAR', null, function($value, $key) {
+            return "{$key}:{$value}";
+        });
+        $this->assertEquals('TEST_VAR:value', $result);
     }
 
-    public function testRawModeIgnoresTransformAndValidator()
-    {
-        putenv('TEST_VAR=123');
-
-        $transform = fn($v) => (int) $v;
-        $validator = fn($v) => $v > 100;
-
-        $result = env('TEST_VAR', null, $transform, $validator, true);
-        $this->assertEquals('123', $result);
-        $this->assertIsString($result);
-    }
-
-    public function testValidatorPasses()
+    public function testCallbackWithValidationAndTransformation()
     {
         putenv('PORT_VAR=8080');
 
-        $validator = fn($v) => $v >= 1 && $v <= 65535;
-
-        $result = env('PORT_VAR', 3000, fn($v) => (int) $v, $validator);
+        $result = env('PORT_VAR', 3000, function($value, $key) {
+            $value = (int) $value;
+            if ($value < 1 || $value > 65535) {
+                throw new InvalidArgumentException("Port $value is out of range for $key");
+            }
+            return $value;
+        });
         $this->assertSame(8080, $result);
     }
 
-    public function testValidatorFailsThrowsException()
+    public function testCallbackValidationFailsThrowsException()
     {
         putenv('PORT_VAR=70000');
-
-        $validator = fn($v) => $v >= 1 && $v <= 65535;
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Environment variable "PORT_VAR" validation failed');
+        $this->expectExceptionMessage('Port 70000 is out of range for PORT_VAR');
 
-        env('PORT_VAR', 3000, fn($v) => (int) $v, $validator);
-    }
-
-    public function testValidatorWithCustomErrorMessage()
-    {
-        putenv('PORT_VAR=70000');
-
-        $validator = function($v) {
-            if ($v < 1 || $v > 65535) {
-                throw new InvalidArgumentException("Port $v is out of range");
+        env('PORT_VAR', 3000, function($value, $key) {
+            $value = (int) $value;
+            if ($value < 1 || $value > 65535) {
+                throw new InvalidArgumentException("Port $value is out of range for $key");
             }
-            return true;
-        };
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Port 70000 is out of range');
-
-        env('PORT_VAR', 3000, fn($v) => (int) $v, $validator);
+            return $value;
+        });
     }
 
-    public function testValidatorReceivesTransformedValue()
+    public function testCallbackReceivesTransformedValue()
     {
         putenv('NUMBER_VAR=42');
 
-        $transform = fn($v) => (int) $v;
-        $validator = fn($v) => is_int($v);
-
-        $result = env('NUMBER_VAR', 0, $transform, $validator);
+        $result = env('NUMBER_VAR', 0, function($value) {
+            $value = (int) $value;
+            if (!is_int($value)) {
+                throw new InvalidArgumentException("Expected integer");
+            }
+            return $value;
+        });
         $this->assertSame(42, $result);
     }
 
-    public function testValidatorWithBooleanLogic()
+    public function testCallbackWithBooleanLogic()
     {
         putenv('FEATURE_FLAG=true');
 
-        $validator = fn($v) => is_bool($v);
-
-        $result = env('FEATURE_FLAG', false, null, $validator);
+        $result = env('FEATURE_FLAG', false, function($value) {
+            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            if (!is_bool($value)) {
+                throw new InvalidArgumentException("Expected boolean");
+            }
+            return $value;
+        });
         $this->assertTrue($result);
     }
 
-    public function testComplexTransformAndValidator()
+    public function testComplexCallback()
     {
         putenv('HOSTS=localhost,127.0.0.1,example.com');
 
-        $transform = fn($v) => array_filter(array_map('trim', explode(',', $v)));
-        $validator = fn($v) => is_array($v) && count($v) > 0;
-
-        $result = env('HOSTS', [], $transform, $validator);
+        $result = env('HOSTS', [], function($value) {
+            $hosts = array_filter(array_map('trim', explode(',', $value)));
+            if (count($hosts) === 0) {
+                throw new InvalidArgumentException("At least one host required");
+            }
+            return $hosts;
+        });
         $this->assertSame(['localhost', '127.0.0.1', 'example.com'], $result);
     }
 
-    public function testValidatorWithDefaultValue()
+    public function testCallbackWithDefaultValue()
     {
-        $validator = fn($v) => $v >= 1 && $v <= 65535;
-
-        $result = env('NON_EXISTENT_PORT', 8080, fn($v) => (int) $v, $validator);
+        $result = env('NON_EXISTENT_PORT', 8080, function($value) {
+            $value = (int) $value;
+            if ($value < 1 || $value > 65535) {
+                throw new InvalidArgumentException("Port out of range");
+            }
+            return $value;
+        });
         $this->assertSame(8080, $result);
     }
 
-    public function testValidatorFailsOnDefaultValue()
+    public function testCallbackFailsOnDefaultValue()
     {
-        $validator = fn($v) => $v >= 1 && $v <= 65535;
-
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Environment variable "INVALID_PORT" validation failed');
+        $this->expectExceptionMessage('Port out of range');
 
-        env('INVALID_PORT', 70000, fn($v) => (int) $v, $validator);
+        env('INVALID_PORT', 70000, function($value) {
+            $value = (int) $value;
+            if ($value < 1 || $value > 65535) {
+                throw new InvalidArgumentException("Port out of range");
+            }
+            return $value;
+        });
     }
 
-    public function testOnlyValidatorWithoutTransform()
-    {
-        putenv('BOOLEAN_VAR=true');
-
-        $validator = fn($v) => is_bool($v);
-
-        $result = env('BOOLEAN_VAR', false, null, $validator);
-        $this->assertTrue($result);
-    }
-
-    public function testOnlyTransformWithoutValidator()
+    public function testOnlyTransformationWithoutValidation()
     {
         putenv('NUMBER_VAR=42');
 
@@ -343,24 +336,43 @@ class EnvFunctionTest extends TestCase
         $this->assertSame(42, $result);
     }
 
-    public function testNullValueWithValidator()
+    public function testNullValueWithCallback()
     {
         putenv('NULL_VAR=Null');
 
-        $validator = fn($v) => $v === null;
-
-        $result = env('NULL_VAR', 'not_null', null, $validator);
+        $result = env('NULL_VAR', 'not_null', function($value) {
+            if (strtolower($value) === 'null') {
+                return null;
+            }
+            return $value;
+        });
         $this->assertNull($result);
     }
 
-    public function testEmptyArrayValidator()
+    public function testEmptyArrayCallback()
     {
         putenv('EMPTY_ARRAY_VAR=');
 
-        $transform = fn($v) => explode(',', $v);
-        $validator = fn($v) => is_array($v) && count($v) === 1 && empty($v[0]);
-
-        $result = env('EMPTY_ARRAY_VAR', [], $transform, $validator);
+        $result = env('EMPTY_ARRAY_VAR', [], function($value) {
+            $array = explode(',', $value);
+            return count($array) === 1 && empty($array[0]) ? [''] : $array;
+        });
         $this->assertSame([''], $result);
+    }
+
+    public function testCallbackWithCustomErrorMessage()
+    {
+        putenv('PORT_VAR=70000');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Custom error message for PORT_VAR');
+
+        env('PORT_VAR', 3000, function($value, $key) {
+            $value = (int) $value;
+            if ($value < 1 || $value > 65535) {
+                throw new InvalidArgumentException("Custom error message for $key");
+            }
+            return $value;
+        });
     }
 }

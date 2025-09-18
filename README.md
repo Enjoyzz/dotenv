@@ -56,7 +56,7 @@ VAR10=${NOT_DEFINED_VAR:?} # throw Exception
 
 # Дополнительные возможности
 
-### Type Casting (приведение типов)
+### <span id="type_cast"></span>Type Casting (приведение типов)
 
 Все значения в .env файле являются строками (string), но иногда было бы хорошо привести значение к соответствующему
 типу.
@@ -181,7 +181,7 @@ VAR2=${NOT_DEFINED_VAR:?} #or just with empty error message
 # Функция `env()`
 
 Удобная функция для работы с переменными окружения с поддержкой преобразования типов, валидации и гибкой обработки
-значений.
+значений в callback функции.
 
 ## Базовое использование
 
@@ -197,7 +197,7 @@ $dbPort = env('DB_PORT');
 
 ### Автоматическое преобразование типов
 
-Функция использует ValueTypeCasting::castType() для автоматического преобразования типов:
+Функция использует ValueTypeCasting::castType() для автоматического преобразования типов. См. [Type Casting (приведение типов)](#type_cast)
 
 #### Специальные префиксы для явного указания типов
 
@@ -205,7 +205,6 @@ $dbPort = env('DB_PORT');
 // Булевы значения
 env('DEBUG', '*true');        // → bool(true)
 env('DEBUG', '*false');       // → bool(false)
-env('FLAG', '*bool something'); // → bool(true)
 env('FLAG', '*bool');         // → bool(false)
 
 // Числовые значения
@@ -235,7 +234,7 @@ env('NAME', 'John Doe'); // → string("John Doe")
 env('OPTIONAL', 'null');     // → null
 ```
 
-### Преобразование значений
+### Преобразование значений 
 
 ```php
 // Простое преобразование типов
@@ -255,52 +254,42 @@ $name = env('APP_NAME', 'My App', 'trim');
 ### Валидация значений
 
 ```php
-// Простая валидация
-$port = env('PORT', 8080, validator: function($v) {
-    return $v >= 1 && $v <= 65535;
-});
-
-// Комплексная валидация с преобразованием
-$email = env('ADMIN_EMAIL', 
-    tramsform: fn($v) => filter_var($v, FILTER_VALIDATE_EMAIL) ? $v : null, 
-    validator: fn($v) => $v !== null
-);
-
-// Валидация с кастомными сообщениями
-$apiKey = env('API_KEY', validator: function($v) use ($key) {
-    if (empty($v)) {
-        throw new InvalidArgumentException("API_KEY is required");
+// Преобразование + валидация в одном callback
+$port = env('PORT', 8080, function($value) {
+    $value = (int) $value;
+    if ($value < 1 || $value > 65535) {
+        throw new InvalidArgumentException("Port must be between 1 and 65535");
     }
-    return strlen($v) >= 32;
+    return $value;
+});
+
+// Массив хостов с валидацией
+$allowedHosts = env('ALLOWED_HOSTS', 'localhost', function($value) {
+    $hosts = array_filter(array_map('trim', explode(',', $value)));
+    if (empty($hosts)) {
+        throw new InvalidArgumentException("At least one host required");
+    }
+    return $hosts;
 });
 ```
 
-### Комбинирование преобразования и валидации
-
+### Использование ключа в callback
 ```php
-// Преобразование + валидация
-$retryCount = env(
-    key: 'RETRY_COUNT', 
-    default: 3, 
-    transform: fn($v) => (int) $v, // преобразование
-    validator: fn($v) => $v >= 0 && $v <= 10 // валидация
-);
-
-// Сложный пример
-$config = env('APP_CONFIG', '{}', 
-    fn($v) => json_decode($v, true) ?? [],
-    fn($v) => is_array($v) && !empty($v)
-);
+$apiKey = env('API_KEY', null, function($value, $key) {
+    if (empty($value)) {
+        throw new InvalidArgumentException("$key is required");
+    }
+    if (strlen($value) < 32) {
+        throw new InvalidArgumentException("$key must be at least 32 characters");
+    }
+    return trim($value);
+});
 ```
-
-### Получение сырых значений
+### Получение сырых значений (RAW)
 
 ```php
-// Получить значение без преобразования и валидации
-$rawValue = env('SOME_VAR', raw: true);
-
-// Полезно для отладки
-var_dump(env('COMPLEX_CONFIG', raw: true));
+// Используйте callback, который возвращает значение как есть
+$rawValue = env('SOME_VAR', null, fn($v) => $v);
 ```
 
 ## Практические примеры
@@ -315,41 +304,28 @@ return [
     
     'database' => [
         'host' => env('DB_HOST', 'localhost'),
-        'port' => env('DB_PORT', 3306, fn($v) => (int) $v, fn($v) => $v > 0),
+        'port' => env('DB_PORT', 3306, function($v) {
+            $port = (int) $v;
+            if ($port <= 0) throw new InvalidArgumentException("DB port must be positive");
+            return $port;
+        }),
         'name' => env('DB_NAME', 'app'),
         'user' => env('DB_USER', 'root'),
-        'pass' => env('DB_PASS', '', validator: fn($v) => !empty($v)),
+        'pass' => env('DB_PASS', '', function($v) {
+            if (empty($v)) throw new InvalidArgumentException("DB password is required");
+            return $v;
+        }),
     ],
     
     'api' => [
-        'timeout' => env('API_TIMEOUT', 30.0, fn($v) => (float) $v),
-        'retries' => env('API_RETRIES', 3, fn($v) => (int) $v, fn($v) => $v >= 0),
+        'key' => env('API_KEY', null, function($v, $key) {
+            if (empty($v)) throw new InvalidArgumentException("$key is required");
+            return trim($v);
+        }),
+        'timeout' => env('API_TIMEOUT', 30.0, 'floatval'),
     ]
 ];
 ```
-
-Безопасные значения с валидацией:
-
-```php
-// Email с валидацией
-$adminEmail = env('ADMIN_EMAIL', null, 
-    fn($v) => filter_var(trim($v), FILTER_VALIDATE_EMAIL),
-    fn($v) => $v !== false
-);
-
-// Порты с валидацией диапазона
-$port = env('APP_PORT', 8080, 
-    fn($v) => (int) $v,
-    fn($v) => $v >= 1 && $v <= 65535
-);
-
-// Enum-значения
-$logLevel = env('LOG_LEVEL', 'info', 
-    fn($v) => strtolower($v),
-    fn($v) => in_array($v, ['debug', 'info', 'warning', 'error', 'critical'])
-);
-```
-
 ## Особенности работы
 
 **Приоритеты получения значений**
@@ -367,14 +343,3 @@ $_ENV['TEST_VAR'] = 'env_value';
 
 env('TEST_VAR'); // → "system_value"
 ```
-
-**Обработка ошибок валидации**
-
-При неудачной валидации выбрасывается `InvalidArgumentException` с информативным сообщением:
-
-```php
-// Выбросит исключение с сообщением:
-// "Environment variable "API_PORT" validation failed. Got: 99999"
-env('API_PORT', 99999, null, fn($v) => $v <= 65535);
-```
-
