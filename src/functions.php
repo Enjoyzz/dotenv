@@ -1,19 +1,17 @@
 <?php
 
-use Enjoys\Dotenv\ValueTypeCasting;
+use Enjoys\Dotenv\Env;
 
 if (!function_exists('env')) {
     /**
+     * @template T
      * @param string $key
      * @param mixed|null $default
-     * @param callable|null $cast
-     * @return mixed
+     * @param null|callable(mixed): T $callback
+     * @return ($callback is null ? mixed : T)
      */
-    function env(string $key, mixed $default = null, ?callable $cast = null): mixed
+    function env(string $key, mixed $default = null, ?callable $callback = null): mixed
     {
-        $cast = $cast ?? fn(mixed $value): mixed => ValueTypeCasting::castType($value);
-        /** @var mixed $value */
-        $value = getenv($key) !== false ? getenv($key) : $_ENV[$key] ?? $default;
-        return $cast($value);
+        return Env::get($key, $default, $callback);
     }
 }

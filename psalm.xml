@@ -17,6 +17,7 @@
     </projectFiles>
 
     <issueHandlers>
-        <MixedAssignment errorLevel="suppress" />
+        <MixedAssignment errorLevel="info" />
+        <MixedReturnStatement errorLevel="info" />
     </issueHandlers>
 </psalm>
