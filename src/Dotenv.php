@@ -87,7 +87,7 @@ final class Dotenv
         }
     }
 
-    public function handleValue(string $key, ?string $value): mixed
+    public function handleValue(string $key, bool|float|int|string|null $value): bool|float|int|string|null
     {
         if ($value !== null) {
             $quoted = null;
@@ -96,7 +96,7 @@ final class Dotenv
                     "\"" => strtr($matches['value'], self::CHARACTER_MAP),
                      default => $matches['value'] // one quote character or empty
                 };
-            }, $value, count: $quoted);
+            }, (string) $value, count: $quoted);
         }
 
         $value = $this->variablesResolver->resolve($key, $value);
@@ -110,7 +110,7 @@ final class Dotenv
 
     public function populate(
         string $key,
-        string|null $value,
+        bool|float|int|string|null $value,
     ): void {
         $value = $this->handleValue($key, $value);
 

@@ -10,16 +10,16 @@ final class EnvCollection
 {
 
     /**
-     * @var array<string, mixed>
+     * @var array<string, string|bool|int|float|null>
      */
     private array $collection = [];
 
-    public function add(string $key, mixed $value): void
+    public function add(string $key, string|bool|int|float|null $value): void
     {
         $this->collection[$key] = $value;
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    public function get(string $key, string|bool|int|float|null $default = null): string|bool|int|float|null
     {
         return $this->has($key) ? $this->collection[$key] : $default;
     }
@@ -35,7 +35,7 @@ final class EnvCollection
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getKeys(): array
     {

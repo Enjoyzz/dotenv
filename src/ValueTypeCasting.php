@@ -32,7 +32,7 @@ final class ValueTypeCasting
         Int16Type::class
     ];
 
-    private mixed $castedValue;
+    private bool|float|int|string|null $castedValue;
 
     public function __construct(private string $originalValue)
     {
@@ -40,7 +40,7 @@ final class ValueTypeCasting
         $this->determine();
     }
 
-    public static function castType(mixed $value): mixed
+    public static function castType(bool|float|int|string|null $value): bool|float|int|string|null
     {
         if (gettype($value) !== 'string') {
             return $value;
@@ -48,7 +48,7 @@ final class ValueTypeCasting
         return (new self($value))->getCastValue();
     }
 
-    public function getCastValue(): mixed
+    public function getCastValue(): bool|float|int|string|null
     {
         return $this->castedValue;
     }
