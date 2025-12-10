@@ -11,20 +11,22 @@
     "autoload": {
         "psr-4": {
             "Enjoys\\Dotenv\\": "src/"
-        }
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "require": {
-        "php": "~8.3.0 | ~8.4.0"
+        "php": "8.3 - 8.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^12.0",
+        "phpunit/phpunit": "^12",
         "phpstan/phpstan": "^2.1",
-        "vimeo/psalm": "~6.4.1",
         "infection/infection": "^0.29",
         "symfony/var-dumper": "^7.0"
     },
     "scripts": {
-        "psalm": "psalm",
+        "psalm": "docker run -v $PWD:/app --rm -it ghcr.io/danog/psalm:latest /composer/vendor/bin/psalm --no-cache",
         "phpstan": "phpstan analyze src --level 9",
         "infection": "XDEBUG_MODE=coverage infection -j2 --configuration=infection.json",
         "test": "phpunit",
