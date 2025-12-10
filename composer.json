@@ -27,7 +27,7 @@
     },
     "scripts": {
         "psalm": "docker run -v $PWD:/app --rm -it ghcr.io/danog/psalm:latest /composer/vendor/bin/psalm --no-cache",
-        "phpstan": "phpstan analyze src --level 9",
+        "phpstan": "phpstan analyze src --level 10",
         "infection": "XDEBUG_MODE=coverage infection -j2 --configuration=infection.json",
         "test": "phpunit",
         "static": [
