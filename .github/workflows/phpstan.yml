@@ -1,0 +1,53 @@
+name: phpstan
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php:
+          - "8.3"
+          - "8.4"
+          - "8.5"
+    name: PHP ${{ matrix.php }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          ini-values: |
+            date.timezone='UTC'
+            memory_limit=-1
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Check PHP Version
+        run: php -v
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ubuntu-latest-php-${{ matrix.php }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ubuntu-latest-php-${{ matrix.php }}-
+
+      - name: Install dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run phpstan
+        run: composer phpstan -vvv
+
