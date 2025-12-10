@@ -23,7 +23,7 @@ jobs:
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.0
+          php-version: 8.3
           ini-values: |
             date.timezone='UTC'
             memory_limit=-1
@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: vendor
-          key: ${{ runner.os }}-php-8.0
+          key: ${{ runner.os }}-php-8.3
 
       - name: Install dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true'
