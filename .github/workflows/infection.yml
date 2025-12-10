@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: vendor
-          key: ${{ runner.os }}-php-8.3
+          key: ${{ runner.os }}-php-8.3-infection
 
       - name: Install dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true'
