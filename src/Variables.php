@@ -29,6 +29,7 @@ final class Variables
         $result = preg_replace_callback(
             '/(\${(?<variable>.+?)(?<default_value>:[-=?][^}]*)?})/',
             function (array $matches): string {
+                /** @phpstan-ignore nullCoalesce.offset */
                 $variable = $matches['variable'] ?? '';
                 $defaultValue = $matches['default_value'] ?? null;
                 $env = getenv($variable) !== false ? getenv($variable) : null;
