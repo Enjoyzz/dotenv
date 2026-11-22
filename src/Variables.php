@@ -10,9 +10,7 @@ use Enjoys\Dotenv\Exception\InvalidArgumentException;
 
 final class Variables
 {
-    public function __construct(private Dotenv $dotenv)
-    {
-    }
+    public function __construct(private Dotenv $dotenv) {}
 
     public static function scalarValueToString(mixed $value): string
     {
@@ -31,24 +29,26 @@ final class Variables
         $result = preg_replace_callback(
             '/(\${(?<variable>.+?)(?<default_value>:[-=?][^}]*)?})/',
             function (array $matches): string {
-                $env = getenv($matches['variable']) !== false ? getenv($matches['variable']) : null;
+                $variable = $matches['variable'] ?? '';
+                $defaultValue = $matches['default_value'] ?? null;
+                $env = getenv($variable) !== false ? getenv($variable) : null;
 
                 /** @var string|bool|int|float|null $val */
                 $val =
                     $env ??
-                    $this->dotenv->getEnvCollection()->get($matches['variable']) ??
-                    $this->dotenv->getEnvRawArray()[$matches['variable']] ??
-                    (($matches['default_value'] ?? null) !== null
+                    $this->dotenv->getEnvCollection()->get($variable) ??
+                    $this->dotenv->getEnvRawArray()[$variable] ??
+                    ($defaultValue !== null
                         ? $this->resolveDefaultValue(
-                            $matches['default_value'],
-                            $matches['variable']
+                            $defaultValue,
+                            $variable,
                         ) : null)
                     ?? '';
 
                 return self::scalarValueToString($val);
             },
             $value,
-            flags: PREG_UNMATCHED_AS_NULL
+            flags: PREG_UNMATCHED_AS_NULL,
         );
 
         if (preg_match('/(\${(.+?)})/', $result ?? '')) {
