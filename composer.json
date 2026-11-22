@@ -20,10 +20,10 @@
         "php": "8.3 - 8.6"
     },
     "require-dev": {
-        "phpunit/phpunit": "^13",
-        "phpstan/phpstan": "^2",
-        "infection/infection": "^0.35",
-        "symfony/var-dumper": "^7.4 | ^8.0"
+        "phpunit/phpunit": "^12",
+        "phpstan/phpstan": "^2.1",
+        "infection/infection": "^0.29",
+        "symfony/var-dumper": "^7.0"
     },
     "scripts": {
         "psalm": "docker run -v $PWD:/app --rm -it ghcr.io/danog/psalm:latest /composer/vendor/bin/psalm --no-cache",
