@@ -25,7 +25,7 @@
         "symfony/var-dumper": "^5.4 | ^6.0 | ^7.0"
     },
     "scripts": {
-        "psalm": "docker run -v $PWD:/app --rm -it ghcr.io/danog/psalm:latest /composer/vendor/bin/psalm --no-cache",
+        "psalm": "docker run -v $PWD:/app --rm -it ghcr.io/psalm/psalm-github-actions",
         "infection": "XDEBUG_MODE=coverage infection -j2 --configuration=infection.json",
         "test": "phpunit",
         "static": [
