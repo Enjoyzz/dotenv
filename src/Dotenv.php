@@ -70,14 +70,46 @@ final class Dotenv
 
         while (false !== $path = $this->storage->getPath()) {
             if (!$this->storage->isLoaded($path)) {
-                $contents = file_get_contents($path);
-                $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv($contents !== false ? $contents : ''));
+                $contents = $this->readFile($path);
+                $this->envRawArray = array_merge($this->envRawArray, $this->parser->parseEnv($contents));
                 $this->storage->markLoaded($path);
-                $this->storage->addPath(
-                    $this->envFilePath . '.' . ((getenv('APP_ENV') !== false ? (string)getenv('APP_ENV') : null) ?? $this->envRawArray['APP_ENV'] ?? '')
-                );
+
+                $appEnv = $this->resolveAppEnv();
+                $this->storage->addPath($this->envFilePath . '.' . $appEnv);
             }
         }
+    }
+
+    private function readFile(string $path): string
+    {
+        $real = realpath($path);
+        $base = realpath(dirname($this->envFilePath));
+
+        if ($real === false || $base === false || !str_starts_with($real, $base . DIRECTORY_SEPARATOR)) {
+            return '';
+        }
+
+        /**
+         * @psalm-taint-escape file
+         * @psalm-taint-escape ssrf
+         */
+        $safe = $real;
+
+        $contents = file_get_contents($safe);
+
+        return $contents !== false ? $contents : '';
+    }
+
+    private function resolveAppEnv(): string
+    {
+        $env = getenv('APP_ENV');
+        $value = $env !== false ? $env : ($this->envRawArray['APP_ENV'] ?? '');
+
+        if (preg_match('/^[A-Za-z0-9_-]*$/', $value) !== 1) {
+            throw new \InvalidArgumentException('Invalid APP_ENV value.');
+        }
+
+        return $value;
     }
 
     private function writeEnvs(): void
