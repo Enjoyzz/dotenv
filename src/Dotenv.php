@@ -35,7 +35,7 @@ final class Dotenv
     private StorageInterface $storage;
 
     public function __construct(
-        private readonly string $envFilePath,
+        private string $envFilePath,
         ?StorageInterface $storage = null,
         ?ParserInterface $parser = null,
         private int $flags = 0,
