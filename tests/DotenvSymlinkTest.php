@@ -90,10 +90,13 @@ final class DotenvSymlinkTest extends TestCase
 
     public function testBrokenSymlinkDoesNotThrow(): void
     {
-        symlink($this->root . '/shared/missing', $this->root . '/releases/1/.env');
+        $target = $this->root . '/shared/missing';
+        file_put_contents($target, "FOO=bar\n");
+        symlink($target, $this->root . '/releases/1/.env');
+        unlink($target);
 
         $dotenv = new Dotenv($this->root . '/releases/1/.env');
-        $dotenv->loadEnv();
+        $dotenv->loadEnv(true);
 
         self::assertNull($dotenv->getEnvCollection()->get('FOO'));
     }
@@ -117,19 +120,33 @@ final class DotenvSymlinkTest extends TestCase
         self::assertNull($dotenv->getEnvCollection()->get('FOO'));
     }
 
-    private function removeDir(string $dir): void
+    private function removeDir(string $path): void
     {
-        if (!is_dir($dir) || is_link($dir)) {
-            is_link($dir) || is_file($dir) ? unlink($dir) : null;
+        if (is_link($path)) {
+            // на Windows симлинк на каталог удаляется только через rmdir
+            if (PHP_OS_FAMILY === 'Windows' && is_dir($path)) {
+                rmdir($path);
+            } else {
+                unlink($path);
+            }
             return;
         }
 
-        foreach (scandir($dir) ?: [] as $item) {
+        if (is_file($path)) {
+            unlink($path);
+            return;
+        }
+
+        if (!is_dir($path)) {
+            return;
+        }
+
+        foreach (scandir($path) ?: [] as $item) {
             if ($item !== '.' && $item !== '..') {
-                $this->removeDir($dir . '/' . $item);
+                $this->removeDir($path . DIRECTORY_SEPARATOR . $item);
             }
         }
 
-        rmdir($dir);
+        rmdir($path);
     }
 }
