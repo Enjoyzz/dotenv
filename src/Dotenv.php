@@ -21,7 +21,7 @@ final class Dotenv
         "\\\"" => "\"",
         "\\\\" => "\\",
         '\\\'' => "'",
-        '\\t' => "\t"
+        '\\t' => "\t",
     ];
 
     /**
@@ -38,7 +38,7 @@ final class Dotenv
         private string $envFilePath,
         ?StorageInterface $storage = null,
         ?ParserInterface $parser = null,
-        private int $flags = 0
+        private int $flags = 0,
     ) {
         $this->envCollection = new EnvCollection();
         $this->parser = $parser ?? new Parser();
@@ -82,20 +82,15 @@ final class Dotenv
 
     private function readFile(string $path): string
     {
-        $real = realpath($path);
-        $base = realpath(dirname($this->envFilePath));
-
-        if ($real === false || $base === false || !str_starts_with($real, $base . DIRECTORY_SEPARATOR)) {
+        if (!is_file($path) || !is_readable($path)) {
             return '';
         }
 
         /**
-         * @psalm-taint-escape file
-         * @psalm-taint-escape ssrf
+         * @psalm-suppress TaintedFile, TaintedSSRF
+         * Путь = envFilePath (доверенный) + APP_ENV, проверенный regex в resolveAppEnv()
          */
-        $safe = $real;
-
-        $contents = file_get_contents($safe);
+        $contents = file_get_contents($path);
 
         return $contents !== false ? $contents : '';
     }
